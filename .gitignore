@@ -1,0 +1,6 @@
+templates_c/
+bower_components/
+cache/
+config/
+.idea/
+.bowerrc

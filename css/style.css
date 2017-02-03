@@ -1,0 +1,339 @@
+
+
+/**, *:after, *::before { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {margin: 0;padding: 0;border: 0;font: inherit; vertical-align: baseline;}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section, main {
+	display: block;
+}
+blockquote, q {
+	font-style: italic;
+}
+
+[id^="AREA_"].ui-sortable, [id*="AREA_"].ui-sortable { min-height: 30px; min-width: 150px; }
+
+root { display: block; }
+html { height: 100%; margin: 0;}
+body { position: relative; padding: 0; margin: 0;  font-size: 16px; font-family: Arial, sans-serif; font-weight: normal; }
+strong { font-weight: bold; }
+
+h2 {
+	font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.clearfix { clear: both; }
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/*Prvky AJAX GUI*/
+#schemasData { width: 100%; } /*tabulka*/
+#schemasData th { text-align: left; }
+#schemasData thead th {  font-weight: bold; }
+
+
+#notificationMessages { position: absolute; right: 40px; bottom: 40px; width: 300px; z-index: 12000; }
+#notificationMessages .item, #notificationMessages .item.info { cursor: pointer; background-color: #fff; border:solid 3px #fafafa; margin: 10px; display: block; padding: 10px; color: #333; min-height: 2em; }
+#notificationMessages .item.error { border-color: #ff3300; color: #ec2f00; }
+#notificationMessages .item.ok { border-color: #63c600; color: #339900; }
+#notificationMessages .item.varning { border-color: #ffd300; }
+
+.button { transition: background-color 0.3s ease-in-out; background-color: #999; border: 0; border-bottom: solid 2px #666; border-radius: 3px; color: #fff; padding: 0.5em 1em; 
+		 display: inline-block; cursor: pointer; text-align: center; font-weight: bold; line-height: 1.1em; margin: 10px 0; text-decoration: none; }
+.button:hover { background-color: #ccc; }
+.button:active { border-bottom: solid 2px #339900; }
+.button.green { background-color: #66cc00; border-bottom: solid 2px #336600; border-radius: 3px; color: #fff;  
+		display: inline-block; cursor: pointer; text-align: center; font-weight: bold; padding: 0.5em 1em; }
+.button.green:hover { background-color: #339900; }
+.button.green:active { border-bottom: solid 2px #339900; }
+.button.remove { display: block; color: #ffeeea; background-color: #ec2f00; border: 0; margin: 10px; font-weight: bold; padding: 0.5em 1em; }
+.button.remove:hover { display: block; color: #fff; background-color: #ff3300; }
+
+.nebo { font-weight: 300; font-size: 14px; text-transform: uppercase; color: #000; text-align: center; height: 1em; line-height: 1em; padding: 6px 0; margin: 0 auto; }
+.nebo:before, .nebo:after {  display: inline-block; content: ""; width: 25px; margin: 0 10px; height: 1px; background-color: #000; vertical-align: middle; }
+
+.button.login { background-color: transparent; font-weight: bold; color: #ffe700; border: none; }
+.button.reg { background-color: #ffe700; color: #000; font-weight: 300; margin: 0.1em 0; }
+.button.login:hover { color: #ffd300; text-decoration: underline; }
+.button.reg:hover { background-color: #ffd300; }
+.button.ok { background-color: #339900; color: #e5ffd9; border: 0; font-weight: bold; padding: 0.5em 1em; border-bottom: solid 2px #336600; border-radius: 0; }
+.button.ok:hover { background-color: #66cc00; color: #fff; }
+
+
+.toggler { position: absolute; right: 4px; top: 0px; display: block; height: 24px; width: 24px; background-color: #ff3300; margin: 4px; }
+
+#ribbon { display: block; clear: both; position: relative; }
+#ribbon #contentToggler { position: absolute; right: 4px; top: 0px; display: block; height: 24px; width: 24px; background-color: #ff3300; margin: 4px; }
+#ribbon .menu { display: block; clear: both; margin-right: 60px; min-height: 32px; }
+#ribbon .menu .ribbonTitle { cursor: pointer; float: left; display: block; background-color: #fff; padding: 0.5em 1em; }
+#ribbon .menu .ribbonTitle.selected { font-weight: bold; background-color: #ff3300; color: #fff; }
+#ribbon .menu .ribbonTitle:hover { background-color: #ff3300;  color: #fff;}
+#ribbon #ribbonContent { z-index: 101; border-top: solid 3px #ff3300; clear: both; display: block; height: 100px; background-color: #fff; padding: 10px; 
+						 overflow: auto; }
+
+#ribbon .entity { height: 90px; width: 70px; float:left; border: solid 3px #fff; background-color: #7fb0b0; color: #fff; margin: 0 0px; text-align: center; cursor: pointer; }
+#ribbon .entity:hover { border-color: #eee; }
+
+#menuCloser { min-width: 300px; border-bottom: solid 1px #666666; cursor: pointer; text-transform: uppercase; background-color: #333333; color: #fff; padding: 10px 20px; display: block;}
+#menuCloser:hover { background-color: #666666; }
+#menu { overflow: hidden; width: 0px; position: absolute; left: 0; top: 0; bottom: 0; z-index: 201; background-color: #333333; transition: width 0.4s ease-in-out; }
+#menu.menuShown { display: block; width: 300px;}
+#menu a { display: block; padding: 20px; color: #fff; text-decoration: none; }
+#menu a:hover { background-color: #666666; }
+#menu .menuwrap {width: 300px; display: block; height: auto; position: absolute; top: 41px; bottom: 0; overflow: auto;}
+
+#wrapper.menuShown {margin-left: 300px;}
+#wrapper .overlay { display: block; visibility: collapse; transition: all 0.4s ease-in-out; position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: rgba(255,255,255, 0);}
+#wrapper.menuShown .overlay { visibility: visible;  z-index: 301; background-color: rgba(255,255,255, 0.5);}
+
+
+#canvasWrapper { position: absolute; top: 200px; right: 0; left: 0; box-sizing: border-box; bottom: 40px; min-height: 300px; }
+#canvasWrapper.dragover {
+	border: dashed 3px #339900;
+}
+.paper{
+    position: absolute;
+	margin: 0;
+	bottom: 0px;
+	top: 0px;
+	left: 0;
+	width: 100%;
+	/*right: 200px;*/
+    border-color: #ccc;
+    background-color: rgb(230,230,230);
+    overflow: auto;
+	box-sizing: border-box;
+	z-index: 20;
+	border: none;
+}
+.paper svg {background-image: url(../img/mesh.png);}
+
+#sidePanel { background-color: #fff; position: absolute; right: 0; top: 0; bottom: 0; width: 200px; overflow: auto; }
+
+.properties .label { display: block; background-color: #ccc; padding: 10px 10px 4px 10px;  }
+.properties .row { display: table; margin: 0 0; padding: 0; /*border-bottom: solid 1px #666;*/ width: 100%; }
+.properties .row:nth-child(odd) { background-color: #fafafa; }
+.properties .row>div { display: table-cell; padding: 10px; }
+
+.properties .row .prop { width: 50%; }
+.properties .row .value { width: 50%; }
+
+#usermenu { position: relative; height: 40px; float: none; display: table-cell; box-sizing: border-box; vertical-align: bottom; }
+#usermenu .wrapper { display: table; }
+#usermenu .item { display: table-cell; height: 40px; line-height: 40px; min-width: 200px; position: relative; float: none; box-sizing: border-box; }
+#usermenu .item .menuLabel { width: 100%; height: 40px; line-height: 40px; display: block; overflow: hidden; white-space: nowrap; cursor: pointer; padding: 0 20px; 
+			box-sizing: border-box; background-color: #666; color: #fff; }
+#usermenu .item .menuLabel:hover { background-color: #000; }
+#usermenu .menuitemsContainer { box-sizing: border-box; display: block; position: absolute; z-index: 101; right: 0; min-width: 200px; top: 100%; background-color: #fff; 
+					 padding: 10px 20px 20px 20px; border:solid 3px #000; border-top: 0; max-height: 300px; overflow: auto; }
+#usermenu .menuitemsContainer .button { display: block; }
+/*#usermenu .item.visible { border: solid 4px #000; }*/
+
+#nadpis { position: relative; float: right; display: inline; margin-right: 10px; text-align: center; font-size: 24px; font-weight: bold;}
+
+form label { display: block; }
+
+.spacer { margin: 0px 0; padding: 0; height: 1px; background-color: #ccc; }
+
+#usermenu input[type=text], #usermenu input[type=password] { 
+  line-height: 1em;
+  padding: 0.5em;
+  width: 100%;
+  box-sizing: border-box;
+  border: solid 1px #ccc;
+}
+
+#usermenu input[type=submit] {
+	line-height: 1em;
+	padding: 1em;
+	width: 100%;
+	margin: 20px 0;
+	box-sizing: border-box;
+	border-radius: 0;
+	border: 0;
+	cursor: pointer;
+}
+
+.popupForm { min-width: 400px }
+.popupForm input[type=password],
+.popupForm textarea, 
+.popupForm input[type=text] {font-family: Arial, sans-serif; display: block; line-height: 1.2em; height: auto; width: 100%; padding: 0.2em; box-sizing: border-box; border:solid 1px #999; background-color: #fff; margin: 8px 0; }
+
+
+#headline{
+	margin: 0;
+	position: relative;
+	background-color: #fafafa;
+	padding: 0;
+	display: table;
+}
+#menuToggler { cursor: pointer; text-transform: uppercase; background-color: #333333; color: #fff; padding: 10px 20px; display: table-cell; float: none;}
+
+#schemaList { width: 100%; display: table-cell; vertical-align: bottom; }
+#schemaList .wrapper { display: block; max-width: 100%; height: 40px; overflow: auto; background-color: #fafafa; }
+#schemaList .schemaItem { cursor: default; position: relative; display: block; float: left; margin-top: 3px; line-height: 37px; height: 37px; padding: 0 10px; background-color: #fff; vertical-align: bottom; overflow: hidden; }
+#schemaList .schemaItem:hover { background-color: #66cc00; color: #fff; } 
+#schemaList .schemaItem.active{ border-top: solid 3px #339900; margin-top: 0; background-color: #63c600; color: #fff; }
+#addSchema { text-decoration: none;
+  float: left;
+  height: 30px;
+  width: 30px;
+  display: block;
+  text-align: center;
+  line-height: 25px;
+  background-color: #66cc00;
+  color: #fff;
+  margin: 5px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+
+html{
+    /*background-color: rgb(153,204,255);*/
+    display: block;
+	width: 100%;
+	height: 100%;
+    margin: 0;
+	padding: 0;
+}
+
+body{
+	font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+	padding: 0;
+	position: relative;
+    display: block;
+	width: 100%;
+	height: 100%;
+    background-color: #fff;
+	overflow: hidden;
+}
+
+#wrapper {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+    margin: 0;
+	padding: 0;
+	transition: all 0.4s ease-in-out;
+}
+
+#options{
+    padding: 10px 10px 10px 10px;
+    position: relative;
+    min-height: 60px;
+    min-width: 1200px;
+    margin-left: 0px;
+    margin-right: auto;
+}
+
+#radiatory{
+    min-height: 60px;
+    min-width: 1200px;
+    border: 2px groove rgb(127,176,176);
+}
+
+#rest{
+    margin-top: 5px;
+    margin-right: 3px;
+}
+
+#rest select{
+    margin-left: 5px;
+    width: 120px; 
+}
+
+#rest input{
+    width: 100px;
+}
+
+#rest a{
+    display: block;
+    text-decoration: none;
+    color: black;
+    border: 1px dashed black;
+    width: 140px;
+    height: 20px;
+    text-align: center;
+    float: right;
+    margin-right: 2px;
+
+}
+
+#rest a:hover{
+    background-color: black;
+    color: white;
+}
+
+#div1 {
+	display: block;
+	float: none;
+	text-align: center;
+	/* margin-right: 5px; */
+	margin: 20px;
+	/* width: 284px; */
+	height: 60px;
+	font-family: 'Trebuchet MS';
+	vertical-align: middle;
+	line-height: 60px;
+	color: #fff;
+	border: 1px dashed #fff;
+}
+#div1.dragover {
+	color: #66cc00; 
+	border: 1px dashed #66cc00;
+}
+
+
+#nazvy{
+    position: relative;
+    float: left;
+    padding-top: 10px;
+    padding-left: 20px;
+    font-size: 15px;
+    font-family: 'Trebuchet MS';
+}
+
+
+
+
+footer {
+    background-color: #fafafa;
+	color: #666;
+    padding-left: 5px;
+    position: relative;
+    text-align: left;    
+	position: absolute;
+	bottom: 0; left: 0; right: 0;
+	height: 40px;
+	padding: 10px 20px;
+	box-sizing: border-box;
+	line-height: 20px;
+}
+footer #onlineStatus { float: right; color: #000; font-weight: bold; }

@@ -1,0 +1,17 @@
+{
+  "name": "eco",
+  "authors": [
+    "Tomáš Václavík <tomas.vaclavik@tul.cz>"
+  ],
+  "description": "Editor číslicových obvodů",
+  "main": "index.php",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
