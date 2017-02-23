@@ -2,5 +2,9 @@ templates_c/
 bower_components/
 cache/
 config/
+libs/
 .idea/
 .bowerrc
+node_modules/
+
+vendor/
