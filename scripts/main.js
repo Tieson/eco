@@ -133,7 +133,7 @@ function main() {
 					});
 					saveSchemaInfoCollection();
 				} else if (result.status == 'auth failed') {
-					log('Save request denied. User is not logged.');
+					console.log('Save request denied. User is not logged.');
 				}
 				else {
 					pushNotification("Chyba, schéma nebylo vytvořeno na serveru.", messageType.ERROR);
@@ -148,7 +148,7 @@ function main() {
 						saveSchemaInfoCollection();
 					}
 				} else if (result.status == 'auth failed') {
-					log('Save request denied. User is not logged.');
+					console.log('Save request denied. User is not logged.');
 				} else {
 					pushNotification("Chyba, schéma nebylo uloženo na serveru.", messageType.ERROR);
 				}
@@ -179,7 +179,7 @@ function main() {
 	 * @returns {Schema|main.createSchema.sch}
 	 */
 	function createSchema() {
-		log('Creating new schema');
+		console.log('Creating new schema');
 		var number = localSchemasCounter.next(counterTypes.SCHEMA);
 		var sch = new Schema('new_schema' + number, 'RTL', number);
 
@@ -204,10 +204,10 @@ function main() {
 		if (schema && schema.graph) {
 			var graph = schema.graph;
 			graph.on('remove', function (cell) {
-				log('Cell removed');
+				console.log('Cell removed');
 			});
 			graph.on('add', function (cell) {
-				log('New cell added to the graph.');
+				console.log('New cell added to the graph.');
 			});
 		}
 	}
@@ -229,7 +229,7 @@ function main() {
 			try {
 				lastPosition = {x: x, y: y};
 			} catch (ex) {
-				log('ERROR in pointerDown: ' + ex);
+				console.log('ERROR in pointerDown: ' + ex);
 			}
 		});
 		paper.on('cell:pointerup', function (cellView, evt, x, y) {
@@ -240,14 +240,14 @@ function main() {
 			}
 			try {
 			} catch (ex) {
-				log('ERROR in pointerUp: ' + ex);
+				console.log('ERROR in pointerUp: ' + ex);
 			}
 		});
 	}
 
 
 	function positionChanged(x) {
-		//log(x);
+		//console.log(x);
 	}
 
 	/**
@@ -303,7 +303,7 @@ function main() {
 	 * Vyvolá export schéma do vhdl souboru
 	 */
 	$('#export').click(function () {
-		log("export trigged");
+		console.log("export trigged");
 		if (exportToVHDL($(this))) {
 			pushNotification('Export úspěšně dokončen.', messageType.OK);
 		}
@@ -358,7 +358,7 @@ function main() {
 			activeSchema.schemaInfo.lastUpdate = undefined;
 			pushNotification('Schéma bylo odstraněno ze serveru!', messageType.VARN);
 		}, function (result) {
-			log(result);
+			console.log(result);
 			pushNotification('Schéma se nepodařilo odstranit', messageType.ERROR);
 		});
 		return false;
@@ -367,7 +367,7 @@ function main() {
 
 	/* otevření schémat ze serveru */
 	$('#bttn_openSchemas').click(function () {
-		log('Display user schemas form server storage.');
+		console.log('Display user schemas form server storage.');
 		comm.requestGetSchemas(function (data) {
 			var count = addToSchemaList(data.schemas);
 			pushNotification('Nalezeno schémat: ' + count);
@@ -375,7 +375,7 @@ function main() {
 				href: '#openSchemaList'
 			});
 		}, function (XMLHttpRequest, textStatus, errorThrown) {
-			log("Seznam schémat se nepodařilo načíst. " + textStatus);
+			console.log("Seznam schémat se nepodařilo načíst. " + textStatus);
 		});
 	});
 
@@ -427,7 +427,7 @@ function main() {
 
 					$self.closest('.row').remove();
 				}, function (data) {
-					log('Načtení schéma ze serveru se nepovedlo');
+					console.log('Načtení schéma ze serveru se nepovedlo');
 				});
 
 			});
@@ -445,7 +445,7 @@ function main() {
 		return false;
 	});
 
-	/* kliknutí na entitu v rinbbon menu - přidání enitity*/
+	/* kliknutí na entitu v rinbbon menu - přidání entity*/
 	$('#ribbonContent .entity').click(function () {
 		pridej($(this).data('type'), $(this).text());
 	});
@@ -458,7 +458,7 @@ function main() {
 	 */
 	function deleteSchema(schema) {
 		if (schema != undefined) {
-			log('deleting schema: ' + schema.schemaInfo.name);
+			console.log('deleting schema: ' + schema.schemaInfo.name);
 			localSchemas = _.filter(localSchemas, function (sch) {
 				return sch.schemaInfo.id != schema.schemaInfo.id;
 			});
@@ -466,8 +466,8 @@ function main() {
 			saveSchemaInfoCollection();
 			schema.graph.clear(); // clear graph elements
 
-			log(schema.container);
-			log($canvasWrapper.find(schema.container).remove()); // delete paper container,
+			console.log(schema.container);
+			console.log($canvasWrapper.find(schema.container).remove()); // delete paper container,
 			removeCard(schema); // remove card
 		}
 		activeSchema = _.last(localSchemas);
@@ -485,17 +485,17 @@ function main() {
 	 * @returns {undefined}
 	 */
 	function createNewSchemaHandler() {
-		log('Create schema!');
+		console.log('Create schema!');
 		var dialog = '#newSchema';
 		$.fancybox({
 			href: '#newSchema'
 		});
 		var $submit = $(dialog + ' form .button.ok');
-		log($submit);
+		console.log($submit);
 
 		$submit.off('click');
 		$submit.on('click', function () {
-			log('Potvrzeno vytvoření nového schéma');
+			console.log('Potvrzeno vytvoření nového schéma');
 
 			var result = getSchemaInfo($('#newSchema'));
 			if (result != false) {
@@ -531,7 +531,7 @@ function main() {
 	 * @returns {undefined}
 	 */
 	function editSchema(schema) {
-		log('Editing schema!');
+		console.log('Editing schema!');
 		var dialog = '#editSchema', schemaInfo = schema.schemaInfo;
 		fillSchemaInfo(schemaInfo, $(dialog));
 		$.fancybox({
@@ -540,7 +540,7 @@ function main() {
 		var $submit = $('#bttn_changeSchema');
 		$submit.off('click');
 		$submit.on('click', function () {
-			log('Změna hodnot entity');
+			console.log('Změna hodnot entity');
 
 			var result = getSchemaInfo($('#editSchema'));
 			if (result != false) {
@@ -580,7 +580,7 @@ function main() {
 		});
 		result.on('click', function () {
 			showSchema(schema);
-			log('Selected tab: ' + schemaInfo.name + ' (' + schemaInfo.id + ')');
+			console.log('Selected tab: ' + schemaInfo.name + ' (' + schemaInfo.id + ')');
 		});
 		$('#schemaList .wrapper .schemaListContainer').append(result);
 	}
@@ -651,7 +651,7 @@ function main() {
 		var graph = schema.graph, counter = schema.counter;
 		try {
 			var elems = graph.getElements();
-			log(elems);
+			console.log(elems);
 			for (var i = 0; i < elems.length; i++) {
 				var element = elems[i],
 						custom = element.attr('custom');
@@ -665,7 +665,7 @@ function main() {
 			}
 
 		} catch (ex) {
-			log(ex);
+			console.log(ex);
 		}
 	}
 
@@ -675,14 +675,16 @@ function main() {
 			el: parent, // přiřazení ke canvasu
 			width: sirka, // šířka canvasu
 			height: vyska, // výška canvasu
-			gridSize: 10, // velikost mřížky v canvasu : 1 pro jemný posun prvků
+			gridSize: 20, // velikost mřížky v canvasu : 1 pro jemný posun prvků
 			snapLinks: true, //přichytávání linků
 			defaultLink: new joint.shapes.mylib.Vodic, //definice výchozího linku
 			model: graph, // druh modelu v canvasu
+
 			drawGrid: {
-				color: '#ccc',
+				color: '#333',
 				thickness: 1
 			},
+
 			validateConnection: function (vs, ms, vt, mt, e, vl)     // kontrola připojení do portů
 			{
 				if (e === 'target') {
@@ -706,7 +708,7 @@ function main() {
 
 
 	function exportToVHDL(a) {
-		log('Exporting to VHDL.');
+		console.log('Exporting to VHDL.');
 		var file_name = "test_circuit.vhd", schemaInfo = activeSchema.schemaInfo;
 		var val1 = activeSchema.schemaInfo.name;
 		if (val1 == "" || val1 == null) {
@@ -723,10 +725,10 @@ function main() {
 				a.attr('href', uriContent);
 				a.attr('download', name);
 				a.attr('target', "_blank");
-				log('schow save');
+				console.log('schow save');
 				return true;
 			};
-			log('Supports download attribute.');
+			console.log('Supports download attribute.');
 		} else {
 			showSave = function (data, name) {
 				try {
@@ -862,7 +864,7 @@ function main() {
 	 * @returns {undefined}
 	 */
 	function handleFileSelect(evt) {
-		log(evt);
+		console.log(evt);
 		evt.originalEvent.stopPropagation();
 		evt.originalEvent.preventDefault();
 		$(dragIdentificator).removeClass('dragover');

@@ -27,7 +27,7 @@ var paper = new joint.dia.Paper({
             return !portUsed;
 
         } else { // e === 'source'
-
+    
             // source requires an output port to connect
             return ms && ms.getAttribute('class') && ms.getAttribute('class').indexOf('output') >= 0; 
         }

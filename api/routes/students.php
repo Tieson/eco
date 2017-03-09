@@ -46,7 +46,7 @@ $app->get('/students/:id', function ($id) {
             FROM `student` JOIN `user` ON user.id = student.student_id WHERE student.id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
-		$items = $sth->fetchAll(PDO::FETCH_OBJ);
+		$items = $sth->fetch(PDO::FETCH_OBJ);
 
 		if($items) {
 			$app->response->setStatus(200);

@@ -17,12 +17,12 @@ function hideMenu() {
 function initUI() {
 
 	var ribbon_content = $('#ribbon #ribbonContent'),
-			ribbon_titles = $("#ribbon .ribbonTitle"),
+			ribbon_titles = $("#ribbon .ribbon__menu__item"),
 			platno = $('#moje_platno'),
-			defaultCart = $('#ribbon .ribbonTitle.default'),
+			defaultCart = $('#ribbon .ribbon__menu__item.default'),
 			wrapper = $('#canvasWrapper');
 
-	setCanvasHeight(wrapper);
+	// setCanvasHeight(wrapper);
 	selectCategory(defaultCart);
 
 	initNotifications();
@@ -39,13 +39,14 @@ function initUI() {
 
 
 	/*Vybrání kart, která byla naposledy vybrána (při reloadu)*/
-	$('.ribbonTitle[data-cat="' + settings.selCard + '"]').trigger("click");
+	//$('.ribbonTitle[data-cat="' + settings.selCard + '"]').trigger("click");
 
 	/* přepínání zobrazení ribbonu */
 	$('#contentToggler').click(function () {
-		ribbon_content.slideToggle(300, function () {
-			setCanvasHeight(wrapper);
-		});
+		/*ribbon_content.slideToggle(300, function () {
+			// setCanvasHeight(wrapper);
+		});*/
+		$("#ribbon").toggleClass("ribbon--hidden");
 	});
 
 	/*
@@ -66,9 +67,9 @@ function initUI() {
 
 
 
-	$(window).resize(function () {
+	/*$(window).resize(function () {
 		setCanvasHeight(wrapper);
-	});
+	});*/
 
 
 	/* kliknutí na položku rozbalovacího menu */
@@ -109,15 +110,15 @@ function initUI() {
 		$(this).addClass('selected');
 		//zmen_seznam($(this));
 		var category = $(this).attr('data-cat');
-		$('#ribbonContent .ribbonCart').hide();
+		$('#ribbonContent .ribbon__contents__item').hide();
 		$('#ribbonContent #ribbonCartId' + category).show();
 
 		ribbon_content.slideDown(0, function () {
-			setCanvasHeight(wrapper);
+			// setCanvasHeight(wrapper);
 		});
-		setCanvasHeight(wrapper);
+		// setCanvasHeight(wrapper);
 
-		settings.selCard = category;
+		//settings.selCard = category;
 		saveSettings();
 	}
 
@@ -131,9 +132,9 @@ function initUI() {
 		$('#ribbonContent #ribbonCartId' + category).show();
 
 		ribbon_content.slideDown(0, function () {
-			setCanvasHeight(wrapper);
+			// setCanvasHeight(wrapper);
 		});
-		setCanvasHeight(wrapper);
+		// setCanvasHeight(wrapper);
 	}
 
 	function setCanvasHeight(platno) {
@@ -169,5 +170,13 @@ function countChars() {
 
 }
 
+
+/**
+ * Kontroluje jestli jsou k dispozici potřebné metody pro import dat.
+ */
+function checkFileImport() {
+	if (!(window.File && window.FileReader && window.FileList && window.Blob))
+		alert("Některé z funkcí pro import souboru nemusí fungovat!");
+}
 
 $(document).ready(initUI);

@@ -1,7 +1,13 @@
-<div id="schemaList">
+{*<div id="schemaList">
 	<div class="wrapper">
 		<div class="schemaListContainer">
 		</div>
 		<a id="addSchema" href="#newSchema"> + </a>
 	</div>
+</div>*}
+
+
+<div class="schema_list">
+	<div class="schema_list__items schemaListContainer"></div>
+	<a class="schema_list__add" id="addSchema" href="#newSchema"> + </a>
 </div>

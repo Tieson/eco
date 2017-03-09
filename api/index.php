@@ -37,5 +37,6 @@ require_once 'routes/schemas.php';
 require_once 'routes/users.php';
 require_once 'routes/students.php';
 require_once 'routes/users.php';
+require_once 'routes/entities.php';
 
 $app->run();

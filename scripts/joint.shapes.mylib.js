@@ -103,9 +103,13 @@ joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
             '.label': { text: 'CLK0', ref: 'rect', 'ref-x': 5, 'ref-y': 10, stroke: 'black'}            
-        }
+        },
         
-    }, joint.shapes.mylib.HradloIO.prototype.defaults)
+    }, joint.shapes.mylib.HradloIO.prototype.defaults),
+    operation: function(){
+        this.clock = (this.clock+1)%2;
+        return this.clock;
+    }
 });
 
 joint.shapes.mylib.OUTPUT = joint.shapes.mylib.HradloIO.extend({
@@ -139,7 +143,8 @@ joint.shapes.mylib.VCC = joint.shapes.mylib.HradloIO.extend({
             '.label': { text: 'vcc', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
         }
         
-    }, joint.shapes.mylib.HradloIO.prototype.defaults)
+    }, joint.shapes.mylib.HradloIO.prototype.defaults),
+    operation: function() { return false; }
 });
 
 joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
@@ -156,7 +161,8 @@ joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
             '.label': { text: 'gnd', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
         }
         
-    }, joint.shapes.mylib.HradloIO.prototype.defaults)
+    }, joint.shapes.mylib.HradloIO.prototype.defaults),
+    operation: function() { return true; }
 });
 
 //---------------------- HRADLA BEZ NOT ---------------------------------------//
@@ -1046,7 +1052,10 @@ joint.shapes.mylib.TUL_OR = joint.shapes.mylib.Hradlo21.extend({
               '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
               '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },            
         }
-    }, joint.shapes.mylib.Hradlo21.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo21.prototype.defaults),
+    operation: function (a, b) {
+        return a || b;
+    }
 });
 
 joint.shapes.mylib.TUL_AND = joint.shapes.mylib.Hradlo21.extend({
@@ -1058,7 +1067,10 @@ joint.shapes.mylib.TUL_AND = joint.shapes.mylib.Hradlo21.extend({
               '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
               '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },            
         }
-    }, joint.shapes.mylib.Hradlo21.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo21.prototype.defaults),
+    operation: function (a, b) {
+        return a && b;
+    }
 });
 
 joint.shapes.mylib.TUL_INV = joint.shapes.mylib.Hradlo11N.extend({
@@ -1070,7 +1082,10 @@ joint.shapes.mylib.TUL_INV = joint.shapes.mylib.Hradlo11N.extend({
                '.jm': { text: 'a', ref: 'rect', 'ref-dx': -70, 'ref-dy': -60 },           
               '.jm2': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -60 },            
         }
-    }, joint.shapes.mylib.Hradlo11N.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo11N.prototype.defaults),
+    operation: function (a) {
+        return !a;
+    }
 });
 
 joint.shapes.mylib.TUL_NAND = joint.shapes.mylib.Hradlo21N.extend({
@@ -1083,7 +1098,10 @@ joint.shapes.mylib.TUL_NAND = joint.shapes.mylib.Hradlo21N.extend({
              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -60 },             
         }
-    }, joint.shapes.mylib.Hradlo21N.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo21N.prototype.defaults),
+    operation: function (a, b) {
+        return !(a && b);
+    }
 });
 
 joint.shapes.mylib.TUL_NOR = joint.shapes.mylib.Hradlo21N.extend({
@@ -1096,7 +1114,10 @@ joint.shapes.mylib.TUL_NOR = joint.shapes.mylib.Hradlo21N.extend({
               '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
               '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -60 },            
         }
-    }, joint.shapes.mylib.Hradlo21N.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo21N.prototype.defaults),
+    operation: function (a, b) {
+        return !(a || b);
+    }
 });
 
 joint.shapes.mylib.TUL_XNOR = joint.shapes.mylib.Hradlo21N.extend({
@@ -1109,7 +1130,10 @@ joint.shapes.mylib.TUL_XNOR = joint.shapes.mylib.Hradlo21N.extend({
               '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
               '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -60 },            
         }
-    }, joint.shapes.mylib.Hradlo21N.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo21N.prototype.defaults),
+    operation: function (a, b) {
+        return (a == b);
+    }
 });
 
 joint.shapes.mylib.TUL_XOR = joint.shapes.mylib.Hradlo21.extend({
@@ -1122,7 +1146,10 @@ joint.shapes.mylib.TUL_XOR = joint.shapes.mylib.Hradlo21.extend({
               '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
               '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },              
         }
-    }, joint.shapes.mylib.Hradlo21.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo21.prototype.defaults),
+    operation: function (a, b) {
+        return a != b;
+    }
 });
 
 joint.shapes.mylib.TUL_BUF = joint.shapes.mylib.Hradlo11.extend({
@@ -1134,7 +1161,10 @@ joint.shapes.mylib.TUL_BUF = joint.shapes.mylib.Hradlo11.extend({
                '.jm': { text: 'a', ref: 'rect', 'ref-dx': -70, 'ref-dy': -60 },           
               '.jm2': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },             
         }
-    }, joint.shapes.mylib.Hradlo11.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo11.prototype.defaults),
+    operation: function (a) {
+        return a;
+    }
 });
 
 //---------------------------------- Trivstupa hradla --------------------------------//
@@ -1150,7 +1180,10 @@ joint.shapes.mylib.NAND3 = joint.shapes.mylib.Hradlo31N.extend({
               '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
               '.jm4': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -70 },            
         }
-    }, joint.shapes.mylib.Hradlo31N.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo31N.prototype.defaults),
+    operation: function (a, b, c) {
+        return !(a && b && c);
+    }
 });
 
 joint.shapes.mylib.AND3 = joint.shapes.mylib.Hradlo31.extend({    
@@ -1163,7 +1196,10 @@ joint.shapes.mylib.AND3 = joint.shapes.mylib.Hradlo31.extend({
               '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },
               '.jm4': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -70 },
         }
-    }, joint.shapes.mylib.Hradlo31.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo31.prototype.defaults),
+    operation: function (a, b, c) {
+        return (a && b && c);
+    }
 });
 
 joint.shapes.mylib.OR3 = joint.shapes.mylib.Hradlo31.extend({
@@ -1176,7 +1212,10 @@ joint.shapes.mylib.OR3 = joint.shapes.mylib.Hradlo31.extend({
 			'.jm3': {text: 'c', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40},
 			'.jm4': {text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -70},
 		}
-	}, joint.shapes.mylib.Hradlo31.prototype.defaults)
+	}, joint.shapes.mylib.Hradlo31.prototype.defaults),
+    operation: function (a, b, c) {
+        return (a || b || c);
+    }
 });
 
 
@@ -1191,7 +1230,10 @@ joint.shapes.mylib.NOR3 = joint.shapes.mylib.Hradlo31N.extend({
               '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
               '.jm4': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -70 },             
         }
-    }, joint.shapes.mylib.Hradlo31N.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo31N.prototype.defaults),
+    operation: function (a, b, c) {
+        return !(a || b || c);
+    }
 });
 
 //---------------------------------- Ctyrvstupa hradla --------------------------------//
@@ -1208,7 +1250,10 @@ joint.shapes.mylib.NAND4 = joint.shapes.mylib.Hradlo41N.extend({
               '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },            
               '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },                        
         }
-    }, joint.shapes.mylib.Hradlo41N.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
+    operation: function (a, b, c, d) {
+        return !(a && b && c && d);
+    }
 });
 
 joint.shapes.mylib.AND4 = joint.shapes.mylib.Hradlo41.extend({    
@@ -1222,7 +1267,28 @@ joint.shapes.mylib.AND4 = joint.shapes.mylib.Hradlo41.extend({
              '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },            
              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -75 },            
         }
-    }, joint.shapes.mylib.Hradlo41.prototype.defaults)
+    }, joint.shapes.mylib.Hradlo41.prototype.defaults),
+    operation: function (a, b, c, d) {
+        return (a && b && c && d);
+    }
+});
+
+joint.shapes.mylib.OR4 = joint.shapes.mylib.Hradlo41N.extend({
+    defaults: joint.util.deepSupplement({
+        type: 'mylib.OR4',
+        attrs: {
+             '.wire': { 'ref-dx': 15, d: 'M 0 0 L 30 0' },
+            '.label': { text: '≥1', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
+               '.jm': { text: 'a', ref: 'rect', 'ref-dx': -80, 'ref-dy': -100 },
+              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -80, 'ref-dy': -77 },
+              '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -80, 'ref-dy': -58 },
+              '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },            
+              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },            
+        }                                 
+    }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
+    operation: function (a, b, c, d) {
+        return (a || b || c || d);
+    }
 });
 
 joint.shapes.mylib.NOR4 = joint.shapes.mylib.Hradlo41N.extend({
@@ -1234,10 +1300,13 @@ joint.shapes.mylib.NOR4 = joint.shapes.mylib.Hradlo41N.extend({
                '.jm': { text: 'a', ref: 'rect', 'ref-dx': -80, 'ref-dy': -100 },
               '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -80, 'ref-dy': -77 },
               '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -80, 'ref-dy': -58 },
-              '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },            
-              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },            
-        }                                 
-    }, joint.shapes.mylib.Hradlo41N.prototype.defaults)
+              '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },
+              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },
+        }
+    }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
+    operation: function (a, b, c, d) {
+        return !(a || b || c || d);
+    }
 });
 
 //--------------------------------- Komplexní hradla ---------------------------------//
@@ -1252,7 +1321,10 @@ joint.shapes.mylib.MUX2 = joint.shapes.mylib.HradloMux31.extend({
               '.jm3': { text: 'sel', ref: 'rect', 'ref-dx': -60, 'ref-dy': 5 },           
               '.jm4': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },            
         }                                 
-    }, joint.shapes.mylib.HradloMux31.prototype.defaults)
+    }, joint.shapes.mylib.HradloMux31.prototype.defaults),
+    operation: function (a0, a1, sel) {
+        return (sel?a1:a0);
+    }
 });
 
 joint.shapes.mylib.MUX4 = joint.shapes.mylib.HradloMux61.extend({
@@ -1268,7 +1340,10 @@ joint.shapes.mylib.MUX4 = joint.shapes.mylib.HradloMux61.extend({
               '.jm6': { text: 'sel1', ref: 'rect', 'ref-dx': -20, 'ref-dy': 5 },           
               '.jm7': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -70 },             
         }                                 
-    }, joint.shapes.mylib.HradloMux61.prototype.defaults)
+    }, joint.shapes.mylib.HradloMux61.prototype.defaults),
+    operation: function (a0, a1, a2, a3, sel0, sel1) {
+        return (sel1?(sel0?a3:a2):(sel0?a1:a0));
+    }
 });
 
 joint.shapes.mylib.MUX8 = joint.shapes.mylib.HradloMux11_1.extend({
@@ -1289,7 +1364,10 @@ joint.shapes.mylib.MUX8 = joint.shapes.mylib.HradloMux11_1.extend({
              '.jm11': { text: 'sel2', ref: 'rect', 'ref-dx': -45, 'ref-dy': 5 },           
              '.jm12': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -120 },            
         }                                 
-    }, joint.shapes.mylib.HradloMux11_1.prototype.defaults)
+    }, joint.shapes.mylib.HradloMux11_1.prototype.defaults),
+    operation: function (a0, a1, a2, a3, a4, a5, a6, a7, sel0, sel1, sel2) {
+        return sel2?(sel1?(sel0?a7:a6):(sel0?a5:a4)):(sel1?(sel0?a3:a2):(sel0?a1:a0));
+    }
 });
 
 joint.shapes.mylib.DEC14 = joint.shapes.mylib.HradloDec14.extend({
@@ -1304,7 +1382,10 @@ joint.shapes.mylib.DEC14 = joint.shapes.mylib.HradloDec14.extend({
               '.jm5': { text: 'y2', ref: 'rect', 'ref-dx': 10, 'ref-dy': -80 },
               '.jm6': { text: 'y3', ref: 'rect', 'ref-dx': 10, 'ref-dy': -50 },            
         }                                 
-    }, joint.shapes.mylib.HradloDec14.prototype.defaults)
+    }, joint.shapes.mylib.HradloDec14.prototype.defaults),
+    operation: function (sel0, sel1, y0 ,y1, y2, y3) {
+        return true;
+    }
 });
 
 joint.shapes.mylib.DEC18 = joint.shapes.mylib.HradloDec18.extend({

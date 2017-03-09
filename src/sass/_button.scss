@@ -1,0 +1,40 @@
+.button {
+  display: inline-block;
+  padding: 0.2em 0.5em;
+  text-decoration: none;
+  border: 0;
+  color: inherit;
+  transition: all .3s;
+  &:hover, &:active, &:focus {
+    text-decoration: none;
+    color: inherit;
+    transform: scale(1.05);
+  }
+  &:active {
+    text-decoration: none;
+    color: inherit;
+    transform: scale(0.95);
+  }
+
+  &--primary {
+    background: $accent;
+    color: $accent-compl;
+    &:hover, &:active, &:focus {
+      color: $accent-compl;
+    }
+  }
+  &--success {
+    background: $success;
+    color: $success-compl;
+    &:hover, &:active, &:focus {
+      color: $success-compl;
+    }
+  }
+  &--default {
+    background: $alt;
+    color: $alt-compl;
+    &:hover, &:active, &:focus {
+      color: $alt-compl;
+    }
+  }
+}

@@ -1,0 +1,41 @@
+@import 'variables';
+@import 'button';
+
+
+
+@import 'editor/editor';
+@import 'editor/ribbon';
+@import 'footer';
+@import 'paper';
+
+
+
+.clearfix { clear: both; }
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+
+.center {
+  display: flex;
+  &red {
+    margin: auto;
+  }
+}
+
+.joint-link.live > .connection {
+  stroke: $activeWire;
+  stroke-width: 3px;
+}
+.live .connection-wrap {
+  stroke: $activeWire;
+}
+.joint-element.live .body {
+  fill: $activeWire;
+  stroke: darken($activeWire,0.1);
+}

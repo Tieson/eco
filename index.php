@@ -6,7 +6,9 @@
 session_start();
 
 define('BASE_DIR', __DIR__ . '/');
-define('SMARTY_DIR', BASE_DIR . '/includes/Smarty-3.1.21/libs/');
+define('SMARTY_DIR', BASE_DIR . 'includes/Smarty-3.1.21/libs/');
+
+require __DIR__ . '/vendor/autoload.php';
 
 require_once(SMARTY_DIR . 'Smarty.class.php');
 $smarty = new Smarty();
@@ -61,7 +63,7 @@ $smarty->assign('formdata', array('name' => $err_regback[0], 'surname' => $err_r
 
 
 //** un-comment the following line to show the debug console
-$smarty->debugging = true;
+$smarty->debugging = false;
 //$smarty->error_reporting = 12;
 
 $smarty->display('index.tpl');

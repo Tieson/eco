@@ -47,7 +47,7 @@ $app->get('/users/:id', function ($id) {
             WHERE id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
-		$users = $sth->fetchAll(PDO::FETCH_OBJ);
+		$users = $sth->fetch(PDO::FETCH_OBJ);
 
 		if($users) {
 			$app->response->setStatus(200);
