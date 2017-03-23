@@ -52,13 +52,14 @@
     <script src="../scripts/VhdImport.js"></script>
     <script src="../scripts/schema.js"></script>
     {*<script src="../scripts/main.js"></script>*}
-    <script src="../scripts/main2.js"></script>
+    {*<script src="../scripts/main2.js"></script>*}
 
-    {*<script src="../scripts/ux.js"></script>*}
+    <script src="../scripts/ux.js"></script>
 
 
     <script src="../scripts/models/entities.js"></script>
     <script src="../scripts/models/schema.js"></script>
+    <script src="../scripts/models/modal.js"></script>
     <script src="../scripts/models/settings.js"></script>
 
 
@@ -67,18 +68,48 @@
 
         $(document).ready(initEntities);
 
+
+        function initTest(){
+
+            var schema2 = new app.Schema({ user_id: 1, name: "qščřrsaf", architecture: "ščřwersfd" });
+            console.log("schema.isNew()", schema2.isNew());
+            console.log(schema2);
+            console.log(schema2.toJSON());
+            schema2.save(schema2.toJSON(), {
+                success: function (response) {
+                    console.log("ok", response);
+                },
+                error: function () {
+                    console.log("ko");
+                }
+            });
+            console.log("done");
+        }
+
         function initEntities(){
+
+//            var eventAgg = _.extend({ }, Backbone.Events);
 
             app.AppView = Backbone.View.extend({
                 el: "body",
-                initialize: function () {
+                initialize: function (options) {
+                    console.log(app);
+                    this.schemas = new app.Schemas();
                     var categories = new app.Categories();
+                    this.modalView = new app.BaseModalView({ template: '#template-modal' });
+                    this.listenTo(this.modalView, 'save', this.saveNewSchema);
                     categories.fetch();
+
+                    this.schemasView = new app.SchemasView({ collection : this.schemas });
+                    this.listenTo(this.schemasView, 'editSchema', this.editSchema);
+
                     var categoriesView = new app.CategoriesView({ el: "#ribbonContent", collection: categories, onEntityClick: this.onEntityClick });
+                    this.ribbonToggle();
                 },
                 events: {
                     'click .entity': 'onEntityClick',
-                    'click #contentToggler': 'ribbonToggle'
+                    'click #contentToggler': 'ribbonToggle',
+                    'click #addSchema': 'addNewSchema'
                 },
                 onEntityClick:function (event) {
                     var entityId = Number($(event.target).attr("data-entityid"));
@@ -86,10 +117,40 @@
                     console.log(categoryId, entityId);
                 },
                 ribbonToggle: function () {
-                    $('#ribbon').toggleClass("ribbon--hidden");
+                    var ribbon = $('#ribbon'),
+                            show = ribbon.find('.ribbon__toggle__show'),
+                            hide = ribbon.find('.ribbon__toggle__hide');
+                    ribbon.toggleClass("ribbon--hidden");
+                    if (ribbon.hasClass('ribbon--hidden')){
+                        show.show();
+                        hide.hide();
+                    }else{
+                        show.hide();
+                        hide.show();
+                    }
+                },
+                addNewSchema: function () {
+                    this.modalView.show({ model: new app.Schema(), title: "Create new schema" });
+                },
+                saveNewSchema: function (schema) {
+                    console.log("saveNewSchema", schema);
+                    this.schemas.create(schema, {
+                        success: function (result, a) {
+                            console.log("ok", result, a);
+                        },
+                        error: function () {
+                            console.log("ko");
+                        }
+                    });
+                },
+                editSchema: function(schema){
+                    this.modalView.show({ model: schema, title: "Edit schema" });
                 }
             });
+
+
             var appView = new app.AppView();
+
 
 
             app.EntityDetailView = Backbone.View.extend({
@@ -117,7 +178,7 @@
 
                 el: $('#canvasWrapper'),
                 model: graph,
-                width: 1920, height: 1080, gridSize: 10,
+                width: 1920, height: 1080, gridSize: 7,
                 snapLinks: true,
                 linkPinning: false,
                 defaultLink: new joint.shapes.mylib.Vodic,
@@ -148,16 +209,42 @@
                     }
                 }
             });
-            paper.on('cell:pointerdown',
-                    function(cellView, evt, x, y) {
-                        console.log('cell view ' + cellView.model.id + ' was clicked', cellView.model);
-                        if (cellView.model instanceof joint.shapes.mylib.INPUT) {
-                            cellView.model.signal *= -1;
-//                            graph.trigger("change:signal");
-                            broadcastSignal(cellView.model, cellView.model.signal);
-                        }
+            paper.on('cell:pointerclick', createCellDoubleclickHandler(function(cellView, evt, x, y){
+                if (cellView.model instanceof joint.shapes.mylib.HradloIO) {
+                    cellView.model.switchSignal();
+                    broadcastSignal(cellView.model, cellView.model.signal);
+                    V(cellView.el).toggleClass('live', cellView.model.signal > 0);
+                }
+            }));
+            paper.on('cell:pointerclick', function(cellView) {
+
+                /**
+                 * Po kliknutí na hodiny je vypnout/zaponout
+                 */
+                if (cellView.model instanceof joint.shapes.mylib.CLK) {
+                    console.log(cellView.model.tickOn);
+                    cellView.model.tickOn = !cellView.model.tickOn;
+                    V(cellView.el).toggleClass('running', cellView.model.tickOn);
+                }
+
+//                console.log(cellView.model.get('id'));
+//                console.log(cellView.model.get('position'));
+//                console.log(cellView.model.position());
+//                console.log(cellView.model.get('attrs'));
+//                console.log(cellView.model.attr('.label/text'));
+            });
+
+            function createCellDoubleclickHandler(callback) {
+                var doubleclick;
+                return function (cellView, evt, x, y) {
+                    var now = new Date();
+                    if (doubleclick && doubleclick.getTime() > (now.getTime() - 500)) {
+                        callback(cellView, evt, x, y);
+                    } else {
+                        doubleclick = new Date();
                     }
-            );
+                }
+            }
 
             function toggleLive(model, signal) {
                 // add 'live' class to the element if there is a positive signal
@@ -167,13 +254,24 @@
             function broadcastSignal(gate, signal) {
                 // broadcast signal to all output ports
                 _.defer(_.invoke, graph.getConnectedLinks(gate, { outbound: true }), 'set', 'signal', signal);
+                toggleLive(gate, signal);
             }
+
+            function startClock(gate, signal) {
+//                _.delay(startClock, gate.clockSpd, gate, gate.signal);
+                window.setInterval(function(){
+                    if (gate.tryTick()){
+                        broadcastSignal(gate, gate.signal);
+                    }
+                }, 100);
+            }
+
             function initializeSignal() {
 
                 var signal = Math.random();
-                console.log("signal", signal);
                 // > 0 wire with a positive signal is alive
                 // < 0 wire with a negative signal means, there is no signal
+
                 // 0 none of the above - reset value
 
                 // cancel all signals stores in wires
@@ -187,6 +285,9 @@
                 _.each(graph.getElements(), function(element) {
                     // broadcast a new signal from every input in the graph
                     (element instanceof joint.shapes.mylib.INPUT) && broadcastSignal(element, element.signal);
+                    (element instanceof joint.shapes.mylib.VCC) && broadcastSignal(element, element.signal);
+                    (element instanceof joint.shapes.mylib.GND) && broadcastSignal(element, element.signal);
+                    (element instanceof joint.shapes.mylib.CLK) && startClock(element, element.signal);
                 });
 
                 return signal;
@@ -194,19 +295,8 @@
 
             // Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
             joint.shapes.mylib.Hradlo.prototype.onSignal = function(signal, handler) {
-                handler.call(this, 2, signal);
+                handler.call(this, 10, signal);
             };
-            // The repeater delays a signal handling by 500ms
-            joint.shapes.logic.Repeater.prototype.onSignal = function(signal, handler) {
-                _.delay(handler, 500, signal);
-            };
-            joint.shapes.mylib.CLK.prototype.clock = 0;
-            // The repeater delays a signal handling by 500ms
-            joint.shapes.mylib.CLK.prototype.onSignal = function(signal, handler) {
-                _.delay(handler, 500, signal);
-            };
-
-            joint.shapes.mylib.INPUT.prototype.signal = 1;
 
             // Output element just marks itself as alive.
             joint.shapes.mylib.OUTPUT.prototype.onSignal = function(signal) {
@@ -215,19 +305,26 @@
 
             var gates = {
 //                repeater: new joint.shapes.logic.Repeater({ position: { x: 410, y: 25 }}),
-                or: new joint.shapes.mylib.TUL_OR({ position: { x: 550, y: 50 }}),
-                and: new joint.shapes.mylib.TUL_AND({ position: { x: 550, y: 150 }}),
+//                or: new joint.shapes.mylib.TUL_OR({ position: { x: 550, y: 50 }}),
+//                and: new joint.shapes.mylib.TUL_AND({ position: { x: 550, y: 150 }}),
                 not: new joint.shapes.mylib.TUL_INV({ position: { x: 90, y: 140 }}),
                 nand: new joint.shapes.mylib.TUL_NAND({ position: { x: 550, y: 250 }}),
-                nor: new joint.shapes.mylib.TUL_NOR({ position: { x: 270, y: 190 }}),
-                xor: new joint.shapes.mylib.TUL_XOR({ position: { x: 550, y: 200 }}),
-                xnor: new joint.shapes.mylib.TUL_XNOR({ position: { x: 550, y: 100 }}),
+                nand2: new joint.shapes.mylib.TUL_NAND({ position: { x: 550, y: 250 }}),
+                nand3: new joint.shapes.mylib.TUL_NAND({ position: { x: 550, y: 250 }}),
+                nand4: new joint.shapes.mylib.TUL_NAND({ position: { x: 550, y: 250 }}),
+//                nor: new joint.shapes.mylib.TUL_NOR({ position: { x: 270, y: 190 }}),
+//                xor: new joint.shapes.mylib.TUL_XOR({ position: { x: 550, y: 200 }}),
+//                clk: new joint.shapes.mylib.CLK({ position: { x: 550, y: 100 }}),
                 input: new joint.shapes.mylib.INPUT({ position: { x: 5, y: 45 }}),
                 input2: new joint.shapes.mylib.INPUT({ position: { x: 5, y: 45 }}),
                 input3: new joint.shapes.mylib.INPUT({ position: { x: 5, y: 45 }}),
+//                vcc: new joint.shapes.mylib.VCC({ position: { x: 5, y: 100 }}),
+//                gnd: new joint.shapes.mylib.GND({ position: { x: 5, y: 165 }}),
                 output: new joint.shapes.mylib.OUTPUT({ position: { x: 740, y: 340 }}),
                 output2: new joint.shapes.mylib.OUTPUT({ position: { x: 740, y: 390 }})
             };
+            gates.input2.attr(".label/text", "X1");
+            gates.input3.attr(".label/text", "X2");
 
 
             var wires = [
@@ -241,20 +338,24 @@
 //                }
             ];
 
-            // add gates and wires to the graph
-
+            /**
+             * Přidá entity do grafu
+             */
             graph.addCells(_.toArray(gates));
 
+            /**
+             * Přidá vodiče do grafu
+             */
             _.each(wires, function(attributes) {
                 graph.addCell(paper.getDefaultLink().set(attributes));
             });
 
+            /**
+             * Reinitialyze signals when wire was connected or disconnected.
+             */
             graph.on('change:source change:target', function(model, end) {
-
                 var e = 'target' in model.changed ? 'target' : 'source';
-
                 if ((model.previous(e).id && !model.get(e).id) || (!model.previous(e).id && model.get(e).id)) {
-                    // if source/target has been connected to a port or disconnected from a port reinitialize signals
                     current = initializeSignal();
                 }
             });
@@ -264,7 +365,6 @@
                 toggleLive(wire, signal);
 
                 var magnitude = Math.abs(signal);
-                console.log("m",wire, signal, magnitude);
 
                 // if a new signal has been generated stop transmitting the old one
 //                if (magnitude !== current) return;
@@ -285,11 +385,7 @@
                                 })
                                 .value();
 
-                        // calculate the output signal
-
                         var output = magnitude * (gate.operation.apply(gate, inputs) ? 1 : -1);
-                        console.log("output", output);
-
                         broadcastSignal(gate, output);
                     });
                 }
@@ -314,6 +410,37 @@
 
     <script type="text/template" class="template-categories-list">
         <div class="ribbon__contents__header">
+            <%= name %>
+        </div>
+    </script>
+
+    <script type="text/template" id="template-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><%= title%></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="schema_name">Název:</label>
+                        <input type="text" name="name" id="schema_name" class="form-control" value="<%= schema.name %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="schema_name">Architektura:</label>
+                        <input type="text" name="architecture" id="schema_architecture" class="form-control" value="<%= schema.architecture %>">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-storno button">Storno</a>
+                    <a href="#" class="btn btn-save button button--primary">Save</a>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/template" class="template-schema-list">
+        <div class="schema_list__item" <% if (typeof(id) !== "undefined") { %>data-id="<%= id %>"<% } %>>
             <%= name %>
         </div>
     </script>

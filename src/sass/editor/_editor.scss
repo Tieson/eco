@@ -167,7 +167,7 @@ body {
       line-height: 25px;
       background-color: $accent;
       color: $accent-compl;
-      margin: 5px;
+      margin: 3px 5px;
       border-radius: 50%;
       font-weight: bold;
       font-size: 30px;
@@ -180,5 +180,24 @@ body {
 .paper_container {
   &.dragover {
     outline: inset dashed 2px $green;
+  }
+}
+
+//SVG styly
+text {
+  stroke: transparent;
+}
+
+.joint-element.live {
+  .entitybody {
+    stroke: $accent;
+  }
+}
+.joint-element.running {
+  .output {
+    //fill: $accent;
+  }
+  .label {
+      fill: $accent;
   }
 }

@@ -1,4 +1,4 @@
-.button {
+.button, .btn {
   display: inline-block;
   padding: 0.2em 0.5em;
   text-decoration: none;
@@ -16,14 +16,14 @@
     transform: scale(0.95);
   }
 
-  &--primary {
+  &--primary, &-primary {
     background: $accent;
     color: $accent-compl;
     &:hover, &:active, &:focus {
       color: $accent-compl;
     }
   }
-  &--success {
+  &--success, &-success {
     background: $success;
     color: $success-compl;
     &:hover, &:active, &:focus {
@@ -36,5 +36,17 @@
     &:hover, &:active, &:focus {
       color: $alt-compl;
     }
+  }
+}
+
+
+.btn-primary {
+  color: #fff;
+  background-color: $accent;
+  border-color: darken($accent,0.1);
+  &:hover, &:active, &:focus {
+    background-color: $accent;
+    border-color: darken($accent,0.1);
+    transform: scale(1.05);
   }
 }

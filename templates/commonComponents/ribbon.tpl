@@ -1,7 +1,7 @@
 <div id="ribbon" class="ribbon">
     <div id="contentToggler" class="ribbon__toggle noselect">
-        <i class="glyphicon glyphicon-arrow-down ribbon__toggle__show"></i>
-        <i class="glyphicon glyphicon-arrow-up ribbon__toggle__up"></i>
+        <i class="glyphicon glyphicon-arrow-right ribbon__toggle__show" title="Show entities" style="display: none;"></i>
+        <i class="glyphicon glyphicon-arrow-left ribbon__toggle__hide"></i>
     </div>
     {*<div class="ribbon__menu noselect" id="categories-list">
         *}{*{section loop=$categories name=category}
