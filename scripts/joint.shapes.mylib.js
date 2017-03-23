@@ -26,7 +26,7 @@ joint.shapes.mylib = {};
 //------------------ OBECNÁ DEFINICE HRADLA -------------------------------------------------//
 
 joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/><text class="jm"/></g><text class="label"/><circle class="input"/><path class="wire"/><circle class="output"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/><text class="jm"/></g><text class="label"/><rect class="input"/><path class="wire"/><rect class="output"/></g>',
     
     defaults: joint.util.deepSupplement({
 
@@ -35,12 +35,22 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
         attrs: {
             '.': { magnet: false },
             rect: {
+                width: 12, height: 12,
+                stroke: 'black'
+            },
+            '.output' : {
+                width: 12, height: 12
+            },
+            '.input' : {
+                width: 12, height: 12
+            },
+            '.entitybody': {
                 width: 50, height: 70,
                 stroke: 'black'
             },
             circle: {
                 r: 6,
-                stroke: 'black',
+                stroke: 'black'
             },
             text: {
                 fill: 'black',
@@ -48,7 +58,7 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
             },
             '.wire': { ref: 'rect', 'ref-y': .5, stroke: 'black'},
             '.label': { text: 'Model', 'ref-x': .3, 'ref-y': .1 },
-            '.jm': { text: 'io'},
+            '.jm': { text: 'io'}
         }
 
     }, joint.shapes.basic.Generic.prototype.defaults),
@@ -59,68 +69,85 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
 //---------------------- HRADLA IO --------------------------------------------//
 
 joint.shapes.mylib.HradloIO = joint.shapes.mylib.Hradlo.extend({ 
-    markup: '<g class="rotatable"><g class="scalable"><rect/><text class="jmeno"/></g><text class="label"/><path class="wire"/><circle/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/><text class="jmeno"/></g><text class="label"/><path class="wire"/><circle/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloIO',
-        size: { width: 50, height: 35 },
+        size: { width: 50, height: 28 },
         attrs: {
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
 
-    operation: function() { return true; }
+    operation: function() { return true; },
+    switchSignal: function () {}
 });
 
 joint.shapes.mylib.INPUT = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/></g>',
-    
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/></g>',
+    signal: 1,
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.INPUT',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
             
-            '.output': { ref: 'rect', 'ref-dx': 30, 'ref-y': .5, magnet: true, port: 'q' },
+            '.output': { ref: 'rect', 'ref-dx': 24, 'ref-y': 8, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
             '.label': { text: 'X0', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'},                
         }
         
-    }, joint.shapes.mylib.HradloIO.prototype.defaults)
+    }, joint.shapes.mylib.HradloIO.prototype.defaults),
+    switchSignal: function () {
+        this.signal *= -1;
+    }
 });
 
 joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/></g>',
-    
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/></g>',
+    clock: 0,
+    clockSpd: 1000,
+    signal: 1,
+    lastTime: Date.now(),
+    tickOn: true,
     defaults: joint.util.deepSupplement({
-
         type: 'mylib.CLK',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
-            '.output': { ref: 'rect', 'ref-dx': 30, 'ref-y': .5, magnet: true, port: 'q' },
+            '.output': { ref: 'rect', 'ref-dx': 24, 'ref-y': 8, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
             '.label': { text: 'CLK0', ref: 'rect', 'ref-x': 5, 'ref-y': 10, stroke: 'black'}            
-        },
+        }
         
     }, joint.shapes.mylib.HradloIO.prototype.defaults),
     operation: function(){
-        this.clock = (this.clock+1)%2;
-        return this.clock;
+        this.signal = (this.signal+1)%2;
+        return this.signal;
+    },
+    tryTick: function () {
+        if (this.tickOn){
+            if (this.lastTime + this.clockSpd < Date.now()){
+                this.signal *= -1;
+                this.lastTime = Date.now();
+                return true;
+            }
+        }
+        return false;
     }
 });
 
 joint.shapes.mylib.OUTPUT = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><path class="wire"/><circle class="input"/></g><g><text class="jm"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="input"/></g><g><text class="jm"/></g>',
     
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.OUTPUT',
         attrs: {
             '.wire': { 'ref-x': -25, d: 'M 0 0 L 25 0' },
-            '.input': { ref: 'rect', 'ref-x': -22, 'ref-y': .5, magnet: 'passive', port: 'a' },
+            '.input': { ref: 'rect', 'ref-x': -30, 'ref-y': 8, magnet: 'passive', port: 'a' },
             '.jm': { text: 'a', ref: 'rect', 'ref-dx': -90, 'ref-dy': -45 },
             
             '.label': { text: 'Z0', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
@@ -130,14 +157,14 @@ joint.shapes.mylib.OUTPUT = joint.shapes.mylib.HradloIO.extend({
 });
 
 joint.shapes.mylib.VCC = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/></g>',
-    
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/></g>',
+    signal: 1,
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.VCC',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
-            '.output': { ref: 'rect', 'ref-dx': 30, 'ref-y': .5, magnet: true, port: 'q' },
+            '.output': { ref: 'rect', 'ref-dx': 24, 'ref-y': 8, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
             '.label': { text: 'vcc', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
@@ -148,14 +175,14 @@ joint.shapes.mylib.VCC = joint.shapes.mylib.HradloIO.extend({
 });
 
 joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/></g>',
-    
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/></g>',
+    signal: -1,
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.GND',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
-            '.output': { ref: 'rect', 'ref-dx': 30, 'ref-y': .5, magnet: true, port: 'q' },
+            '.output': { ref: 'rect', 'ref-dx': 24, 'ref-y': 8, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
             '.label': { text: 'gnd', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
@@ -168,15 +195,15 @@ joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
 //---------------------- HRADLA BEZ NOT ---------------------------------------//
 
 joint.shapes.mylib.Hradlo11 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><rect class="input"/><rect class="output"/></g><g><text class="jm"/><text class="jm2"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo11',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.5, magnet: 'passive', port: 'a' },            
-            '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': .5, magnet: true, port: 'q' },
+            '.input': { ref: 'rect', 'ref-x': -6, 'ref-y': .415, magnet: 'passive', port: 'a' },
+            '.output': { ref: 'rect', 'ref-dx': -6, 'ref-y': .415, magnet: true, port: 'q' },
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -185,16 +212,16 @@ joint.shapes.mylib.Hradlo11 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo21 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><rect class="input"/><rect class="input2"/><rect class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo21',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'a' },
-            '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 'b' },
-            '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' },
+            '.input': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
+            '.input2': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.6, magnet: 'passive', port: 'b' },
+            '.output': { ref: 'rect', 'ref-dx': -6, 'ref-y': 0.415, magnet: true, port: 'q' },
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -203,7 +230,7 @@ joint.shapes.mylib.Hradlo21 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo31 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -222,7 +249,7 @@ joint.shapes.mylib.Hradlo31 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo41 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -244,16 +271,16 @@ joint.shapes.mylib.Hradlo41 = joint.shapes.mylib.Hradlo.extend({
 //-------------------- HRADLA S NOT -------------------------------------//
 
 joint.shapes.mylib.Hradlo11N = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="not_gate"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><rect class="input"/><circle class="not_gate"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/><text class="jm2"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo11N',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.5, magnet: 'passive', port: 'a' },
+            '.input': { ref: 'rect', 'ref-x': -6, 'ref-y': .415, magnet: 'passive', port: 'a' },
             '.not_gate': { ref: 'rect', 'ref-dx': 8, 'ref-y': .5, stroke: 'black'},
-            '.output': { ref: 'rect', 'ref-dx': 40, 'ref-y': .5, magnet: true, port: 'q' }
+            '.output': { ref: 'rect', 'ref-dx': 34, 'ref-y': .415, magnet: true, port: 'q' }
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -262,17 +289,17 @@ joint.shapes.mylib.Hradlo11N = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo21N = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="not_gate"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><rect class="input"/><rect class="input2"/><circle class="not_gate"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo21N',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'a' },
-            '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 'b' },
+            '.input': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.215, magnet: 'passive', port: 'a' },
+            '.input2': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.615, magnet: 'passive', port: 'b' },
             '.not_gate': { ref: 'rect', 'ref-dx': 8, 'ref-y': 0.5, stroke: 'black'},
-            '.output': { ref: 'rect', 'ref-dx': 40, 'ref-y': 0.5, magnet: true, port: 'q' }
+            '.output': { ref: 'rect', 'ref-dx': 34, 'ref-y': 0.415, magnet: true, port: 'q' }
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -281,7 +308,7 @@ joint.shapes.mylib.Hradlo21N = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo31N = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="not_gate"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="not_gate"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -301,7 +328,7 @@ joint.shapes.mylib.Hradlo31N = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo41N = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="not_gate"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="not_gate"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -324,7 +351,7 @@ joint.shapes.mylib.Hradlo41N = joint.shapes.mylib.Hradlo.extend({
 //-------------------------------- Hradla jiná ----------------------------------------------//
 
 joint.shapes.mylib.HradloMux31 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -345,7 +372,7 @@ joint.shapes.mylib.HradloMux31 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloMux61 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -369,7 +396,7 @@ joint.shapes.mylib.HradloMux61 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloMux11_1 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -398,7 +425,7 @@ joint.shapes.mylib.HradloMux11_1 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloDec14 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -420,7 +447,7 @@ joint.shapes.mylib.HradloDec14 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloDec18 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/><circle class="output7"/><circle class="output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/><circle class="output7"/><circle class="output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -447,7 +474,7 @@ joint.shapes.mylib.HradloDec18 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloPrCo83 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -475,7 +502,7 @@ joint.shapes.mylib.HradloPrCo83 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloPrCo42 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/><circle class="output2"/><circle class="output3"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/><circle class="output2"/><circle class="output3"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -500,7 +527,7 @@ joint.shapes.mylib.HradloPrCo42 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloRS22 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -520,7 +547,7 @@ joint.shapes.mylib.HradloRS22 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloD22 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -540,7 +567,7 @@ joint.shapes.mylib.HradloD22 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloD42 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -562,7 +589,7 @@ joint.shapes.mylib.HradloD42 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloD42SR = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -584,7 +611,7 @@ joint.shapes.mylib.HradloD42SR = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloJK32 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -605,7 +632,7 @@ joint.shapes.mylib.HradloJK32 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloJK52AR = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -628,7 +655,7 @@ joint.shapes.mylib.HradloJK52AR = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloJK52SR = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -651,7 +678,7 @@ joint.shapes.mylib.HradloJK52SR = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloHALFADD = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -671,7 +698,7 @@ joint.shapes.mylib.HradloHALFADD = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloFULLADD = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -692,7 +719,7 @@ joint.shapes.mylib.HradloFULLADD = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloADD4 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -725,7 +752,7 @@ joint.shapes.mylib.HradloADD4 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloMUL8 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/><circle class="output7"/><circle class="output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/><circle class="output7"/><circle class="output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -757,7 +784,7 @@ joint.shapes.mylib.HradloMUL8 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloCLEQ = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -783,7 +810,7 @@ joint.shapes.mylib.HradloCLEQ = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloUDCOUNTER = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -814,7 +841,7 @@ joint.shapes.mylib.HradloUDCOUNTER = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloARAM116 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -838,7 +865,7 @@ joint.shapes.mylib.HradloARAM116 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloRAM116 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -862,7 +889,7 @@ joint.shapes.mylib.HradloRAM116 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloARAM416 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -892,7 +919,7 @@ joint.shapes.mylib.HradloARAM416 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloRAM416 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -922,7 +949,7 @@ joint.shapes.mylib.HradloRAM416 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloARAM4256 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="input12"/><circle class="input13"/><circle class="input14"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="input12"/><circle class="input13"/><circle class="input14"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -956,7 +983,7 @@ joint.shapes.mylib.HradloARAM4256 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloRAM4256 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="input12"/><circle class="input13"/><circle class="input14"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="input12"/><circle class="input13"/><circle class="input14"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -990,7 +1017,7 @@ joint.shapes.mylib.HradloRAM4256 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloDPRAM4256 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="input12"/><circle class="input13"/><circle class="input14"/><circle class="input15"/><circle class="input16"/><circle class="input17"/><circle class="input18"/><circle class="input19"/><circle class="input20"/><circle class="input21"/><circle class="input22"/><circle class="input23"/><circle class="input24"/><circle class="input25"/><circle class="input26"/><circle class="input27"/><circle class="input28"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/><circle class="output7"/><circle class="output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/><text class="jm19"/><text class="jm20"/><text class="jm21"/><text class="jm22"/><text class="jm23"/><text class="jm24"/><text class="jm25"/><text class="jm26"/><text class="jm27"/><text class="jm28"/><text class="jm29"/><text class="jm30"/><text class="jm31"/><text class="jm32"/><text class="jm33"/><text class="jm34"/><text class="jm35"/><text class="jm36"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="input12"/><circle class="input13"/><circle class="input14"/><circle class="input15"/><circle class="input16"/><circle class="input17"/><circle class="input18"/><circle class="input19"/><circle class="input20"/><circle class="input21"/><circle class="input22"/><circle class="input23"/><circle class="input24"/><circle class="input25"/><circle class="input26"/><circle class="input27"/><circle class="input28"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/><circle class="output7"/><circle class="output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/><text class="jm19"/><text class="jm20"/><text class="jm21"/><text class="jm22"/><text class="jm23"/><text class="jm24"/><text class="jm25"/><text class="jm26"/><text class="jm27"/><text class="jm28"/><text class="jm29"/><text class="jm30"/><text class="jm31"/><text class="jm32"/><text class="jm33"/><text class="jm34"/><text class="jm35"/><text class="jm36"/></g>',
 
     defaults: joint.util.deepSupplement({
 
@@ -1049,8 +1076,8 @@ joint.shapes.mylib.TUL_OR = joint.shapes.mylib.Hradlo21.extend({
         attrs: {
             '.label': { text: '≥1',ref: 'rect', 'ref-x': .3, 'ref-y': .1, stroke: 'black'},
                '.jm': { text: 'a', ref: 'rect', 'ref-dx': -70, 'ref-dy': -70 },
-              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
-              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },            
+              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },
+              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
         }
     }, joint.shapes.mylib.Hradlo21.prototype.defaults),
     operation: function (a, b) {
