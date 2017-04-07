@@ -95,7 +95,9 @@ body {
   .main_bar__usermenu {
     position: relative;
     background: #212121;
-    color: #fff; }
+    color: #fff;
+    display: flex;
+    flex-direction: row-reverse; }
     .main_bar__usermenu__item {
       min-width: 60px;
       padding: 0 0.8em;
@@ -112,7 +114,8 @@ body {
       right: 0;
       min-width: 100%;
       padding: 10px;
-      background: #212121; }
+      background: #212121;
+      z-index: 49; }
       .main_bar__usermenu .menuitemsContainer a {
         display: block;
         white-space: nowrap; }
@@ -140,7 +143,15 @@ body {
       vertical-align: bottom;
       overflow: hidden;
       transition: all 300ms;
-      box-sizing: border-box; }
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      /* Chrome all / Safari all */
+      -moz-user-select: none;
+      /* Firefox all */
+      -ms-user-select: none;
+      /* IE 10+ */
+      user-select: none;
+      /* Likely future */ }
       .main_bar .schema_list__item:before {
         content: '';
         position: absolute;

@@ -38,6 +38,8 @@ $app->get('/', function() use($app) {
 require_once 'routes/schemas.php';
 require_once 'routes/users.php';
 require_once 'routes/students.php';
+require_once 'routes/groups.php';
+require_once 'routes/teacher.php';
 require_once 'routes/users.php';
 require_once 'routes/entities.php';
 

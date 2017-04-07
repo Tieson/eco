@@ -10,14 +10,14 @@
  */
 
 
-$app->get('/students', function () {
+$app->get('/teachers', function () {
 	$app = \Slim\Slim::getInstance();
 
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT student.id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
-            FROM `student` JOIN `user` ON user.id = student.user_id");
+		$sth = $db->prepare("SELECT teacher.id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
+            FROM `teacher` JOIN `user` ON user.id = teacher.user_id");
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
@@ -36,17 +36,16 @@ $app->get('/students', function () {
 	}
 });
 
-$app->get('/students/:id', function ($id) {
+$app->get('/teachers/:id', function ($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT student.id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
-            FROM `student` 
-            JOIN `user` 
-            ON user.id = student.user_id 
-            WHERE student.id = :id");
+		$sth = $db->prepare("SELECT t.id AS `id`, u.id AS `user_id`, u.mail AS mail, u.name AS name 
+            FROM `teacher` AS t JOIN `user` AS u
+            ON u.id = t.user_id 
+            WHERE t.id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetch(PDO::FETCH_OBJ);
@@ -66,14 +65,15 @@ $app->get('/students/:id', function ($id) {
 	}
 });
 
-$app->get('/students/:id/hw', function ($id) {
+/*
+$app->get('/students/:id/tasks', function ($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT id, task_id, student_id, created, deadline, status
-            FROM hw_assigment WHERE student_id = :id");
+		$sth = $db->prepare("SELECT *
+            FROM tasks WHERE student.id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
@@ -92,47 +92,16 @@ $app->get('/students/:id/hw', function ($id) {
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 });
+*/
 
-$app->get('/students/:id/hw/:hw_id', function ($id, $hw_id) {
+$app->get('/teachers/:id/groups', function ($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT *
-            FROM hw_assigment as hw JOIN task ON hw.task_id = task.id WHERE student_id = :id AND hw.id = :hw_id");
-		$sth->bindParam(':id', $id, PDO::PARAM_INT);
-		$sth->bindParam(':hw_id', $hw_id, PDO::PARAM_INT);
-		$sth->execute();
-		$items = $sth->fetchObject();
-
-		if($items) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($items);
-			$db = null;
-		} else {
-			throw new PDOException('No records found.');
-		}
-
-	} catch(PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	}
-});
-
-
-
-$app->get('/students/:id/groups', function ($id) {
-	$app = \Slim\Slim::getInstance();
-
-	try
-	{
-		$db = getDB();
-		$sth = $db->prepare("SELECT ga.group_id, student_id, entered, approved, subject, u.name, u.mail, day, weeks, block
-            FROM group_assigment AS ga JOIN `group` AS g JOIN teacher AS t JOIN user AS u JOIN group_teaching AS gt
-            ON ga.group_id=g.id AND t.id = gt.teacher_id AND g.id = gt.group_id AND t.user_id = u.id
-            WHERE student_id = :id");
+		$sth = $db->prepare("SELECT group_id, teacher_id, subject, day, weeks, block
+            FROM group_teaching AS gt JOIN `group` ON gt.group_id=`group`.id WHERE teacher_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);

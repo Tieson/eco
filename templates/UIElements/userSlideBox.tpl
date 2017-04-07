@@ -18,3 +18,8 @@
 		{/if}
 	</div>
 </div>
+<div class="main_bar__usermenu__item item" id="saveSchema">
+	<div class="menuLabel noselect">
+		<i class="glyphicon glyphicon-floppy-disk"></i> Uložit schéma
+	</div>
+</div>

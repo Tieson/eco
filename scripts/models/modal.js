@@ -18,6 +18,7 @@ app.BaseModalView = Backbone.View.extend({
         this.template = _.template($(options.template).html());
         _(this).bindAll();
         // this.render();
+        this.inputValidator = options.inputValidator;
     },
 
     show: function(options) {
@@ -40,6 +41,8 @@ app.BaseModalView = Backbone.View.extend({
         var data = { title: this.title, schema:this.model.toJSON() };
         this.$el.html(this.template(data));
         this.$el.modal({ show:false }); // dont show modal on instantiation
+        console.log(this.$el, this.$el.find('[data-toggle="tooltip"]'));
+        this.$el.find('[data-toggle="tooltip"]').tooltip();
         return this;
     },
 
@@ -52,5 +55,37 @@ app.BaseModalView = Backbone.View.extend({
             this.hide();
         }
         // this.model.save();
+    },
+
+});
+
+app.SchemaModalView = app.BaseModalView.extend({
+
+    events: {
+        'hidden': 'teardown',
+        'click .btn-storno': 'hide',
+        'click .btn-save': 'save',
+        'keypress input': 'keypress'
+    },
+
+    initialize: function(options) {
+        // this.eventAgg = options.eventAgg;
+
+        this.title = "Create new schema";
+        this.template = _.template($(options.template).html());
+        _(this).bindAll();
+        // this.render();
+        this.inputValidator = options.inputValidator;
+    },
+    /**
+     * Validuje název při stisku tlačítka
+     * @param event
+     * @returns {boolean}
+     */
+    keypress: function (event) {
+        console.log($(event.target));
+        if (this.inputValidator) {
+            this.inputValidator(this, event);
+        }
     }
 });
