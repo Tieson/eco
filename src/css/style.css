@@ -1,32 +1,32 @@
-.button, .btn {
+.button {
   display: inline-block;
   padding: 0.2em 0.5em;
   text-decoration: none;
   border: 0;
   color: inherit;
   transition: all .3s; }
-  .button:hover, .button:active, .button:focus, .btn:hover, .btn:active, .btn:focus {
+  .button:hover, .button:active, .button:focus {
     text-decoration: none;
     color: inherit;
     transform: scale(1.05); }
-  .button:active, .btn:active {
+  .button:active {
     text-decoration: none;
     color: inherit;
     transform: scale(0.95); }
-  .button--primary, .button-primary, .btn--primary, .btn-primary {
+  .button--primary, .button-primary {
     background: #F58220;
     color: #fff; }
-    .button--primary:hover, .button--primary:active, .button--primary:focus, .button-primary:hover, .button-primary:active, .button-primary:focus, .btn--primary:hover, .btn--primary:active, .btn--primary:focus, .btn-primary:hover, .btn-primary:active, .btn-primary:focus {
+    .button--primary:hover, .button--primary:active, .button--primary:focus, .button-primary:hover, .button-primary:active, .button-primary:focus {
       color: #fff; }
-  .button--success, .button-success, .btn--success, .btn-success {
+  .button--success, .button-success {
     background: #66cc00;
     color: #fff; }
-    .button--success:hover, .button--success:active, .button--success:focus, .button-success:hover, .button-success:active, .button-success:focus, .btn--success:hover, .btn--success:active, .btn--success:focus, .btn-success:hover, .btn-success:active, .btn-success:focus {
+    .button--success:hover, .button--success:active, .button--success:focus, .button-success:hover, .button-success:active, .button-success:focus {
       color: #fff; }
-  .button--default, .btn--default {
+  .button--default {
     background: #3f3f3f;
     color: #ffffff; }
-    .button--default:hover, .button--default:active, .button--default:focus, .btn--default:hover, .btn--default:active, .btn--default:focus {
+    .button--default:hover, .button--default:active, .button--default:focus {
       color: #ffffff; }
 
 .btn-primary {
@@ -235,15 +235,21 @@ text {
       background: #fff;
       color: #F58220;
       cursor: pointer;
-      display: block; }
+      display: block;
+      font-weight: 900;
+      text-transform: uppercase; }
       .ribbon__contents__header:hover, .ribbon__contents__header:active, .ribbon__contents__header.active .ribbon__contents__header:focus {
         background-color: #F58220;
         color: #fff; }
     .ribbon__contents__items {
       width: auto;
-      padding: 5px 10px; }
+      padding: 5px 0px; }
       .ribbon__contents__items .entity {
-        cursor: pointer; }
+        cursor: pointer;
+        padding: 2px 10px; }
+        .ribbon__contents__items .entity:hover {
+          background: #212121;
+          color: #fff; }
       .ribbon__contents__items--hidden {
         display: none;
         overflow: hidden; }

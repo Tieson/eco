@@ -54,6 +54,8 @@
       color: $accent;
       cursor: pointer;
       display: block;
+      font-weight: 900;
+      text-transform: uppercase;
       &:hover, &:active, &.active &:focus {
         background-color: $accent;
         color: $accent-compl;
@@ -61,9 +63,14 @@
     }
     &__items {
       width: auto;
-      padding: 5px 10px;
+      padding: 5px 0px;
       .entity {
         cursor: pointer;
+        padding: 2px 10px;
+        &:hover {
+          background: $dark;
+          color: #fff;
+        }
       }
       &--hidden {
         display: none;

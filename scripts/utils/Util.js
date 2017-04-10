@@ -37,9 +37,18 @@ function broadcastSignal(gate, signal, schema) {
 
 function toggleLive(model, signal, schema) {
     var paper = schema.get("paper");
-    // console.log("toggleLive", model, paper, paper.findViewByModel(model));
-    // add 'live' class to the element if there is a positive signal
-    V(paper.findViewByModel(model).el).toggleClass('live', signal > 0);
+    if (paper) {
+        // add 'live' class to the element if there is a positive signal
+        // console.log("live",model, paper, paper.findViewByModel(model));
+        try {
+            if (paper.findViewByModel(model))
+                V(paper.findViewByModel(model).el).toggleClass('live', signal > 0);
+        }catch(ex){
+            console.log(ex,model, signal, schema);
+        }
+    }else{
+        // console.log("S: toggleLive -> no paper exist -> simulation without echo");
+    }
 }
 
 function startClock(gate, signal, schema) {

@@ -1,5 +1,8 @@
 var app = app || {};
 
+
+var test_data;
+
 app.Schema = Backbone.Model.extend({
     urlRoot: '/api/schemas',
     defaults: {
@@ -45,7 +48,7 @@ app.Schema = Backbone.Model.extend({
         };
 
         console.log("%ccreatePaper", "color:red");
-        var paperContainer = $('<div data-schema="' + this.get('name') + '"></div>');
+        var paperContainer = $('<div data-schema="' + this.get('name') + '" id="paper_container_' + this.get('id') + '"></div>');
         options.container.append(paperContainer);
 
         paperContainer.width(options.canvas.w);
@@ -97,7 +100,12 @@ app.Schema = Backbone.Model.extend({
         }));
         paper.on('cell:pointerclick', function (cellView) {
 
-            console.log("click");
+            // console.log(cellView.model.get('outPorts') );
+            test_data = cellView.model;
+            console.log(test_data);
+            console.log("click", this.model.getConnectedLinks(cellView.model, {outbound: true}).map(function (x) {
+                return x;
+            }) );
             /**
              * Po kliknutí na hodiny je vypnout/zaponout
              */
@@ -111,14 +119,12 @@ app.Schema = Backbone.Model.extend({
         });
 
         this.set("paper", paper);
-        this.paper = paper;
     },
 
     initializeGraph: function () {
         var self = this;
         var graph = this.get("graph");
 
-        console.log("_________________________","initializeGraph", graph);
         /**
          * Reinitialyze signals when wire was connected or disconnected.
          */
@@ -130,9 +136,6 @@ app.Schema = Backbone.Model.extend({
         });
 
         graph.on('change:signal', function (wire, signal) {
-
-            console.log("change:signal'");
-
             toggleLive(wire, signal, self);
 
             var magnitude = Math.abs(signal);
@@ -269,7 +272,6 @@ app.Schema = Backbone.Model.extend({
                 success: function () {
                     var data = vhdl.get('data');
                     console.log('loadGraph fetch success');
-                    console.log('data', data);
                     if (data.length>0){
                         self.get('graph').fromJSON(JSON.parse(data));
                     }
@@ -286,11 +288,13 @@ app.Schema = Backbone.Model.extend({
 
     openSchema: function () {
         console.log("openSchema");
-        this.loadGraph(this.initLoadedGraf);
-        this.createPaper();
-        this.initializeGraph();
+        if (!this.opened) {
+            this.loadGraph(this.initLoadedGraf);
+            this.createPaper();
+            this.initializeGraph();
 
-        this.opened = true;
+            this.opened = true;
+        }
     },
     initLoadedGraf: function () {
         console.log("initLoadedGraf", this);

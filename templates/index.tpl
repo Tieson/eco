@@ -36,6 +36,7 @@
     <script src="../js/libs/jointjs/dist/joint.shapes.logic.min.js"></script>
     <script src="../scripts/joint.shapes.mylib.js"></script>
 
+    {*<script src="../js/libs/list.js/dist/list.min.js"></script>*}
 
     <script src="../js/libs/bootstrap/dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -70,113 +71,14 @@
 
         // Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
         joint.shapes.mylib.Hradlo.prototype.onSignal = function(signal, handler) {
-            console.log("joint.shapes.mylib.Hradlo.prototype.onSignal", this);
+//            console.log("joint.shapes.mylib.Hradlo.prototype.onSignal", this);
             handler.call(this, 0, signal);
         };
 
         $(document).ready(initEntities);
 
-
-        function CreatePaper(schema, options) {
-
-
-            var paperContainer = $('<div data-schema="'+schema.get('name')+'"></div>');
-            options.container.append(paperContainer);
-
-            paperContainer.width(options.canvas.w);
-            paperContainer.height(options.canvas.h);
-
-            var paper = new joint.dia.Paper({
-
-                el: paperContainer,
-                model: schema.get("graph"),
-                width: options.canvas.w, height: options.canvas.h, gridSize: options.canvas.gs,
-                snapLinks: true,
-                linkPinning: false,
-                defaultLink: new joint.shapes.mylib.Vodic,
-                drawGrid: {
-                    color: '#333',
-                    thickness: 1
-                },
-
-                validateConnection: function(vs, ms, vt, mt, e, vl) {
-
-                    if (e === 'target') {
-                        // target requires an input port to connect
-                        if (!mt || !mt.getAttribute('class') || mt.getAttribute('class').indexOf('input') < 0) return false;
-
-                        // check whether the port is being already used
-                        var portUsed = _.find(this.model.getLinks(), function(link) {
-
-                            return (link.id !== vl.model.id &&
-                            link.get('target').id === vt.model.id &&
-                            link.get('target').port === mt.getAttribute('port'));
-                        });
-
-                        return !portUsed;
-
-                    } else { // e === 'source'
-                        // source requires an output port to connect
-                        return ms && ms.getAttribute('class') && ms.getAttribute('class').indexOf('output') >= 0;
-                    }
-                }
-            });
-
-            paper.on('cell:pointerclick', createCellDoubleclickHandler(function(cellView, evt, x, y){
-                if (cellView.model instanceof joint.shapes.mylib.HradloIO) {
-                    cellView.model.switchSignal();
-                    broadcastSignal(cellView.model, cellView.model.signal, schema);
-                    V(cellView.el).toggleClass('live', cellView.model.signal > 0);
-                }
-            }));
-            paper.on('cell:pointerclick', function(cellView) {
-
-                /**
-                 * Po kliknutí na hodiny je vypnout/zaponout
-                 */
-                if (cellView.model instanceof joint.shapes.mylib.CLK) {
-                    console.log(cellView.model.tickOn);
-                    cellView.model.tickOn = !cellView.model.tickOn;
-                    V(cellView.el).toggleClass('running', cellView.model.tickOn);
-                }
-
-//                console.log(cellView.model.get('id'));
-//                console.log(cellView.model.get('position'));
-//                console.log(cellView.model.position());
-//                console.log(cellView.model.get('attrs'));
-//                console.log(cellView.model.attr('.label/text'));
-            });
-
-            schema.set("paper", paper);
-            return paper;
-        }
-
-        function CreateSchema(){
-            var schema =  new app.Schema({ name: "sch_001" });
-            var graph = schema.get("graph");
-
-
-            var opts = {
-                container: $("#canvasWrapper"),
-                canvas: {
-                    w: 2400,
-                    h: 1200,
-                    gs: 7
-                }
-            };
-
-            //CreatePaper(schema, opts);
-
-//            schema.createPaper(opts);
-            // initialize signal and keep its value
-//            var current = initializeSignal(schema);
-
-            return schema;
-        }
-
         function initEntities(){
 //            var eventAgg = _.extend({ }, Backbone.Events);
-
             app.AppView = Backbone.View.extend({
                 el: "body",
                 activeSchema: null,
@@ -192,15 +94,15 @@
                     this.listenTo(this.schemasView, 'editSchema', this.editSchema);
                     this.listenTo(this.schemasView, 'openSchema', this.openSchema);
 
-                    var categoriesView = new app.CategoriesView({ el: "#ribbonContent", collection: categories, onEntityClick: this.onEntityClick });
-                    this.ribbonToggle();
+                    this.categoriesView = new app.CategoriesView({ el: "#ribbonContent", collection: categories, onEntityClick: this.onEntityClick });
+//                    this.ribbonToggle();
                 },
                 events: {
                     'click .entity': 'onEntityClick',
                     'click #contentToggler': 'ribbonToggle',
                     'click #addSchema': 'addNewSchema',
                     'click #saveSchema': 'saveVHDL',
-//                    'click .schema_list__item': 'onSchemaClick',
+//                    'click .schema_list__item': '___?___',
                 },
                 onEntityClick:function (event) {
                     var entityId = Number($(event.target).attr("data-entityid"));
@@ -208,17 +110,20 @@
                     console.log(categoryId, entityId);
                 },
                 ribbonToggle: function () {
+                    console.log("toggle");
                     var ribbon = $('#ribbon'),
                             show = ribbon.find('.ribbon__toggle__show'),
                             hide = ribbon.find('.ribbon__toggle__hide');
-                    ribbon.toggleClass("ribbon--hidden");
-                    if (ribbon.hasClass('ribbon--hidden')){
-                        show.show();
-                        hide.hide();
-                    }else{
+                    if (!ribbon.hasClass('ribbon--hidden')){
+                        ribbon.removeClass("ribbon--hidden");
                         show.hide();
                         hide.show();
+                    }else{
+                        ribbon.addClass("ribbon--hidden");
+                        show.show();
+                        hide.hide();
                     }
+                    console.log(ribbon);
                 },
                 addNewSchema: function () {
                     this.modalView.show({ model: new app.Schema(), title: "Create new schema" });
@@ -244,26 +149,57 @@
                         console.log("není žádné aktivní schéma, vyberte schéma z nabídky.");
                     }
                 },
+                setActiveSchema: function (schema) {
+                    var old = this.activeSchema;
+                    this.activeSchema = schema;
+                    if (this.activeSchema) {
+                        this.categoriesView.setActive(true);
+                    }else{
+                        this.categoriesView.setActive(false);
+                    }
+                },
                 openSchema: function (schema) {
                     console.log("openSchema", schema);
-                    var lastOpenedSchema = this.activeSchema;
-                    this.activeSchema = schema;
-                    this.changeOpenedSchema(lastOpenedSchema);
+                    this.changeOpenedSchema(schema);
                 },
-                onSchemaClick: function (event) {
-                    console.log("onSchemaClick", event.currentTarget);
+                changeOpenedSchema: function (newSchema) {
                     var lastOpenedSchema = this.activeSchema;
-                    this.activeSchema = this.schemas.get($(event.currentTarget).attr('data-id'));
-                    console.log("activeSchema",this.activeSchema);
-                    this.changeOpenedSchema(lastOpenedSchema);
-                },
-                changeOpenedSchema: function (lastOpenedSchema) {
                     console.log("changeOpenedSchema");
                     if (lastOpenedSchema){
                         lastOpenedSchema.closeSchema();
                     }
+                    this.setActiveSchema(newSchema);
                     console.log("activeSchema", this.activeSchema);
+
                     this.activeSchema.openSchema();
+                },
+                testAddElement: function () {
+
+                    var gates = {
+//                repeater: new joint.shapes.logic.Repeater({ position: { x: 410, y: 25 }}),
+//                or: new joint.shapes.mylib.TUL_OR({ position: { x: 550, y: 50 }}),
+//                and: new joint.shapes.mylib.TUL_AND({ position: { x: 550, y: 150 }}),
+                        not: new joint.shapes.mylib.TUL_INV({ position: { x: 90, y: 140 }}),
+                        nand: new joint.shapes.mylib.TUL_NAND({ position: { x: 550, y: 250 }}),
+                        nand2: new joint.shapes.mylib.TUL_NAND({ position: { x: 550, y: 250 }}),
+                        nand3: new joint.shapes.mylib.TUL_NAND({ position: { x: 550, y: 250 }}),
+                        nand4: new joint.shapes.mylib.TUL_NAND({ position: { x: 550, y: 250 }}),
+//                nor: new joint.shapes.mylib.TUL_NOR({ position: { x: 270, y: 190 }}),
+//                xor: new joint.shapes.mylib.TUL_XOR({ position: { x: 550, y: 200 }}),
+//                clk: new joint.shapes.mylib.CLK({ position: { x: 550, y: 100 }}),
+                        input: new joint.shapes.mylib.INPUT({ position: { x: 5, y: 45 }}),
+                        input2: new joint.shapes.mylib.INPUT({ position: { x: 5, y: 45 }}),
+                        input3: new joint.shapes.mylib.INPUT({ position: { x: 5, y: 45 }}),
+//                vcc: new joint.shapes.mylib.VCC({ position: { x: 5, y: 100 }}),
+//                gnd: new joint.shapes.mylib.GND({ position: { x: 5, y: 165 }}),
+                        output: new joint.shapes.mylib.OUTPUT({ position: { x: 740, y: 340 }}),
+                        output2: new joint.shapes.mylib.OUTPUT({ position: { x: 740, y: 390 }})
+                    };
+                    gates.input2.attr(".label/text", "X1");
+                    gates.input3.attr(".label/text", "X2");
+
+//                    this.activeSchema.get("graph").addCell(_.toArray(gates));
+                    this.activeSchema.get("graph").addCell(new joint.shapes.mylib.TUL_NAND({ position: { x: 550, y: 250 }}));
                 }
             });
             var appView = new app.AppView();
@@ -330,19 +266,6 @@
 //                }
             ];
 
-            /**
-             * Přidá entity do grafu
-             */
-//            sch.get("graph").addCells(_.toArray(gates));
-
-            /**
-             * Přidá vodiče do grafu
-             */
-//            _.each(wires, function(attributes) {
-//                sch.get("graph").addCell(paper.getDefaultLink().set(attributes));
-//            });
-
-//            sch.saveGraph();
         }
 
     </script>
@@ -401,6 +324,12 @@
                             </small>
                         </div>
                     </div>
+                    <!--<hr>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <a href="#" class="btn btn-danger"><i class="glyphicon glyphicon-trash"></i> smazat schéma</a>
+                        </div>
+                    </div>-->
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-storno button">Storno</a>
@@ -412,7 +341,7 @@
 
     <script type="text/template" class="template-schema-list">
             <%= schema.name %>
-        <div class="schema_list__item__edit btn btn-xs"><i class="glyphicon glyphicon-pencil"></i></div>
+        <div class="schema_list__item__edit btn btn-xs"><i class="glyphicon glyphicon-cog"></i></div>
     </script>
 {/literal}
 
@@ -425,7 +354,28 @@
     <div class="page_wrap">
 
         <div class="main_bar">
-            <a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect"><i class="glyphicon glyphicon-menu-hamburger"></i> menu</a>
+            <div class="dropdown">
+                <a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
+                    <i class=" glyphicon glyphicon-file"></i> File
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">New Schema</a></li>
+                    <li><a href="#">Open Schema</a></li>
+                    <li><a href="#">Save Schema As &hellip;</a></li>
+                    <li><a href="#">Export Schema to VHDL</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">Download lib.vdl</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
+                    <i class=" glyphicon glyphicon-flash"></i> Task
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Show tasks</a></li>
+                    <li class="disabled"><a href="#">Submit this solution</a></li>
+                </ul>
+            </div>
 
             {include file='UIElements/schemaList.tpl'}
 

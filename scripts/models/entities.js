@@ -87,21 +87,27 @@ app.CategoriesView = Backbone.View.extend({
         var self = this;
         this.listenTo(this.collection, 'sync', this.render);
         this.onEntityClick = opts.onEntityClick;
+        this.active = opts.active;
     },
     events: {
         'click .ribbon__contents__header': 'onClick',
         'click .entity': 'onEntityClick'
     },
+    setActive: function (active) {
+        this.active = active;
+        this.render();
+    },
     render: function () {
         var self = this;
         this.$el.html('');
 
-        this.collection.each(function (category) {
-            var categoryView = new app.CategoryView({model: category});
-            self.$el.append(categoryView.render().el);
+        if (this.active){
+            this.collection.each(function (category) {
+                var categoryView = new app.CategoryView({model: category});
+                self.$el.append(categoryView.render().el);
 
-        }, this);
-
+            }, this);
+        }
         return this;
     },
     onClick: function (event) {
