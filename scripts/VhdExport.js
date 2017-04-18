@@ -15,13 +15,14 @@ function vhdExport() {
 
 		var c_name_en = schema.name;
 		var c_name_arch = schema.arch;
-// print jednotlivých částí jako VHDL
+
+		// print jednotlivých částí jako VHDL
 		var hrd = gatesToVHDL(graph, elements);
 		var sig = getSignals(graph, elements);
 		var ios = portsToVHDL(inputs, outputs); //back_ios(io);
 		//var positions = getAllEntities().join(";");
 		// struktura vystupniho souboru - celkové spojení
-		var obsah = "library IEEE;\r\nuse IEEE.std_logic_1164.all;\r\n\r\nentity " + c_name_en + " is\r\n" +
+		return "library IEEE;\r\nuse IEEE.std_logic_1164.all;\r\n\r\nentity " + c_name_en + " is\r\n" +
 				"\tport (\r\n" +
 				ios +
 				"\r\n\t);\r\nend entity " + c_name_en + ";\r\n\r\n" +
@@ -32,10 +33,7 @@ function vhdExport() {
 				hrd +
 				"\r\nend architecture " + c_name_arch + ";\r\n" +
 				"\r\n";
-		return obsah;
 	};
-
-
 
 	function getElemByType(graph, type) {
 		var elems = graph.getElements(),
@@ -65,9 +63,10 @@ function vhdExport() {
 	 * Vypíše jako VHDL signály používané uvnitř architektury entity
 	 * Vnitřní signály jsou (jako porty) std_logic
 	 *
-	 * @param {type} elements
-	 * @returns {String}
-	 */
+	 * @param graph
+	 * @param elements
+	 * @returns {string}
+     */
 	function getSignals(graph, elements) {
 		var sig, sigs = [], tId, tCell, sigName, custom, duplicitCounter = new Counter();
 
@@ -117,9 +116,9 @@ function vhdExport() {
 			var attr = inputs[i].attributes, custom = inputs[i].attr('custom');
 			result.push("\t\t" + custom.uniqueName + " : in std_logic" + (i < max - 1 || outputs.length > 0 ? ';' : '') + ' --[' + attr.position.x + ';' + attr.position.y + ']');
 		}
-		for (var i = 0, max = outputs.length; i < max; i++) {
-			var attr = outputs[i].attributes, custom = outputs[i].attr('custom');
-			result.push("\t\t" + custom.uniqueName + " : out std_logic" + (i < max - 1 ? ';' : '') + ' --[' + attr.position.x + ';' + attr.position.y + ']');
+		for (var j = 0, max_out = outputs.length; j < max_out; j++) {
+			var attr_out = outputs[j].attributes, custom_out = outputs[j].attr('custom');
+			result.push("\t\t" + custom_out.uniqueName + " : out std_logic" + (j < max - 1 ? ';' : '') + ' --[' + attr_out.position.x + ';' + attr_out.position.y + ']');
 		}
 		return result.join("\r\n");
 	}
@@ -135,8 +134,8 @@ function vhdExport() {
 		linksOut = graph.getConnectedLinks(gate, {outbound: true});
 		linksIn = graph.getConnectedLinks(gate, {inbound: true});
 
-		for (var j = 0; j < linksIn.length; j++) {
-			sig = linksIn[j];
+		for (var i = 0; i < linksIn.length; i++) {
+			sig = linksIn[i];
 			target = sig.get('target');
 			source = sig.get('source');
 			other = graph.getCell(source.id).attr('custom');

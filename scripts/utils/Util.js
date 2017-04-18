@@ -19,6 +19,7 @@ function inputNameValidator(self, event){
     var text = $(event.target).val();
     if (text.length == 0 || isVhdlName(text) || (text.length>0 && String.fromCharCode(event.keyCode) == '_')){
         console.log("ok", text);
+        return true;
     }else{
         console.log("nook");
         return false;

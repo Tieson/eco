@@ -1,0 +1,52 @@
+<script type="text/template" id="editSchemaModal-template">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><%= title%></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="schema_name">Název: <i class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="Zadávejte pouze písmena anglické abecedy, podtržítka a číslice."></i></label>
+                    <input type="text"
+                           name="name"
+                           id="schema_name"
+                           class="form-control"
+                           value="<%= schema.name %>"
+                           autofocus="autofocus",
+                           placeholder="schema_01"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="schema_name">Architektura: <i class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="Zadávejte pouze písmena anglické abecedy, podtržítka a číslice."></i></label>
+                    <input type="text"
+                           name="architecture"
+                           id="schema_architecture"
+                           class="form-control"
+                           value="<%= schema.architecture %>"
+                           placeholder="arch_01"
+                    >
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <small>
+                            Název a architektura musí být validní VHDL název.
+                            Ten může obsahovat pouze písmena anglické abecedy, kterými musí začínat, dále číslice a podtržítka.
+                            Podtržítka nesmí být zasebou.
+                        </small>
+                    </div>
+                </div>
+                <!--<hr>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <a href="#" class="btn btn-danger"><i class="glyphicon glyphicon-trash"></i> smazat schéma</a>
+                    </div>
+                </div>-->
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-storno button">Storno</a>
+                <button type="submit" class="btn btn-save button button--primary">Save</button>
+            </div>
+        </div>
+    </div>
+</script>

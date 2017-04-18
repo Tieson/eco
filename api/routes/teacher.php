@@ -65,15 +65,14 @@ $app->get('/teachers/:id', function ($id) {
 	}
 });
 
-/*
-$app->get('/students/:id/tasks', function ($id) {
+$app->get('/teachers/:id/groups', function ($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT *
-            FROM tasks WHERE student.id = :id");
+		$sth = $db->prepare("SELECT group_id, teacher_id, subject, day, weeks, block
+            FROM group_teaching AS gt JOIN `group` ON gt.group_id=`group`.id WHERE teacher_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
@@ -92,9 +91,8 @@ $app->get('/students/:id/tasks', function ($id) {
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 });
-*/
 
-$app->get('/teachers/:id/groups', function ($id) {
+$app->get('/teachers/:id/hw/', function ($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -102,6 +100,58 @@ $app->get('/teachers/:id/groups', function ($id) {
 		$db = getDB();
 		$sth = $db->prepare("SELECT group_id, teacher_id, subject, day, weeks, block
             FROM group_teaching AS gt JOIN `group` ON gt.group_id=`group`.id WHERE teacher_id = :id");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->execute();
+		$items = $sth->fetchAll(PDO::FETCH_OBJ);
+
+		if($items) {
+			$app->response->setStatus(200);
+			$app->response()->headers->set('Content-Type', 'application/json');
+			echo json_encode($items);
+			$db = null;
+		} else {
+			throw new PDOException('No records found.');
+		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(404);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+});
+$app->get('/teachers/:id/tasks/', function ($id) {
+	$app = \Slim\Slim::getInstance();
+
+	try
+	{
+		$db = getDB();
+		$sth = $db->prepare("SELECT id, teacher_id, name, description, created, etalon_file, test_file
+            FROM task WHERE teacher_id = :id");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->execute();
+		$items = $sth->fetchAll(PDO::FETCH_OBJ);
+
+		if($items) {
+			$app->response->setStatus(200);
+			$app->response()->headers->set('Content-Type', 'application/json');
+			echo json_encode($items);
+			$db = null;
+		} else {
+			throw new PDOException('No records found.');
+		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(404);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+});
+$app->post('/teachers/:id/tasks/', function ($id) {
+	$app = \Slim\Slim::getInstance();
+
+	try
+	{
+		$db = getDB();
+		$sth = $db->prepare("SELECT id, teacher_id, name, description, created, etalon_file, test_file
+            FROM task WHERE teacher_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);

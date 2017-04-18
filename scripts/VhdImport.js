@@ -11,9 +11,11 @@ function VhdImport() {
 
 	var creator;
 	var graph;
+
 	/**
 	 * Tato metoda vyparsuje schéma z vhdl souboru.
 	 * @param {type} import_text
+	 * @param {schema}
 	 * @returns {undefined}
 	 */
 	this.loadImportedSchema = function (import_text, schema) {

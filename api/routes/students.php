@@ -69,11 +69,16 @@ $app->get('/students/:id', function ($id) {
 $app->get('/students/:id/hw', function ($id) {
 	$app = \Slim\Slim::getInstance();
 
+	//TODO: student může zobrazit pouze svoje úkoly
+
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT id, task_id, student_id, created, deadline, status
-            FROM hw_assigment WHERE student_id = :id");
+		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description
+            FROM hw_assigment AS hw
+        	JOIN task AS t
+         	ON hw.task_id = t.id
+            WHERE student_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
@@ -99,8 +104,12 @@ $app->get('/students/:id/hw/:hw_id', function ($id, $hw_id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT *
-            FROM hw_assigment as hw JOIN task ON hw.task_id = task.id WHERE student_id = :id AND hw.id = :hw_id");
+		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description
+            FROM hw_assigment AS hw 
+            JOIN task AS t
+            ON hw.task_id = t.id 
+            WHERE student_id = :id 
+            AND hw.id = :hw_id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':hw_id', $hw_id, PDO::PARAM_INT);
 		$sth->execute();
