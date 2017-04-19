@@ -9,8 +9,7 @@
  * Time: 15:20
  */
 
-
-$app->get('/schemas', function () {
+function schemas() {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -35,9 +34,8 @@ $app->get('/schemas', function () {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-$app->post('/schemas', function () {
+}
+function schemaCreate() {
 	$app = \Slim\Slim::getInstance();
 
 	$allPostVars = json_decode($app->request->getBody(), true);
@@ -75,9 +73,8 @@ $app->post('/schemas', function () {
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-$app->put('/schemas/:id', function ($id) {
+}
+function schemaUpdate($id) {
 	$app = \Slim\Slim::getInstance();
 
 	$allPostVars = json_decode($app->request->getBody(), true);
@@ -101,9 +98,8 @@ $app->put('/schemas/:id', function ($id) {
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-$app->delete('/schemas/:id', function ($id) {
+}
+function schemaDelete($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try {
@@ -131,9 +127,8 @@ $app->delete('/schemas/:id', function ($id) {
 		$app->response()->header('X-Status-Reason', $e->getMessage());
 		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
-});
-
-$app->get('/schemas/:id', function ($id) {
+}
+function schemaDetail($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -162,10 +157,9 @@ $app->get('/schemas/:id', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
+}
 
-
-$app->get('/schemas/:id/vhdls', function ($id) {
+function schemaData($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -195,10 +189,9 @@ $app->get('/schemas/:id/vhdls', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
+}
 
-
-$app->post('/schemas/:id/vhdls', function ($id) {
+function schemaDataCreate($id) {
 	$app = \Slim\Slim::getInstance();
 
 	$allPostVars = json_decode($app->request->getBody(), true);
@@ -223,10 +216,8 @@ $app->post('/schemas/:id/vhdls', function ($id) {
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-
-$app->put('/schemas/:schema_id/vhdls', function ($schema_id) {
+}
+function schemaDataUpdate($schema_id) {
 	$app = \Slim\Slim::getInstance();
 
 	$allPostVars = json_decode($app->request->getBody(), true);
@@ -238,7 +229,7 @@ $app->put('/schemas/:schema_id/vhdls', function ($schema_id) {
 	try
 	{
 		$db = getDB();
-		$request = $db->prepare("UPDATE schema_data SET data=:data, created='".date('Y-m-d H:i:s')."' WHERE schema_id=:schema_id AND id=:id");
+		$request = $db->prepare("UPDATE schema_data SET data=:data, edited='".date('Y-m-d H:i:s')."' WHERE schema_id=:schema_id AND id=:id");
 		$request->bindParam(":data", $values['data'], PDO::PARAM_STR);
 		$request->bindParam(":id", $values['id'], PDO::PARAM_INT);
 		$request->bindParam(":schema_id", $schema_id, PDO::PARAM_INT);
@@ -252,9 +243,8 @@ $app->put('/schemas/:schema_id/vhdls', function ($schema_id) {
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-$app->get('/schemas/:id/vhdls/last', function ($id) {
+}
+function schemaDataLast($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -264,7 +254,7 @@ $app->get('/schemas/:id/vhdls/last', function ($id) {
 		$sth = $db->prepare("SELECT * 
             FROM schema_data
             WHERE schema_id = :id
-            ORDER BY id DESC
+            ORDER BY edited DESC
 			LIMIT 1");
 
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
@@ -285,4 +275,4 @@ $app->get('/schemas/:id/vhdls/last', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
+}

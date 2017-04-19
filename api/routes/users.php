@@ -10,7 +10,8 @@
  */
 
 
-$app->get('/users', function () {
+
+function users(){
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -34,9 +35,10 @@ $app->get('/users', function () {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
+}
 
-$app->get('/users/:id', function ($id) {
+
+function user($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -62,32 +64,4 @@ $app->get('/users/:id', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-/*$app->get('/users/:mail', function ($mail) {
-	$app = \Slim\Slim::getInstance();
-
-	try
-	{
-		$db = getDB();
-		$sth = $db->prepare("SELECT *
-            FROM users
-            WHERE mail LIKE ?");
-//		$sth->bindParam(':mail', $mail, PDO::PARAM_STR);
-		$sth->execute(array("%".filter_var($mail, FILTER_SANITIZE_EMAIL)."%"));
-		$users = $sth->fetchAll(PDO::FETCH_OBJ);
-
-		if($users) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($users);
-			$db = null;
-		} else {
-			throw new PDOException('No records found.');
-		}
-
-	} catch(PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	}
-});*/
+}

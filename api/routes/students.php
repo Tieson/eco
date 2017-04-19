@@ -10,7 +10,8 @@
  */
 
 
-$app->get('/students', function () {
+
+function students() {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -34,9 +35,8 @@ $app->get('/students', function () {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-$app->get('/students/:id', function ($id) {
+}
+function student($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -64,9 +64,8 @@ $app->get('/students/:id', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-$app->get('/students/:id/hw', function ($id) {
+}
+function studentHomeworkList($id) {
 	$app = \Slim\Slim::getInstance();
 
 	//TODO: student může zobrazit pouze svoje úkoly
@@ -96,9 +95,9 @@ $app->get('/students/:id/hw', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
+}
 
-$app->get('/students/:id/hw/:hw_id', function ($id, $hw_id) {
+function studentHomeworkDetail($id, $hw_id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -128,11 +127,9 @@ $app->get('/students/:id/hw/:hw_id', function ($id, $hw_id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
+}
 
-
-
-$app->get('/students/:id/groups', function ($id) {
+function studentGroupList($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -159,4 +156,4 @@ $app->get('/students/:id/groups', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
+}

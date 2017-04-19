@@ -34,6 +34,11 @@ $app->get('/', function() use($app) {
 	echo "Welcome to Slim 3.0 based API";
 });
 
+/**
+ * TODO: přihlášení a identifikace uživatele
+ */
+$_SESSION['teacher_id'] = 9;
+
 
 require_once 'routes/schemas.php';
 require_once 'routes/users.php';
@@ -42,5 +47,42 @@ require_once 'routes/groups.php';
 require_once 'routes/teacher.php';
 require_once 'routes/users.php';
 require_once 'routes/entities.php';
+require_once 'routes/homeworks.php';
+
+$app->get('/users', 'users');
+$app->get('/users/:id', 'user');
+
+$app->get('/students', 'students');
+$app->get('/students/:id', 'student');
+$app->get('/students/:id/hw', 'studentHomeworkList');
+$app->get('/students/:id/hw/:hw_id', 'studentHomeworkDetail');
+$app->get('/students/:id/groups', 'studentGroupList');
+
+$app->get('/homework/:id', 'homework');
+$app->get('/homework/:id/solutions', 'homeworkSolutionList');
+
+$app->get('/schemas', 'schemas');
+$app->post('/schemas', 'schemaCreate');
+$app->put('/schemas/:id', 'schemaUpdate');
+$app->delete('/schemas/:id', 'schemaDelete');
+$app->get('/schemas/:id', 'schemaDetail');
+$app->get('/schemas/:id/vhdls', 'schemaData');
+$app->post('/schemas/:id/vhdls', 'schemaDataCreate');
+$app->put('/schemas/:schema_id/vhdls', 'schemaDataUpdate');
+$app->get('/schemas/:id/vhdls/last', 'schemaDataLast');
+
+$app->get('/groups', 'groups'); //seznam skupin
+$app->get('/groups/:id', 'group'); //detail skupiny
+$app->get('/groups/:id/students', 'groupStudents'); //studenti skupiny
+$app->post('/groups', 'groupCreate'); //vytvoření skupiny
+$app->post('/groups/:id/students/:student_id', 'groupAddStudent'); // přidání studenta do skupiny
+$app->delete('/groups/:id', 'groupDelete'); // odebrání studenta ze skupiny
+$app->delete('/groups/:group_id/students/:student_id', 'groupRemoveStudent'); // odebrání studenta ze skupiny
+
+$app->get('/teachers', 'teachers');
+$app->get('/teachers/:id', 'teacher');
+$app->get('/teachers/:id/groups', 'techerGroups');
+$app->get('/teachers/:id/hw/', 'teacherHomeworks');
+$app->get('/teachers/:id/tasks/', 'teacherTasks');
 
 $app->run();

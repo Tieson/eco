@@ -10,7 +10,7 @@
  */
 
 
-$app->get('/teachers', function () {
+function teachers() {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -34,9 +34,8 @@ $app->get('/teachers', function () {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-$app->get('/teachers/:id', function ($id) {
+}
+function teacher($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -63,9 +62,8 @@ $app->get('/teachers/:id', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-$app->get('/teachers/:id/groups', function ($id) {
+}
+function techerGroups($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -90,9 +88,8 @@ $app->get('/teachers/:id/groups', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-
-$app->get('/teachers/:id/hw/', function ($id) {
+}
+function teacherHomeworks($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -117,8 +114,8 @@ $app->get('/teachers/:id/hw/', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-$app->get('/teachers/:id/tasks/', function ($id) {
+}
+function teacherTasks($id) {
 	$app = \Slim\Slim::getInstance();
 
 	try
@@ -143,30 +140,4 @@ $app->get('/teachers/:id/tasks/', function ($id) {
 		$app->response()->setStatus(404);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
-});
-$app->post('/teachers/:id/tasks/', function ($id) {
-	$app = \Slim\Slim::getInstance();
-
-	try
-	{
-		$db = getDB();
-		$sth = $db->prepare("SELECT id, teacher_id, name, description, created, etalon_file, test_file
-            FROM task WHERE teacher_id = :id");
-		$sth->bindParam(':id', $id, PDO::PARAM_INT);
-		$sth->execute();
-		$items = $sth->fetchAll(PDO::FETCH_OBJ);
-
-		if($items) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($items);
-			$db = null;
-		} else {
-			throw new PDOException('No records found.');
-		}
-
-	} catch(PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	}
-});
+}
