@@ -1,6 +1,5 @@
-var app = app || {};
 
-eco.BaseModalView = Backbone.View.extend({
+eco.Views.BaseModalView = Backbone.View.extend({
 
     id: 'base-modal',
     className: 'modal fade',
@@ -53,7 +52,7 @@ eco.BaseModalView = Backbone.View.extend({
 
 });
 
-eco.SchemaModalView = eco.BaseModalView.extend({
+eco.Views.SchemaModalView = eco.Views.BaseModalView.extend({
 
     events: {
         'hidden': 'teardown',
@@ -104,7 +103,7 @@ eco.SchemaModalView = eco.BaseModalView.extend({
     }
 });
 
-eco.SchemaOpenListModalView = eco.BaseModalView.extend({
+eco.Views.SchemaOpenListModalView = eco.Views.BaseModalView.extend({
 
     events: {
         'hidden': 'teardown',
@@ -122,7 +121,7 @@ eco.SchemaOpenListModalView = eco.BaseModalView.extend({
         // this.eventAgg = options.eventAgg;
 
         this.title = options.title?options.title:"";
-        this.template = _.template(eco.templates.getTemplateHTML(options.template));
+        this.template = _.template($(options.template).html());
         _(this).bindAll();
         // this.render();
         this.inputValidator = options.inputValidator;
@@ -130,8 +129,10 @@ eco.SchemaOpenListModalView = eco.BaseModalView.extend({
     },
 
     render: function() {
-        var data = { title: this.title, collection: this.collection.attributes() };
-        this.$el.html(this.template(data));
+        this.$el.html(this.template({
+            title: this.title,
+            collection: this.collection.toJSON()
+        }));
         this.$el.modal({ show:false }); // dont show modal on instantiation
         this.$el.find('[data-toggle="tooltip"]').tooltip();
         return this;

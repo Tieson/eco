@@ -1,9 +1,7 @@
 
-var eco = eco || {};
+eco.Models.Entity = Backbone.Model.extend({});
 
-eco.Entity = Backbone.Model.extend({});
-
-eco.EntityView = Backbone.View.extend({
+eco.Views.EntityView = Backbone.View.extend({
     tagName: "div",
     className: "entity noselect",
     render: function () {
@@ -13,11 +11,11 @@ eco.EntityView = Backbone.View.extend({
     }
 });
 
-eco.Entities = Backbone.Collection.extend({
-    model: eco.Entity
+eco.Collections.Entities = Backbone.Collection.extend({
+    model: eco.Models.Entity
 });
 
-eco.EntititesView = Backbone.View.extend({
+eco.Views.EntititesView = Backbone.View.extend({
     tagName: "div",
     className: "ribbon__contents__items",
     initialize: function (opts) {
@@ -28,21 +26,21 @@ eco.EntititesView = Backbone.View.extend({
         var self = this;
         this.$el.html();
         this.collection.each(function (entity) {
-            var entityView = new eco.EntityView({model: entity});
+            var entityView = new eco.Views.EntityView({model: entity});
             self.$el.append(entityView.render().$el);
         });
         return this;
     }
 });
 
-eco.Category = Backbone.Model.extend({
+eco.Models.Category = Backbone.Model.extend({
     defatults: {
         id: null,
         name: null,
-        entities: new eco.Entities()
+        entities: new eco.Collections.Entities()
     },
     initialize: function (opts) {
-        this.entities = new eco.Entities();
+        this.entities = new eco.Collections.Entities();
         this.entities.url = this.entitiesUrl();
         this.entities.fetch();
     },
@@ -51,7 +49,7 @@ eco.Category = Backbone.Model.extend({
     }
 });
 
-eco.CategoryView = Backbone.View.extend({
+eco.Views.CategoryView = Backbone.View.extend({
     className: 'ribbon__contents__category',
     initialize: function () {
         this.template = _.template($('.template-categories-list').html());
@@ -65,7 +63,7 @@ eco.CategoryView = Backbone.View.extend({
         $(this.$el).attr('data-categoryid', this.model.get('id'));
         var itemsContainer = this.$el.find('.ribbon__contents__items');
 
-        var itemView = new eco.EntititesView({collection: this.model.entities, category: this.model.get('name')});
+        var itemView = new eco.Views.EntititesView({collection: this.model.entities, category: this.model.get('name')});
         this.$el.append(itemView.render().$el);
         this.$el.find(".ribbon__contents__items").hide();
 
@@ -77,12 +75,12 @@ eco.CategoryView = Backbone.View.extend({
 });
 
 
-eco.Categories = Backbone.Collection.extend({
-    model: eco.Category,
+eco.Collections.Categories = Backbone.Collection.extend({
+    model: eco.Models.Category,
     url: '/api/categories'
 });
 
-eco.CategoriesView = Backbone.View.extend({
+eco.Views.CategoriesView = Backbone.View.extend({
     initialize: function (opts) {
         var self = this;
         this.listenTo(this.collection, 'sync', this.render);
@@ -103,7 +101,7 @@ eco.CategoriesView = Backbone.View.extend({
 
         if (this.active){
             this.collection.each(function (category) {
-                var categoryView = new eco.CategoryView({model: category});
+                var categoryView = new eco.Views.CategoryView({model: category});
                 self.$el.append(categoryView.render().el);
 
             }, this);

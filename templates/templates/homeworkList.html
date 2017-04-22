@@ -1,39 +1,31 @@
 
 <script type="text/template" id="homeworkList-template">
+	<h2>Seznam úkolů</h2>
+	<div class="table-responsive">
+		<table class="table">
+			<thead>
+			<th>Název</th>
+			<th>Termín</th>
+			<th>Stav</th>
+			<th>Akce</th>
+			</thead>
+			<tbody class="homeworks-container">
 
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title"><%= title %></h4>
-			</div>
-			<div class="modal-body">
-				<table>
-					<thead>
-					<th>Název</th>
-					<th>Termín</th>
-					<th>Stav</th>
-					<th>Akce</th>
-					</thead>
-					<tbody>
-					<% _.each(collection, function(item) { %>
-						<a href="#" data-schema-id="<%= item.id %>" class="list-group-item "><strong><%= item.name %></strong> - <%= item.architecture %></a>
-						<td><a href="#detail" data-id="<%= item.id %>"><%= item.name %></a></td>
-						<td><%= item.deadline %></td>
-						<td><%= item.getStatus %></td>
-						<td>
-							<a href="#" class="hw-btn-add" data-hw-id="<%= item.id %>">Přidat řešení</a>
-							<a href="#" class="hw-btn-test" data-hw-id="<%= item.id %>">Otestovat</a>
-							<a href="#" class="hw-btn-submit" data-hw-id="<%= item.id %>">Odevzdat</a>
-						</td>
-					<% }); %>
-					</tbody>
-				</table>
-			</div>
-			<div class="modal-footer">
-				<a href="#" class="btn btn-storno button">Zavřít</a>
-			</div>
-		</div>
+			</tbody>
+		</table>
 	</div>
+</script>
+
+
+<script type="text/template" id="homeworkListItem-template">
+
+	<td><a href="#detail" data-id="<%= id %>"><%= name %></a></td>
+	<td><%= deadline %></td>
+	<td><%= status %></td>
+	<td>
+		<a href="#" class="hw-btn-add" data-hw-id="<%= id %>">Přidat řešení</a>
+		<a href="#" class="hw-btn-test" data-hw-id="<%= id %>">Otestovat</a>
+		<a href="#" class="hw-btn-submit" data-hw-id="<%= id %>">Odevzdat</a>
+	</td>
 
 </script>

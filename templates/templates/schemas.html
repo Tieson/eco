@@ -1,0 +1,172 @@
+<script type="text/template" id="editSchemaModal-template">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><%= title%></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="schema_name">Název: <i class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                                                       title="Zadávejte pouze písmena anglické abecedy, podtržítka a číslice."></i></label>
+                    <input type="text"
+                           name="name"
+                           id="schema_name"
+                           class="form-control"
+                           value="<%= schema.name %>"
+                           autofocus="autofocus" ,
+                           placeholder="schema_01"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="schema_name">Architektura: <i class="glyphicon glyphicon-info-sign"
+                                                              data-toggle="tooltip"
+                                                              title="Zadávejte pouze písmena anglické abecedy, podtržítka a číslice."></i></label>
+                    <input type="text"
+                           name="architecture"
+                           id="schema_architecture"
+                           class="form-control"
+                           value="<%= schema.architecture %>"
+                           placeholder="arch_01"
+                    >
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <small>
+                            Název a architektura musí být validní VHDL název.
+                            Ten může obsahovat pouze písmena anglické abecedy, kterými musí začínat, dále číslice a
+                            podtržítka.
+                            Podtržítka nesmí být zasebou.
+                        </small>
+                    </div>
+                </div>
+                <!--<hr>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <a href="#" class="btn btn-danger"><i class="glyphicon glyphicon-trash"></i> smazat schéma</a>
+                    </div>
+                </div>-->
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-storno button">Storno</a>
+                <button type="submit" class="btn btn-save button button--primary">Save</button>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="schemaListModal-template">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><%= title %></h4>
+            </div>
+            <div class="modal-body">
+                <div class="list-group schema_open_list">
+                    <% _.each(collection, function(schema) { %>
+                    <a href="#schema/<%= schema.id %>" data-schema-id="<%= schema.id %>"
+                       class="list-group-item schema_open_list__item"><strong><%= schema.name %></strong> - <%=
+                        schema.architecture %></a>
+                    <% }); %>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-storno button">Zavřít</a>
+            </div>
+        </div>
+    </div>
+</script>
+
+
+<script type="text/template" id="schemasOpenList-template">
+    <h2>Otevřít schéma</h2>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Název</th>
+                <th>Architektura</th>
+                <th>Vytvořeno</th>
+                <th>Akce</th>
+            </tr>
+            </thead>
+            <tbody class="schemas-container">
+            </tbody>
+        </table>
+    </div>
+</script>
+
+
+<script type="text/template" id="schemasOpenItem-template">
+
+    <td><%= name %></td>
+    <td><%= architecture %></td>
+    <td><%= created %></td>
+    <td>
+        <% if(opened) { %>
+        <% } else { %>
+        <a href="#schema/<%= id %>" class="btn button button--success open-schema" data-schema-id="<%=id%>">Otevřít</a>
+        <% } %>
+    </td>
+
+</script>
+
+
+<script type="text/template" id="schemasNew-template">
+    <h2>Vytvořit nové schéma</h2>
+
+    <form action="#">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="schemasNew_name">Název <i class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                                                          title="Zadávejte pouze písmena anglické abecedy, podtržítka a číslice."></i></label>
+                    <input type="text" class="form-control" id="schemasNew_name" placeholder="schema_01"
+                           value="<%=schema.name%>">
+                    <% if(error.invalidName) { %>
+                    <div class="alert alert-danger">
+                        <small class="">Nesprávný formát názvu. Název musí začíant písmenem anglické abecedy, nesmí
+                            obsahovat diakritiku a mezery.
+                        </small>
+                    </div>
+                    <% }%>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="schemasNew_arch">Architektura <i class="glyphicon glyphicon-info-sign"
+                                                                 data-toggle="tooltip"
+                                                                 title="Zadávejte pouze písmena anglické abecedy, podtržítka a číslice."></i></label>
+                    <input type="text" class="form-control" name="arch" placeholder="arch_01" id="schemasNew_arch"
+                           value="<%=schema.architecture%>">
+                    <% if(error.invalidArchitecture) { %>
+                    <div class="alert alert-danger">
+                        <small class="">Nesprávný formát názvu architektury. Architektura musí začíant písmenem, nesmí
+                            obsahovat diakritiku a mezery.
+                        </small>
+                    </div>
+                    <% }%>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <small>
+                    Název a architektura musí být validní VHDL název.
+                    Ten může obsahovat pouze písmena anglické abecedy, kterými musí začínat, dále číslice a
+                    podtržítka.
+                    Podtržítka nesmí být zasebou.
+                </small>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="form-group">
+                <label for="schemasNew_arch"></label>
+                <button class="btn button--success">Vytvořit</button>
+            </div>
+        </div>
+    </form>
+</script>

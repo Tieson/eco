@@ -1,7 +1,5 @@
 
-var app = app || {};
-
-eco.Settings = Backbone.Model.extend({
+eco.Models.Settings = Backbone.Model.extend({
     defaults: {
         selCard: 0,
         selSchema: 0,

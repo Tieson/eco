@@ -2,11 +2,11 @@
 var app = app || {};
 
 
-eco.Task = Backbone.Model.extend({
+eco.Models.Task = Backbone.Model.extend({
     urlRoot: '/api/'
 });
 
-eco.Homework = Backbone.Model.extend({
+eco.Models.Homework = Backbone.Model.extend({
     defaults: {
         id: null,
         task_id: null,
@@ -24,8 +24,8 @@ eco.Homework = Backbone.Model.extend({
 });
 
 
-eco.Homeworks = Backbone.Collection.extend({
-    model: eco.Homework,
+eco.Collections.Homeworks = Backbone.Collection.extend({
+    model: eco.Models.Homework,
     initialize: function (options) {
         this.student_id = options.student_id;
     },

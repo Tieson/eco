@@ -2,10 +2,8 @@
  * Created by Tom on 13.04.2017.
  */
 
-var eco = eco || {};
-eco.helpers = eco.helpers || {};
 
-eco.helpers.TemplateHolder = Backbone.Model.extend({
+eco.Models.TemplateHolder = Backbone.Model.extend({
     idAttribute: "key",
     defaults: {
         key: null,
@@ -13,18 +11,18 @@ eco.helpers.TemplateHolder = Backbone.Model.extend({
     }
 });
 
-eco.helpers.TemplatesHolder = Backbone.Collection.extend({
-    model: eco.helpers.TemplateHolder
+eco.Collections.TemplatesHolder = Backbone.Collection.extend({
+    model: eco.Models.TemplateHolder
 });
 
-eco.helpers.TemplatesHolderContainer = Backbone.Model.extend({
+eco.Models.TemplatesHolderContainer = Backbone.Model.extend({
     opts: {
         autoload: true,
         removeTemplates: true
     },
     initialize: function (options) {
         this.opts = $.extend({}, this.opts, options);
-        this.collection = new eco.helpers.TemplatesHolder();
+        this.collection = new eco.Collections.TemplatesHolder();
         if (this.opts.autoload){
             this.loadTemplates();
         }
@@ -46,7 +44,7 @@ eco.helpers.TemplatesHolderContainer = Backbone.Model.extend({
      */
     addTemplate:function (key) {
         var html = $(key).html();
-        this.collection.add(new eco.helpers.TemplateHolder({ key: key, html: html }));
+        this.collection.add(new eco.Models.TemplateHolder({ key: key, html: html }));
     },
 
     hasTemplate: function (key) {

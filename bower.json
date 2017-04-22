@@ -25,7 +25,9 @@
     "backbone.localStorage": "github:jeromegn/Backbone.localStorage#^1.1.16",
     "list.js": "^1.5.0",
     "backbone-relational": "^0.10.0",
-    "backbone.marionette": "marionette#^3.2.0"
+    "backbone.marionette": "marionette#^3.2.0",
+    "Backbone.dualStorage": "^1.4.1",
+    "moment": "^2.18.1"
   },
   "devDependencies": {
     "list.js": "^1.5.0"

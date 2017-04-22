@@ -17,7 +17,11 @@ function groups() {
 	{
 		$db = getDB();
 		$sth = $db->prepare("SELECT *
-            FROM `group`");
+            FROM `group` AS g
+            JOIN group_teaching AS gt
+            JOIN teacher AS t
+            JOIN `user` AS u
+            ON g.id = gt.group_id AND t.id = gt.teacher_id AND t.user_id = u.id");
 //		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);

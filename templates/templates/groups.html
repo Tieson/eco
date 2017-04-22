@@ -1,0 +1,71 @@
+<script type="text/template" id="groupsList-template">
+    <h2>Seznam skupin</h2>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Předmět</th>
+                <th>Den</th>
+                <th>Blok</th>
+                <th>Týden</th>
+                <th>Vyučující</th>
+                <th>Vytvořeno</th>
+            </tr>
+            </thead>
+            <tbody class="groups-container">
+
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<script type="text/template" id="groupsListItem-template">
+    <td><%=subject%></td>
+    <td><%=day%></td>
+    <td><%=block%>.</td>
+    <td><%=weeks%></td>
+    <td><%=teacher%></td>
+    <td><%=created%></td>
+</script>
+
+
+<script type="text/template" id="groupsDetail-template">
+
+    <h1>Skupina</h1>
+    <dt>Předmět</dt>
+    <dd><%=subject%></dd>
+    <dt>Den</dt>
+    <dd><%=day%></dd>
+    <dt>Blok</dt>
+    <dd><%=block%>.</dd>
+    <dt>Týden</dt>
+    <dd><%=weeks%></dd>
+    <dt>Vytvořeno</dt>
+    <dd><%=created%></dd>
+    <hr>
+    <h2>Seznam Studentů</h2>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Jméno</th>
+                <th>E-mail</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody class="students-container">
+
+            </tbody>
+        </table>
+    </div>
+</script>
+
+
+<script type="text/template" id="groupsDetailStudent-template">
+    <td><%=name%></td>
+    <td><%=mail%></td>
+    <td>
+        <a href="#teacher/circles/<%=id%>/students/remove/<%=student_id%>"
+           class="btn btn-danger remove-student">Odebrat</a>
+    </td>
+</script>

@@ -33,7 +33,8 @@ function students() {
 
 	} catch(PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+//		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '[]';
 	}
 }
 function student($id) {

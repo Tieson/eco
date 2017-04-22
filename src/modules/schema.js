@@ -1,6 +1,5 @@
-var eco = eco || {};
 
-eco.Schema = Backbone.Model.extend({
+eco.Models.Schema = Backbone.Model.extend({
     urlRoot: '/api/schemas',
     defaults: {
         id: null,
@@ -11,51 +10,42 @@ eco.Schema = Backbone.Model.extend({
         opened: false,
         // created: null,
         // colletion: null, //kolekce VHDL dat
-        graph: new joint.dia.Graph(),
+        graph: null,
         paper: null,
-        container: null,
     },
     parse: function (data) {
         return data; // in this case your model will be mixed with server response after sync was call
     },
     initialize: function (opts) {
-        // console.log("schema url", this.url());
-        // this.colletion = new eco.VHDLs();
-        // this.colletion.url = this.entitiesUrl();
-        // // this.colletion.fetch();
-        // console.log(this.colletion);
-        // console.log(this);
-
-        //this.loadGraph();
+        this.set('graph', new joint.dia.Graph());
+        console.log('eco.Models.Schema:initialize');
     },
     validateParams: function () {
         console.log("validateParams");
         return this.get('name').length > 0 && this.get('architecture').length > 0 && isVhdlName(this.get('name')) && isVhdlName(this.get('architecture'));
     },
-    createPaper: function () {
+    /*createPaper: function () {
+        console.log("%ccreatePaper", "color:cornflowerblue");
 
         var self = this;
-        var options = {
-            container: $("#canvasWrapper"),
-            canvas: {
-                w: 2400,
-                h: 1200,
-                gs: 7
-            }
-        };
 
-        console.log("%ccreatePaper", "color:red");
+        var container = $("#canvasWrapper"),
+            width = 2400,
+            height = 1200;
+
         var paperContainer = $('<div data-schema="' + this.get('name') + '" id="paper_container_' + this.get('id') + '"></div>');
-        options.container.append(paperContainer);
+        paperContainer.width(width);
+        paperContainer.height(height);
 
-        paperContainer.width(options.canvas.w);
-        paperContainer.height(options.canvas.h);
+        container.append(paperContainer);
 
         var paper = new joint.dia.Paper({
 
             el: paperContainer,
             model: this.get("graph"),
-            width: options.canvas.w, height: options.canvas.h, gridSize: options.canvas.gs,
+            width: width,
+            height: height,
+            gridSize: 7,
             snapLinks: true,
             linkPinning: false,
             defaultLink: new joint.shapes.mylib.Vodic,
@@ -101,9 +91,9 @@ eco.Schema = Backbone.Model.extend({
             console.log("click", this.model.getConnectedLinks(cellView.model, {outbound: true}).map(function (x) {
                 return x;
             }) );
-            /**
+            /!**
              * Po kliknutí na hodiny je vypnout/zaponout
-             */
+             *!/
             if (cellView.model instanceof joint.shapes.mylib.CLK) {
                 console.log(cellView.model.tickOn);
                 cellView.model.tickOn = !cellView.model.tickOn;
@@ -114,9 +104,10 @@ eco.Schema = Backbone.Model.extend({
         });
 
         this.set("paper", paper);
-    },
+    },*/
 
     initializeGraph: function () {
+        console.log('initializeGraph');
         var self = this;
         var graph = this.get("graph");
 
@@ -196,13 +187,13 @@ eco.Schema = Backbone.Model.extend({
     /**
      * Odebrání paperu
      */
-    destroyPaper: function () {
+    /*destroyPaper: function () {
         var paper = this.get('paper');
         if (paper) {
             paper.remove();
             this.set('paper', null);
         }
-    },
+    },*/
 
     /**
      * Uložení aktuálního stavu grafu jako JSON do DB
@@ -214,7 +205,7 @@ eco.Schema = Backbone.Model.extend({
         var graphstring = this.getGraphAsString();
 
         if (this.lastVHDL == null) {
-            this.lastVHDL = new eco.VHDL({
+            this.lastVHDL = new eco.Models.VHDL({
                 schema_id: self.id,
                 data: graphstring,
             });
@@ -234,7 +225,7 @@ eco.Schema = Backbone.Model.extend({
     saveGraphNewVersion: function () {
         var graphstring = this.getGraphAsString();
 
-        this.lastVHDL = new eco.VHDL({});
+        this.lastVHDL = new eco.Models.VHDL({});
 
         this.lastVHDL.data = graphstring;
         this.lastVHDL.schema_id = this.id;
@@ -254,7 +245,7 @@ eco.Schema = Backbone.Model.extend({
         console.log("loadGraph");
         // pokud data grafu nebyla načtena, tak vytvoří nový graf
         if (this.lastVHDL == null) {
-            this.lastVHDL = new eco.VHDL();
+            this.lastVHDL = new eco.Models.VHDL();
         }
         var vhdl = this.lastVHDL;
         var self = this;
@@ -270,7 +261,7 @@ eco.Schema = Backbone.Model.extend({
                     if (data.length>0){
                         self.get('graph').fromJSON(JSON.parse(data));
                     }
-                    callback.apply(self);
+                    if(callback) {callback.apply(self);}
                 },
                 error: function () {
                     console.log('loadGraph fetch error');
@@ -281,29 +272,29 @@ eco.Schema = Backbone.Model.extend({
         }
     },
 
-    openSchema: function () {
-        console.log("openSchema");
-        if (!this.opened) {
-            this.loadGraph(this.initLoadedGraf);
-            this.createPaper();
-            this.initializeGraph();
-
-            this.opened = true;
-        }
-    },
-    initLoadedGraf: function () {
-        console.log("initLoadedGraf", this);
-        this.initializeSignal();
-    },
-    closeSchema: function () {
-        this.destroyPaper();
-        // this.initializeSignal();
-        this.opened = false;
-    }
+    // openSchema: function () {
+    //     console.log("openSchema");
+    //     if (!this.opened) {
+    //         this.loadGraph(this.initLoadedGraf);
+    //         this.createPaper();
+    //         this.initializeGraph();
+    //
+    //         this.opened = true;
+    //     }
+    // },
+    // initLoadedGraf: function () {
+    //     console.log("initLoadedGraf", this);
+    //     // this.initializeSignal();
+    // },
+    // closeSchema: function () {
+    //     this.destroyPaper();
+    //     // this.initializeSignal();
+    //     this.opened = false;
+    // }
 });
 
-eco.OpenedSchemaView = Backbone.Collection.extend({
-    model: eco.Schema,
+eco.Views.OpenedSchemaView = Backbone.Collection.extend({
+    model: eco.Models.Schema,
     actveSchema: null,
     initialize: function (options) {
 
@@ -317,7 +308,7 @@ eco.OpenedSchemaView = Backbone.Collection.extend({
     }
 });
 
-eco.SchemaView = Backbone.View.extend({
+eco.Views.SchemaView = Backbone.View.extend({
     className: "canvas_item",
     tagName: 'div',
     initialize: function () {
@@ -327,51 +318,42 @@ eco.SchemaView = Backbone.View.extend({
     }
 });
 
-eco.SchemaItemView = Backbone.View.extend({
+eco.Views.SchemaItemView = Backbone.View.extend({
     className: "schema_list__item",
-    tagName: 'div',
+    tagName: 'a',
     initialize: function () {
 
-        this.template = _.template($('.template-schema-list').html());
+        this.template = _.template($('#schemaListItem-template').html());
         // this.listenTo(this.model.collection, 'sync', this.render);
     },
     events: {
         // 'click .schema_list__item': 'onSchemaClick'
     },
     render: function () {
-        // console.log("rendering Schema", this.model, this.model.collection);
-        var self = this;
         this.$el.html(this.template(this.model.toJSON()));
-        this.$el.attr('data-id', this.model.get('schema').id);
-        if (this.model.get('active')) {
-            this.$el.addClass('active');
-        }
+        this.$el.attr('data-id', this.model.get('id'));
+        this.$el.attr('href', '#schema/'+this.model.get('id'));
         console.log(this.model.toJSON());
         return this;
     }
 });
 
-eco.Schemas = Backbone.Collection.extend({
+eco.Collections.Schemas = Backbone.Collection.extend({
     url: '/api/schemas',
-    model: eco.Schema
+    model: eco.Models.Schema
 });
 
-eco.SchemaMenuItem = Backbone.Model.extend({
-    defaults: {
-        schema: null,
-        active: false
-    }
+eco.Collections.Papers = Backbone.Collection.extend({
+    model: joint.dia.Paper
 });
 
-eco.SchemasView = Backbone.View.extend({
+eco.Views.SchemasListView = Backbone.View.extend({
     el: "#schema_list_container",
     activeSchema: null,
     initialize: function (opts) {
         console.log("schemas init");
-        var self = this;
-        this.listenTo(this.collection, 'sync change add', this.render);
-        // this.collection = opts.collection;
-
+        this.listenTo(this.collection, 'sync', this.render);
+        this.listenTo(this.collection, 'change', this.render);
     },
     events: {
         'click .schema_list__item__edit': 'editSchemaHandler',
@@ -384,19 +366,31 @@ eco.SchemasView = Backbone.View.extend({
             }
         });
     },
+    renderOne: function(group) {
+        var itemView = new eco.Models.SchemaItemView({model: group});
+        eco.ViewGarbageCollector.add(itemView);
+        this.$('.groups-container').append(itemView.render().$el);
+    },
     render: function () {
-        console.log("%crender Schemas " + this.collection.length, "color: #2C4");
+        console.log("%crender Schemas ", "color: #2C4", this.activeSchema);
         var self = this;
         this.$el.html("");
-        console.log("eco.SchemasView: render", this.collection);
         this.collection.each(function (schema) {
-            console.log(schema);
-            var m = new eco.SchemaMenuItem({'schema': schema.toJSON()});
-            if (self.activeSchema && _.isEqual(schema, self.activeSchema)) {
-                m.set('active', true);
+            console.log('%c schema ','background:#0a0;color:#fff',schema);
+            // if (self.activeSchema && _.isEqual(schema, self.activeSchema)) {
+            //     m.set('active', true);
+            // }
+            var schemaItemView = new eco.Views.SchemaItemView({model: schema});
+
+            var $item = schemaItemView.render().$el;
+            self.$el.append($item);
+
+
+            if(self.activeSchema && self.activeSchema.get('id') == schema.get('id')){
+                //schéma je aktivní
+                console.log('%c Active schema','background:#f00;color:#fff', schema);
+                $item.addClass('active');
             }
-            var schemaItemView = new eco.SchemaItemView({model: m});
-            self.$el.append(schemaItemView.render().$el);
         });
         return this;
     },
@@ -411,14 +405,12 @@ eco.SchemasView = Backbone.View.extend({
         this.trigger('openSchema', model);
     },
     setActiveSchema: function (schema) {
-        console.log('setActiveSchema', this, schema, "id:", schema.get('id'));
-        this.$el.find(".schema_list__item").removeClass('active').find('[data-id=' + schema.get('id') + ']').removeClass('active');
         this.activeSchema = schema;
     }
 });
 
 
-eco.VHDL = Backbone.Model.extend({
+eco.Models.VHDL = Backbone.Model.extend({
     // urlRoot: '/api/vhdls',
     defaults: {
         id: null,
@@ -428,9 +420,106 @@ eco.VHDL = Backbone.Model.extend({
     }
 });
 
-eco.VHDLs = Backbone.Collection.extend({
-    model: eco.VHDL,
+eco.Collections.VHDLs = Backbone.Collection.extend({
+    model: eco.Models.VHDL,
     initialize: function (opts) {
         // this.url = opts.url;
     }
+});
+
+
+
+eco.Views.SchemasOpenList = Backbone.View.extend({
+    template: _.template($('#schemasOpenList-template').html()),
+    initialize: function (opts) {
+        this.listenTo(this.collection, 'sync', this.render);
+    },
+    events: {
+        'click .open-schema': 'schemaOpenClick'
+    },
+    renderOne: function(item) {
+        var itemView = new eco.Views.SchemasOpenItem({model: item});
+        itemView.on('schemaOpen',this.schemaOpen);
+        eco.ViewGarbageCollector.add(itemView);
+        this.$('.schemas-container').append(itemView.render().$el);
+    },
+    render: function () {
+        console.log('eco.Views.SchemasOpenList: render');
+        var html = this.template();
+        this.$el.html(html);
+        this.collection.each(this.renderOne, this);
+        return this;
+    },
+    schemaOpen: function (item) {
+        console.log('eco.Views.SchemasOpenList: schemaOpen', item, this);
+        this.trigger("schemaOpenClick", item, this);
+    },
+    schemaOpenClick: function (event) {
+        this.trigger("schemaOpenClick", this.collection.get($(event.currentTarget).attr("data-schema-id")));
+    }
+
+});
+eco.Views.SchemasOpenItem = Backbone.View.extend({
+    className: '',
+    tagName: 'tr',
+    template: _.template($('#schemasOpenItem-template').html()),
+    render: function() {
+        var data = {
+            cid: this.model.cid,
+            id: this.model.get('id'),
+            name: this.model.get('name'),
+            architecture: this.model.get('architecture'),
+            opened: this.model.get('opened'),
+            created: moment(this.model.get('created')).format('LLL')
+        };
+        var html = this.template(data);
+        this.$el.append(html);
+        this.$el.attr('data-id', data.id);
+        this.$el.attr('data-cid', data.cid);
+        return this;
+    }
+});
+
+eco.Views.SchemasNew = Backbone.View.extend({
+    className: "schema_new",
+    tagName: 'div',
+    template: _.template($('#schemasNew-template').html()),
+    error: {
+        invalidName: false,
+        invalidArchitecture: false
+    },
+    initialize: function (opts) {
+        this.listenTo(this.collection, 'sync', this.render);
+    },
+    events: {
+        'submit form': 'schemaNewSubmit',
+    },
+    render: function () {
+        var html = this.template({error: this.error, schema: this.model.toJSON()});
+        this.$el.html(html);
+
+        return this;
+    },
+    schemaNewSubmit: function (e) {
+        e.preventDefault();
+        var self = this;
+        var schema = this.model;
+        schema.set('name', self.$el.find('#schemasNew_name').val());
+        schema.set('architecture', self.$el.find('#schemasNew_arch').val());
+        if (isVhdlName(schema.get('name')) && isVhdlName(schema.get('architecture'))) {
+            this.trigger("schemaNewSubmit", schema);
+        }else{
+            if (!isVhdlName(schema.get('name')))
+                this.error.invalidName = true;
+            else
+                this.error.invalidName = false;
+            if (!isVhdlName(schema.get('architecture')))
+                this.error.invalidArchitecture = true;
+            else
+                this.error.invalidArchitecture = false;
+
+            this.render();
+        }
+    }
+
 });
