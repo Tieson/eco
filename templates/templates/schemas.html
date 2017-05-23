@@ -100,7 +100,7 @@
 
 <script type="text/template" id="schemasOpenItem-template">
 
-    <td><%= name %></td>
+    <td><strong><%= name %></strong></td>
     <td><%= architecture %></td>
     <td><%= created %></td>
     <td>
@@ -108,13 +108,14 @@
         <% } else { %>
         <a href="#schema/<%= id %>" class="btn button button--success open-schema" data-schema-id="<%=id%>">Otevřít</a>
         <% } %>
+        <a href="#schemas/<%= id %>/edit" class="btn button button--default edit-schema" data-schema-id="<%=id%>">Upravit</a>
     </td>
 
 </script>
 
 
 <script type="text/template" id="schemasNew-template">
-    <h2>Vytvořit nové schéma</h2>
+    <h2><%=titleText%></h2>
 
     <form action="#">
         <div class="row">
@@ -150,22 +151,20 @@
                 </div>
             </div>
         </div>
-
         <div class="row">
-            <div class="col-xs-12">
-                <small>
-                    Název a architektura musí být validní VHDL název.
+            <div class="col-xs-12 col-sm-3">
+                <div class="form-group">
+
+                    <button class="btn btn-block button--success"><%=submitText%></button>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-9">
+                <div class="alert alert-info">Název a architektura musí být validní VHDL název.
                     Ten může obsahovat pouze písmena anglické abecedy, kterými musí začínat, dále číslice a
                     podtržítka.
                     Podtržítka nesmí být zasebou.
-                </small>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-group">
-                <label for="schemasNew_arch"></label>
-                <button class="btn button--success">Vytvořit</button>
+                </div>
             </div>
         </div>
     </form>

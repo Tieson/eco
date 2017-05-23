@@ -187,12 +187,14 @@ body {
 .main_content {
   flex: 1;
   display: flex;
-  flex-direction: row; }
+  flex-direction: row;
+  overflow: auto; }
   .main_content__container {
     flex: 1;
     display: flex;
     width: 100%;
-    height: 100%; }
+    height: 100%;
+    overflow: auto; }
 
 .paper_container.dragover {
   outline: inset dashed 2px #66cc00; }
@@ -305,3 +307,14 @@ text {
 .joint-element.live .body {
   fill: #F58220;
   stroke: #f58220; }
+
+.joint-link.invalid > .connection {
+  stroke: #e1092d;
+  stroke-width: 3px; }
+
+.invalid .connection-wrap {
+  stroke: #e1092d; }
+
+.joint-element.invalid .body {
+  fill: #e1092d;
+  stroke: #e1092d; }

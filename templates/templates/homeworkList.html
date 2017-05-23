@@ -19,13 +19,48 @@
 
 <script type="text/template" id="homeworkListItem-template">
 
-	<td><a href="#detail" data-id="<%= id %>"><%= name %></a></td>
+	<td><a href="#homeworks/<%= id %>" class="btn btn-xs button--default" data-id="<%= id %>"><%= name %></a></td>
 	<td><%= deadline %></td>
-	<td><%= status %></td>
+	<td><div class="badge badge-default"><%= status %></div></td>
 	<td>
-		<a href="#" class="hw-btn-add" data-hw-id="<%= id %>">Přidat řešení</a>
-		<a href="#" class="hw-btn-test" data-hw-id="<%= id %>">Otestovat</a>
-		<a href="#" class="hw-btn-submit" data-hw-id="<%= id %>">Odevzdat</a>
+		<a href="#" class="btn btn-xs button--default hw-btn-add" data-hw-id="<%= id %>">Přidat řešení</a>
+		<a href="#" class="btn btn-xs button--primary hw-btn-test" data-hw-id="<%= id %>">Otestovat</a>
+		<a href="#" class="btn btn-xs button--success hw-btn-submit" data-hw-id="<%= id %>">Odevzdat</a>
 	</td>
+
+</script>
+<script type="text/template" id="homeworkDetail-template">
+
+	<div class="row">
+		<div class="col-xs-12">
+			<h1>Detail úkolu: <%= name %></h1>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-sm-4">
+			<dl>
+			<dt>Termín</dt>
+			<dd><%= deadline %></dd>
+			</dl>
+		</div>
+		<div class="col-xs-12 col-sm-4">
+			<dl>
+			<dt>Stav</dt>
+			<dd><%= status %></dd>
+			</dl>
+		</div>
+		<div class="col-xs-12 col-sm-4">
+			<dl>
+			<dt>Vytvořeno</dt>
+			<dd><%= created %></dd>
+			</dl>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12">
+			<h2>Zadání</h2>
+			<p><%= description %></p>
+		</div>
+	</div>
 
 </script>

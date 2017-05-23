@@ -75,41 +75,40 @@
 		</div>
 		<div class="dropdown">
 			<a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
-				<i class=" glyphicon glyphicon-flash"></i> Úkoly
+				<i class=" glyphicon glyphicon-education"></i> Student
 			</a>
 			<ul class="dropdown-menu">
-				<li><a href="#homeworks" id="menu-task-show">Zobrazit moje úkoly</a></li>
-				<li class="disabled"><a href="#">Odevzdat toto schéma jako úkol</a></li>
+				<li><a href="#homeworks" id="menu-task-show">Úkoly</a></li>
+				<li><a href="#groups" id="menu-task-show">Skupiny</a></li>
 			</ul>
 		</div>
 		<div class="dropdown">
 			<a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
-				<i class=" glyphicon glyphicon-flash"></i> Vyučující
+				<i class=" glyphicon glyphicon-king"></i> Vyučující
 			</a>
 			<ul class="dropdown-menu">
-				<li><a href="#teacher/circles">Zobrazit kurzy</a></li>
-				<li><a href="#teacher/circles/add">Přidat nový kurz</a></li>
+				<li><a href="#teacher/circles">Skupiny</a></li>
+				<li><a href="#teacher/circles/add">Přidat novou skukpinu</a></li>
 			</ul>
 		</div>
 
 		<div class="schema_list">
 			<div class="schema_list__items" id="schema_list_container"></div>
-			<a class="schema_list__add" id="addSchema" href="#newSchema"> + </a>
+			<a class="schema_list__add" id="addSchema" href="#schemas/new"> + </a>
 		</div>
 
 		<div id='usermenu' class="main_bar__usermenu">
 
 			<div class="main_bar__usermenu__item item" id="userInfo">
 				<div class="menuLabel clickmenu noselect">
-					<i class="glyphicon glyphicon-user"></i> Account
+					<i class="glyphicon glyphicon-user"></i> Účet
 				</div>
-				<div class='menuitemsContainer'>
-					<!--<a href='./?logout' class="button remove"><i class="glyphicon glyphicon-log-out"></i> Log out</a>-->
+				<!--<div class='menuitemsContainer'>
+					<a href='./?logout' class="button remove"><i class="glyphicon glyphicon-log-out"></i> Log out</a>
 					<a href="#logForm" class="button button--primary popup"><i class="glyphicon glyphicon-log-in"></i> Log in</a>
 					<div class="nebo">or</div>
 					<a href="#regForm" class="button button--default reg popup"><i class="glyphicon glyphicon-edit"></i> Create account</a>
-
-				</div>
+				</div>-->
 			</div>
 			<div class="main_bar__usermenu__item item" id="saveSchema">
 				<div class="menuLabel noselect">
@@ -169,6 +168,7 @@
     <script src="src/modules/group.js"></script>
     <script src="src/modules/student.js"></script>
     <script src="src/modules/homeworks.js"></script>
+    <script src="src/modules/simmulator.js"></script>
 
     <script src="src/application_ready.js"></script>
 </div>

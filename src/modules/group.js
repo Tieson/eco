@@ -6,6 +6,7 @@ eco.Models.Group = Backbone.Model.extend({
         subject: "",
         day: null,
         weeks: "both",
+        name: "",
         mail: "",
         block: null,
         created: null
@@ -16,6 +17,8 @@ eco.Models.Group = Backbone.Model.extend({
             subject: data.subject,
             day: data.day,
             weeks: data.weeks,
+            name: data.name,
+            mail: data.mail,
             block: data.block,
             created: data.created
         };
@@ -59,7 +62,7 @@ eco.Views.GroupView = Backbone.View.extend({
     },
     groupClick: function () {
         console.log('groupClick');
-        Backbone.history.navigate('teacher/circles/'+this.model.get('id'), {trigger: true, replace: true});
+        // Backbone.history.navigate('teacher/circles/'+this.model.get('id'), {trigger: true, replace: true});
     },
 
     render: function() {
@@ -70,7 +73,7 @@ eco.Views.GroupView = Backbone.View.extend({
             day: this.model.getDay(this.model.get('day')),
             weeks: this.model.getWeeks(this.model.get('weeks')),
             block: this.model.get('block'),
-            teacher: this.model.get('name'),
+            teacher: {name: this.model.get('name'), mail: this.model.get('mail')},
             created: moment(this.model.get('created')).format('LLL')
         };
         console.log(data);
@@ -107,59 +110,48 @@ eco.Views.GroupList = Backbone.View.extend({
 
 });
 
-
-eco.Views.StudentGroupItem = Backbone.View.extend({
-    tagName: 'tr',
-    template: _.template($('#groupsDetailStudent-template').html()),
-
-    events: {
-        'click .remove-student': 'removeStudent'
-    },
-    removeStudent: function (e) {
-        e.preventDefault();
-        console.log('removeStudent');
-    },
-    render: function() {
-        var data = this.model.toJSON();
-        console.log(data);
-        var html = this.template(data);
-        this.$el.append(html);
-        return this;
-    }
-});
-
-
 eco.Views.GroupDetail = Backbone.View.extend({
     tagName: 'div',
     template: _.template($('#groupsDetail-template').html()),
     initialize: function (opts) {
-        this.listenTo(this.collection, 'sync', this.render);
-    },
-    events: {
+        this.listenTo(this.model, 'sync', this.render);
+
+        this.students = new eco.Collections.Students();
+        this.students.url = '/api/groups/'+this.model.get('id')+'/students';
+        this.students.fetch();
+
+        // this.listenTo(this.students, 'sync', this.render);
+        // this.listenTo(this.students, 'remove', this.removeStudent);
     },
     renderOne: function(student) {
         var itemView = new eco.Views.StudentGroupItem({model: student});
         eco.ViewGarbageCollector.add(itemView);
         this.$('.students-container').append(itemView.render().$el);
     },
-
     render: function() {
-        console.log('eco.Views.GroupDetail:render', this.model, this.collection);
+        var self = this;
+
         var data = {
             id: this.model.get('id'),
             subject: this.model.get('subject'),
             day: this.model.getDay(this.model.get('day')),
             weeks: this.model.getWeeks(this.model.get('weeks')),
             block: this.model.get('block'),
+            teacher: {name: this.model.get('name'), mail: this.model.get('mail')},
             created: moment(this.model.get('created')).format('LLL')
         };
-        console.log(data);
         var html = this.template(data);
-        this.$el.append(html);
+        this.$el.html(html);
 
-        this.collection.each(this.renderOne, this);
+        if(self.students.length>0){
+            self.students.each(self.renderOne, self);
+        }
 
         return this;
+    },
+    removeStudent:function (model) {
+        model.url = '/api/groups/'+this.model.get('id')+'/students/'+model.get('id');
+        model.destroy();
     }
 });
 

@@ -44,6 +44,7 @@ function toggleLive(model, signal) {
 
 function broadcastSignal(gate, signal) {
     // broadcast signal to all output ports
+    //TODO: broadcatst port specific signal to concrete outbut port
     _.defer(_.invoke, graph.getConnectedLinks(gate, { outbound: true }), 'set', 'signal', signal);
 }
 

@@ -39,3 +39,15 @@
   fill: $activeWire;
   stroke: darken($activeWire,0.1);
 }
+
+.joint-link.invalid > .connection {
+  stroke: $invalidWire;
+  stroke-width: 3px;
+}
+.invalid .connection-wrap {
+  stroke: $invalidWire;
+}
+.joint-element.invalid .body {
+  fill: $invalidWire;
+  stroke: darken($invalidWire,0.1);
+}

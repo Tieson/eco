@@ -24,25 +24,52 @@
     <td><%=day%></td>
     <td><%=block%>.</td>
     <td><%=weeks%></td>
-    <td><%=teacher%></td>
+    <td><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
     <td><%=created%></td>
+    <td><a href="#groups/<%=id%>" class="btn btn-xs button--default">Spravovat</a></td>
+</script>
+
+<script type="text/template" id="groupsListItemStudent-template">
+    <td><%=subject%></td>
+    <td><%=day%></td>
+    <td><%=block%>.</td>
+    <td><%=weeks%></td>
+    <td><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
+    <td><%=created%></td>
+    <td><a href="#groups/<%=id%>" class="btn btn-xs button--default">Spravovat</a></td>
 </script>
 
 
 <script type="text/template" id="groupsDetail-template">
 
-    <h1>Skupina</h1>
-    <dt>Předmět</dt>
-    <dd><%=subject%></dd>
-    <dt>Den</dt>
-    <dd><%=day%></dd>
-    <dt>Blok</dt>
-    <dd><%=block%>.</dd>
-    <dt>Týden</dt>
-    <dd><%=weeks%></dd>
-    <dt>Vytvořeno</dt>
-    <dd><%=created%></dd>
+    <h1>Detail skupiny</h1>
+    <div class="row">
+        <div class="col-xs-12 col-sm-3">
+            <dt>Předmět</dt>
+            <dd><%=subject%></dd>
+        </div>
+        <div class="col-xs-12 col-sm-3">
+            <dt>Den</dt>
+            <dd><%=day%></dd>
+        </div>
+        <div class="col-xs-12 col-sm-3">
+            <dt>Blok</dt>
+            <dd><%=block%>.</dd>
+        </div>
+        <div class="col-xs-12 col-sm-3">
+            <dt>Týden</dt>
+            <dd><%=weeks%></dd>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-3">
+            <dt>Vytvořeno</dt>
+            <dd><%=created%></dd>
+        </div>
+    </div>
+
     <hr>
+
     <h2>Seznam Studentů</h2>
     <div class="table-responsive">
         <table class="table">
@@ -50,11 +77,10 @@
             <tr>
                 <th>Jméno</th>
                 <th>E-mail</th>
-                <th></th>
+                <th>Akce</th>
             </tr>
             </thead>
             <tbody class="students-container">
-
             </tbody>
         </table>
     </div>
@@ -65,7 +91,7 @@
     <td><%=name%></td>
     <td><%=mail%></td>
     <td>
-        <a href="#teacher/circles/<%=id%>/students/remove/<%=student_id%>"
-           class="btn btn-danger remove-student">Odebrat</a>
+        <a href="#teacher/circles/<%=group_id%>/students/remove/<%=id%>"
+           class="btn btn-xs btn-danger remove-student">Odebrat</a>
     </td>
 </script>

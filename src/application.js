@@ -9,6 +9,7 @@ joint.shapes.mylib.Hradlo.prototype.onSignal = function (signal, handler) {
 };
 
 
+
 window.eco = {
     Models: {},
     Collections: {},
@@ -38,13 +39,15 @@ window.eco = {
             schemas_tab = $('#container--schemas');
 
         var router = new eco.Router();
+        var baseTitle = $('title').html();
+
+        // var user = new eco.Models.Student();
+        // user.fetch();
 
         var schemas = new eco.Collections.Schemas();
         schemas.fetch();
         var groups = new eco.Collections.GroupCollection();
 
-
-        var baseTitle = $('title').html();
 
         var activeSchemaView = null,
             openedSchemas = new eco.Collections.Schemas(null,{local: true}),
@@ -52,43 +55,133 @@ window.eco = {
 
         var openedSchemasButtonsView = new eco.Views.SchemasListView({collection: openedSchemas, active: activeSchemaView});
 
-        function openSchema(schema) {
-            console.log('openSchema', schema);
-            if (!openedSchemasPapers[schema.get('id')]){
-                console.log('neobsahuje schéma________________');
-                openedSchemas.add(schema); //přidáme schéma do kolekce otevřených
-                schema.set('opened', true); // nastavení indikátoru, že je otevřeno
 
 
-                schema.fetch();
-                schema.loadGraph();
-                schema.initializeGraph();
-                var paper = eco.createPaper("", schema.get('graph'));
-                // schema.set('paper', paper);
-                openedSchemasPapers[schema.get('id')] = paper;
+        /**
+         * Nastaví titulek stránky
+         * @param title Text titulku
+         * @param showBase pokud je true, tak zobrazí i název stránky
+         */
+        function setPageTitle(title, showBase) {
+            showBase = typeof showBase !== 'undefined' ? showBase : true;
+            if (showBase)
+            {
+                $('title').html(title + ' | ' + baseTitle);
+            } else
+            {
+                $('title').html(title);
             }
-            if (openedSchemasPapers[schema.get('id')]){
-                //paper existuje
-            }else{
-                var paper = eco.createPaper("", schema.get('graph'));
-                openedSchemasPapers[schema.get('id')] = paper;
+        }
+
+        function showSchema(schema) {
+            console.log('%c showSchema ', 'background: yellow; color:white;', schema);
+
+            //schovat posledně zobrazené schéma
+            hideSchemaPaper(activeSchemaView);
+
+            if (isSchemaOpen(schema)) {
+                reopenSchema(schema);
+            } else {
+                openSchema(schema);
             }
 
-            if (activeSchemaView){
-                //schovat posledně zobrazené schéma
-                // var paper = activeSchemaView.get('paper');
-                openedSchemasPapers[activeSchemaView.get('id')].$el.hide();
-            }
-            activeSchemaView = schema;
-
-            $('title').html(schema.get('name') + ' | ' + baseTitle);
-            openedSchemasButtonsView.setActiveSchema(schema);
-            // openedSchemasButtonsView.render();
-            openedSchemasPapers[schema.get('id')].$el.show();
+            setPageTitle(schema.get('name'));
         }
 
 
-        router.on('route:home', function() {
+        function openSchema(schema){
+            console.log('%c openSchema ', 'background: yellow; color: red', schema.get('id'), schema, activeSchemaView);
+
+            var paper = eco.createPaper(schema);
+
+            // schema.fetch({
+            //     success: function () {
+                    console.log('schema success', schema);
+                    schema.loadGraph(function () {
+                        console.log('%c schema loaded graph!! ', 'background: yellow; color: red', schema.get('graph'));
+
+                        var graph = schema.get('graph');
+
+                        schema.set('opened', true); // nastavení indikátoru, že je otevřeno
+                        openedSchemas.add(schema); //přidáme schéma do kolekce otevřených
+                        addOpenedPaper(schema, paper);
+
+                        showSchemaPaper(schema);
+                        setSchemaActive(schema);
+                        var sim = new eco.Models.Simulation({paper: paper});
+                    });
+            //     }
+            // });
+        }
+
+        function showSchemaPaper(schema) {
+            console.log('%c showSchemaPaper ', 'background: yellow', schema);
+            if (schema) {
+                var paper = openedSchemasPapers[schema.get('id')];
+                if (paper) {
+                    console.log('paper:', paper);
+                    paper.$el.show();
+                }
+            }
+        }
+
+        function hideSchemaPaper(schema) {
+            console.log('%c hideSchemaPaper ', 'background: yellow', schema);
+            if (schema) {
+                var paper = openedSchemasPapers[schema.get('id')];
+                if (paper){
+                    console.log('paper:', paper);
+                    paper.$el.hide();
+                }
+            }
+        }
+
+        function isSchemaActive(schema) {
+            return activeSchemaView && activeSchemaView.get('id') == schema.get('id');
+        }
+
+        function isSchemaOpen(schema) {
+            if (_.isNumber(schema)){
+                return (!!openedSchemasPapers[schema]);
+            }else{
+                return (!!openedSchemasPapers[schema.get('id')]);
+            }
+        }
+
+        function setSchemaActive(schema) {
+            activeSchemaView = schema;
+            openedSchemasButtonsView.setActiveSchema(schema);
+        }
+
+        function addOpenedPaper(schema, paper){
+            openedSchemasPapers[schema.get('id')] = paper;
+        }
+
+        function reopenSchema(schema) {
+            console.log('%c reopenSchema ', 'background: yellow; color: blue', schema.get('id'), schema, activeSchemaView);
+            showSchemaPaper(schema);
+            setSchemaActive(schema);
+        }
+
+
+        router.on('route:home', showHome);
+        router.on('route:openedSchema', showOpenSchema);
+        router.on('route:teacher', showTeacher);
+        router.on('route:showHwList', showHomeworkList);
+        router.on('route:showHwDetail', showHomeworkDetail);
+        router.on('route:showUserGroups', showUserGroups);
+        router.on('route:showUserGroupDetail', showUserGroupDetail);
+        router.on('route:showCircles', showGroups);
+        router.on('route:circleDetail', showGroupDetail);
+        router.on('route:showSchemas', showSchemaListAndNew);
+        router.on('route:schemaCreateNew', showSchemaListAndNew);
+        router.on('route:showSchemaEdit', showSchemaEdit);
+
+        /**
+         * Nsledují router metody
+         */
+
+        function showHome() {
             main_tab.hide();
             schemas_tab.show();
 
@@ -108,46 +201,50 @@ window.eco = {
                 });
             }
 
-        });
-        router.on('route:openedSchema', function(id) {
+        }
+
+        function showOpenSchema(id) {
             console.log('openedSchema', id);
 
+            // var sch = new eco.Models.Schema({
+            //     id:30
+            // });
+            // var paper = eco.createPaper(sch);
+            // sch.loadGraph(function(){
+            //     console.log('graph loaded');
+            //     console.log(paper);
+            // });
 
-            var requestedSchema = openedSchemas.get(id);
-            console.log(requestedSchema);
-            if(requestedSchema){
+            if(isSchemaOpen(parseInt(id))){
                 main_tab.hide();
                 schemas_tab.show();
-                openSchema(requestedSchema);
+                showSchema(openedSchemas.get(id));
             }
             else {
                 var nSchema = new eco.Models.Schema({id: id});
                 nSchema.fetch({
                     success: function () {
-                        openSchema(nSchema);
+                        showSchema(nSchema);
                     },
                     error: function () {
-                        $('title').html('Otevřít schéma | ' + baseTitle);
+                        setPageTitle('Otevřít schéma');
                         main.html("<div class='alert alert-danger'>Požadované schéma nebylo nalezeno!</div>");
                         showNewSchemaForm();
                         showSchemas();
                     }
                 });
-
             }
-
             //TODO: dodělat zapamatovávání schémat a jejich otevírání
-        });
-
-        router.on('route:teacher', function() {
+        }
+        function showTeacher() {
             console.log('route:teacher');
             router.navigate('teacher/circles', {
                 trigger: true,
                 replace: true
             });
-        });
-        router.on('route:showHwList', function() {
-            $('title').html('Domácí úkoly | ' + baseTitle);
+        }
+        function showHomeworkList() {
+            setPageTitle('Domácí úkoly');
             main.html('');
             main_tab.show();
             schemas_tab.hide();
@@ -159,9 +256,48 @@ window.eco = {
                 el: main
             });
             hws.fetch();
-        });
-        router.on('route:showCircles', function() {
-            $('title').html('Skupiny | ' + baseTitle);
+        }
+        function showHomeworkDetail(id) {
+            main.html('');
+            main_tab.show();
+            schemas_tab.hide();
+
+            setPageTitle('Domácí úkol');
+            eco.ViewGarbageCollector.clear();
+            console.log('route:showHwList');
+            var hw = new eco.Models.Homework({id: id, student_id: 9}); //TODO: dinamicky získávat id uživatele
+            var view = new eco.Views.HomeworkDetail({
+                model: hw,
+                el: main
+            });
+            main.append(view.render().$el);
+            hw.fetch();
+        }
+        function showUserGroups() {
+            setPageTitle('Skupiny');
+            main_tab.show();
+            schemas_tab.hide();
+            eco.ViewGarbageCollector.clear();
+            var groupsView = new eco.Views.GroupList({
+                collection: groups,
+                el: main
+            });
+            groups.fetch();
+        }
+        function showUserGroupDetail(id) {
+            setPageTitle('Detail skupiny');
+            main_tab.show();
+            schemas_tab.hide();
+            var group = new eco.Models.Group({id:id});
+            eco.ViewGarbageCollector.clear();
+            var groupsView = new eco.Views.GroupDetail({
+                model: group,
+                el: main
+            });
+            group.fetch();
+        }
+        function showGroups() {
+            setPageTitle('Skupiny');
             main_tab.show();
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
@@ -172,9 +308,9 @@ window.eco = {
             });
             groups.fetch();
             // groupsView.show();
-        });
-        router.on('route:circleDetail', function(id) {
-            $('title').html('Detail skupiny | ' + baseTitle);
+        }
+        function showGroupDetail(id) {
+            setPageTitle('Detail skupiny');
             // eco.ViewGarbageCollector.clear();
             console.log('route:circleDetail', id);
             var students =new eco.Collections.Students();
@@ -186,8 +322,36 @@ window.eco = {
                 collection: students,
                 model: group,
             });
-        });
+        }
 
+        function showSchemaEdit(id) {
+            main_tab.show();
+            schemas_tab.hide();
+
+            schemas.fetch({
+                success: function () {
+                    var schema = schemas.get(id);
+                    setPageTitle('Editace schéma '+ schema.get('name'));
+                    main.html("");
+
+                    var view = new eco.Views.SchemasNew({
+                        model: schema,
+                        submitText: 'Uložit',
+                        titleText: 'Editace schéma'
+                    });
+
+                    view.on('schemaNewSubmit', function (schema) {
+                        schema.save();
+                        router.navigate('schemas', {
+                            trigger: true,
+                            replace: true
+                        });
+                    });
+
+                    main.append(view.render().$el);
+                }
+            });
+        }
         function showSchemas() {
             main_tab.show();
             schemas_tab.hide();
@@ -203,7 +367,7 @@ window.eco = {
                 main_tab.hide();
                 schemas_tab.show();
 
-                openSchema(schema);
+                showSchema(schema);
             });
 
             main.append(view.render().$el);
@@ -223,21 +387,18 @@ window.eco = {
                 schema.save();
                 schemas.add(schema);
 
-                openSchema(schema);
+                showSchema(schema);
             });
 
             main.append(view.render().$el);
 
         }
         function showSchemaListAndNew() {
-            $('title').html('Schémata | ' + baseTitle);
+            setPageTitle('Schémata');
             main.html("");
             showNewSchemaForm();
             showSchemas();
         }
-
-        router.on('route:showSchemas', showSchemaListAndNew);
-        router.on('route:schemaCreateNew', showSchemaListAndNew);
 
         /*router.on('route:new', function() {
             var newContactForm = new eco.Views.ContactForm({
@@ -275,11 +436,12 @@ window.eco = {
 
         Backbone.history.start();
     },
+    /**konec router metod**/
 
+    createPaper: function (schema) {
+        console.log("%c createPaper ", "background:cornflowerblue; color: #fff");
 
-    createPaper: function ($element, graph) {
-        console.log("%ccreatePaper", "color:cornflowerblue", $element, graph);
-
+        var graph = schema.get('graph');
 
         var container = $("#canvasWrapper"),
             width = 2400,
@@ -288,9 +450,13 @@ window.eco = {
         var paperContainer = $('<div class="paper"></div>');
         paperContainer.width(width);
         paperContainer.height(height);
+        paperContainer.attr('id', schema.get('id'));
 
         container.append(paperContainer);
 
+
+
+        //return null;
         var paper = new joint.dia.Paper({
 
             el: paperContainer,
@@ -329,197 +495,6 @@ window.eco = {
             }
         });
 
-        paper.on('cell:pointerclick', createCellDoubleclickHandler(function (cellView, evt, x, y) {
-            console.log("dbclick");
-            // if (cellView.model instanceof joint.shapes.mylib.HradloIO) {
-            //     cellView.model.switchSignal();
-            //     broadcastSignal(cellView.model, cellView.model.signal, self);
-            //     V(cellView.el).toggleClass('live', cellView.model.signal > 0);
-            // }
-        }));
-        paper.on('cell:pointerclick', function (cellView) {
-
-            // console.log(cellView.model.get('outPorts') );
-            console.log("click", this.model.getConnectedLinks(cellView.model, {outbound: true}).map(function (x) {
-                return x;
-            }) );
-            /**
-             * Po kliknutí na hodiny je vypnout/zaponout
-             */
-            // if (cellView.model instanceof joint.shapes.mylib.CLK) {
-            //     console.log(cellView.model.tickOn);
-            //     cellView.model.tickOn = !cellView.model.tickOn;
-            //     V(cellView.el).toggleClass('running', cellView.model.tickOn);
-            // }
-            // console.log(cellView.model.get('attrs'));
-            // console.log(cellView.model.attr('.label/text'));
-        });
-
         return paper;
-    },
-};
-
-
-
-eco.AppView = Backbone.View.extend({
-    el: "body",
-    activeSchema: null, // aktivní schéma může být pouze jedno
-    initialize: function (options) {
-
-        this.schemas = new eco.Schemas(); // všechna schémata načtená ze serveru
-        this.openedSchemas = new eco.Schemas(); // pouze otevřená schémata, která mají tab, graf, paper atd.
-
-        this.modalView = new eco.SchemaModalView({
-            template: '#template-modal',
-        });
-
-        this.openSchemaModalView = new eco.SchemaOpenListModalView({
-            collection: this.schemas,
-            title: "Otevřít schéma",
-            template: "#schemaListModal-template"
-        });
-
-        this.hw = new eco.Homeworks({student_id: 8});
-        this.hwListModalView = new eco.SchemaOpenListModalView({
-            collection: this.hw,
-            title: "Úkoly",
-            template: "#homeworkList-template"
-        });
-
-        this.listenTo(this.openSchemaModalView, 'itemClick', this.modalOpenSchemaClick);
-        this.listenTo(this.modalView, 'save', this.saveNewSchema);
-
-
-        this.schemasView = new eco.SchemasListView({collection: this.openedSchemas, active: this.activeSchema});
-        this.listenTo(this.schemasView, 'editSchema', this.editSchema);
-        this.listenTo(this.schemasView, 'openSchema', this.openSchema);
-
-        /**
-         * Inicialiazace a načtení kategorií a entit, které lze vkládat do schéma
-         */
-        this.categories = new eco.Categories();
-        this.categories.fetch();
-        this.categoriesView = new eco.CategoriesView({
-            el: "#ribbonContent",
-            collection: this.categories,
-            onEntityClick: this.onEntityClick
-        });
-    },
-    events: {
-        'click .entity': 'onEntityClick',
-        'click #contentToggler': 'ribbonToggle',
-        'click #addSchema': 'addNewSchema',
-        'click #saveSchema': 'saveVHDL',
-        'click #menu-file-open_schema': 'menuOpenSchema',
-        'click #menu-task-show': 'menuTaskShow'
-    },
-    modalOpenSchemaClick: function (schema) {
-        console.log("zase", this, schema);
-        this.openedSchemas.add(schema);
-    },
-    menuOpenSchema: function () {
-        console.log("menuOpenSchema");
-        this.openSchemaModalView.show();
-    },
-    menuTaskShow: function () {
-        console.log("menuTaskShow");
-        this.hwListModalView.show();
-    },
-    onEntityClick: function (event) {
-        var entityId = Number($(event.target).attr("data-entityid"));
-        var categoryId = $(event.target).closest('.ribbon__contents__category').attr("data-categoryid");
-        console.log(categoryId, entityId);
-    },
-    ribbonToggle: function () {
-        console.log("toggle");
-        var ribbon = $('#ribbon'),
-            show = ribbon.find('.ribbon__toggle__show'),
-            hide = ribbon.find('.ribbon__toggle__hide');
-        if (!ribbon.hasClass('ribbon--hidden')) {
-            ribbon.removeClass("ribbon--hidden");
-            show.hide();
-            hide.show();
-        } else {
-            ribbon.addClass("ribbon--hidden");
-            show.show();
-            hide.hide();
-        }
-        console.log(ribbon);
-    },
-    addNewSchema: function () {
-        this.modalView.show({model: new eco.Schema(), title: "Create new schema"});
-    },
-    saveNewSchema: function (schema) {
-        console.log("saveNewSchema", schema);
-        schema.save({
-            success: function (result, a) {
-                console.log("ok", result, a);
-            },
-            error: function () {
-                console.log("ko");
-            }
-        });
-    },
-    editSchema: function (schema) {
-        this.modalView.show({model: schema, title: "Edit schema"});
-    },
-    saveVHDL: function () {
-        if (this.activeSchema) {
-            this.activeSchema.saveGraph();
-        } else {
-            console.log("není žádné aktivní schéma, vyberte schéma z nabídky.");
-        }
-    },
-    setActiveSchema: function (schema) {
-        var old = this.activeSchema;
-        this.activeSchema = schema;
-        if (this.activeSchema) {
-            this.categoriesView.setActive(true);
-        } else {
-            this.categoriesView.setActive(false);
-        }
-    },
-    openSchema: function (schema) {
-        console.log("openSchema", schema);
-        this.changeOpenedSchema(schema);
-    },
-    changeOpenedSchema: function (newSchema) {
-        var lastOpenedSchema = this.activeSchema;
-        console.log("changeOpenedSchema");
-        if (lastOpenedSchema) {
-            lastOpenedSchema.closeSchema();
-        }
-        this.setActiveSchema(newSchema);
-        console.log("activeSchema", this.activeSchema);
-
-        this.activeSchema.openSchema();
-    },
-    addTestElements: function (schema) {
-
-        var gates = {
-//                repeater: new joint.shapes.logic.Repeater({ position: { x: 410, y: 25 }}),
-//                or: new joint.shapes.mylib.TUL_OR({ position: { x: 550, y: 50 }}),
-//                and: new joint.shapes.mylib.TUL_AND({ position: { x: 550, y: 150 }}),
-            not: new joint.shapes.mylib.TUL_INV({position: {x: 90, y: 140}}),
-            nand: new joint.shapes.mylib.TUL_NAND({position: {x: 550, y: 250}}),
-            nand2: new joint.shapes.mylib.TUL_NAND({position: {x: 550, y: 250}}),
-            nand3: new joint.shapes.mylib.TUL_NAND({position: {x: 550, y: 250}}),
-            nand4: new joint.shapes.mylib.TUL_NAND({position: {x: 550, y: 250}}),
-//                nor: new joint.shapes.mylib.TUL_NOR({ position: { x: 270, y: 190 }}),
-//                xor: new joint.shapes.mylib.TUL_XOR({ position: { x: 550, y: 200 }}),
-//                clk: new joint.shapes.mylib.CLK({ position: { x: 550, y: 100 }}),
-            input: new joint.shapes.mylib.INPUT({position: {x: 5, y: 45}}),
-            input2: new joint.shapes.mylib.INPUT({position: {x: 5, y: 45}}),
-            input3: new joint.shapes.mylib.INPUT({position: {x: 5, y: 45}}),
-//                vcc: new joint.shapes.mylib.VCC({ position: { x: 5, y: 100 }}),
-//                gnd: new joint.shapes.mylib.GND({ position: { x: 5, y: 165 }}),
-            output: new joint.shapes.mylib.OUTPUT({position: {x: 740, y: 340}}),
-            output2: new joint.shapes.mylib.OUTPUT({position: {x: 740, y: 390}})
-        };
-        gates.input2.attr(".label/text", "X1");
-        gates.input3.attr(".label/text", "X2");
-
-        schema.get("graph").addCell(_.toArray(gates));
     }
-});
-
+};

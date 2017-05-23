@@ -24,176 +24,6 @@ eco.Models.Schema = Backbone.Model.extend({
         console.log("validateParams");
         return this.get('name').length > 0 && this.get('architecture').length > 0 && isVhdlName(this.get('name')) && isVhdlName(this.get('architecture'));
     },
-    /*createPaper: function () {
-        console.log("%ccreatePaper", "color:cornflowerblue");
-
-        var self = this;
-
-        var container = $("#canvasWrapper"),
-            width = 2400,
-            height = 1200;
-
-        var paperContainer = $('<div data-schema="' + this.get('name') + '" id="paper_container_' + this.get('id') + '"></div>');
-        paperContainer.width(width);
-        paperContainer.height(height);
-
-        container.append(paperContainer);
-
-        var paper = new joint.dia.Paper({
-
-            el: paperContainer,
-            model: this.get("graph"),
-            width: width,
-            height: height,
-            gridSize: 7,
-            snapLinks: true,
-            linkPinning: false,
-            defaultLink: new joint.shapes.mylib.Vodic,
-            drawGrid: {
-                color: '#333',
-                thickness: 1
-            },
-
-            validateConnection: function (vs, ms, vt, mt, e, vl) {
-
-                if (e === 'target') {
-                    // target requires an input port to connect
-                    if (!mt || !mt.getAttribute('class') || mt.getAttribute('class').indexOf('input') < 0) return false;
-
-                    // check whether the port is being already used
-                    var portUsed = _.find(this.model.getLinks(), function (link) {
-
-                        return (link.id !== vl.model.id &&
-                        link.get('target').id === vt.model.id &&
-                        link.get('target').port === mt.getAttribute('port'));
-                    });
-
-                    return !portUsed;
-
-                } else { // e === 'source'
-                    // source requires an output port to connect
-                    return ms && ms.getAttribute('class') && ms.getAttribute('class').indexOf('output') >= 0;
-                }
-            }
-        });
-
-        paper.on('cell:pointerclick', createCellDoubleclickHandler(function (cellView, evt, x, y) {
-            console.log("dbclick");
-            if (cellView.model instanceof joint.shapes.mylib.HradloIO) {
-                cellView.model.switchSignal();
-                broadcastSignal(cellView.model, cellView.model.signal, self);
-                V(cellView.el).toggleClass('live', cellView.model.signal > 0);
-            }
-        }));
-        paper.on('cell:pointerclick', function (cellView) {
-
-            // console.log(cellView.model.get('outPorts') );
-            console.log("click", this.model.getConnectedLinks(cellView.model, {outbound: true}).map(function (x) {
-                return x;
-            }) );
-            /!**
-             * Po kliknutí na hodiny je vypnout/zaponout
-             *!/
-            if (cellView.model instanceof joint.shapes.mylib.CLK) {
-                console.log(cellView.model.tickOn);
-                cellView.model.tickOn = !cellView.model.tickOn;
-                V(cellView.el).toggleClass('running', cellView.model.tickOn);
-            }
-            // console.log(cellView.model.get('attrs'));
-            // console.log(cellView.model.attr('.label/text'));
-        });
-
-        this.set("paper", paper);
-    },*/
-
-    initializeGraph: function () {
-        console.log('initializeGraph');
-        var self = this;
-        var graph = this.get("graph");
-
-        /**
-         * Reinitialyze signals when wire was connected or disconnected.
-         */
-        graph.on('change:source change:target', function (model, end) {
-            var e = 'target' in model.changed ? 'target' : 'source';
-            if ((model.previous(e).id && !model.get(e).id) || (!model.previous(e).id && model.get(e).id)) {
-                self.initializeSignal();
-            }
-        });
-
-        graph.on('change:signal', function (wire, signal) {
-            toggleLive(wire, signal, self);
-
-            var magnitude = Math.abs(signal);
-
-            // if a new signal has been generated stop transmitting the old one
-//                if (magnitude !== current) return;
-
-            var gate = graph.getCell(wire.get('target').id);
-
-            if (gate) {
-
-                if (gate instanceof joint.shapes.mylib.Hradlo) {
-                    gate.onSignal(signal, function () {
-
-                        // get an array of signals on all input ports
-                        var inputs = _.chain(graph.getConnectedLinks(gate, {inbound: true}))
-                            .groupBy(function (wire) {
-                                return wire.get('target').port;
-                            })
-                            .map(function (wires) {
-                                return Math.max.apply(this, _.invoke(wires, 'get', 'signal')) > 0;
-                            })
-                            .value();
-
-                        var output = magnitude * (gate.operation.apply(gate, inputs) ? 1 : -1);
-                        //broadcastSignal(gate, output, self);
-                    });
-                }
-            }
-        });
-        self.initializeSignal();
-    },
-
-    initializeSignal: function () {
-        console.log("%cinitializeSignal", "color: #F58220", this);
-        var graph = this.get("graph");
-        var signal = Math.random();
-        var self = this;
-        // > 0 vodič s log. 1
-        // < 0 vodič s log. 0
-
-        // 0 none of the above - reset value
-
-        // vynulování všech signálů
-        _.invoke(graph.getLinks(), 'set', 'signal', 0);
-
-        // odebrání všech aktivních tříd
-        $('.live').each(function () {
-            V(this).removeClass('live');
-        });
-
-        _.each(graph.getElements(), function (element) {
-            // rozeslání signálů ze vstupů
-            (element instanceof joint.shapes.mylib.INPUT) && broadcastSignal(element, element.signal, self);
-            (element instanceof joint.shapes.mylib.VCC) && broadcastSignal(element, element.signal, self);
-            (element instanceof joint.shapes.mylib.GND) && broadcastSignal(element, element.signal, self);
-            (element instanceof joint.shapes.mylib.CLK) && startClock(element, element.signal, self);
-        });
-
-        return signal;
-    },
-
-    /**
-     * Odebrání paperu
-     */
-    /*destroyPaper: function () {
-        var paper = this.get('paper');
-        if (paper) {
-            paper.remove();
-            this.set('paper', null);
-        }
-    },*/
 
     /**
      * Uložení aktuálního stavu grafu jako JSON do DB
@@ -270,27 +100,7 @@ eco.Models.Schema = Backbone.Model.extend({
         } else {
             console.log("no ID");
         }
-    },
-
-    // openSchema: function () {
-    //     console.log("openSchema");
-    //     if (!this.opened) {
-    //         this.loadGraph(this.initLoadedGraf);
-    //         this.createPaper();
-    //         this.initializeGraph();
-    //
-    //         this.opened = true;
-    //     }
-    // },
-    // initLoadedGraf: function () {
-    //     console.log("initLoadedGraf", this);
-    //     // this.initializeSignal();
-    // },
-    // closeSchema: function () {
-    //     this.destroyPaper();
-    //     // this.initializeSignal();
-    //     this.opened = false;
-    // }
+    }
 });
 
 eco.Views.OpenedSchemaView = Backbone.Collection.extend({
@@ -351,9 +161,8 @@ eco.Views.SchemasListView = Backbone.View.extend({
     el: "#schema_list_container",
     activeSchema: null,
     initialize: function (opts) {
-        console.log("schemas init");
-        this.listenTo(this.collection, 'sync', this.render);
-        this.listenTo(this.collection, 'change', this.render);
+        console.log("SchemasListView init", this.collection);
+        this.listenTo(this.collection, 'sync, change, add', this.render);
     },
     events: {
         'click .schema_list__item__edit': 'editSchemaHandler',
@@ -372,11 +181,11 @@ eco.Views.SchemasListView = Backbone.View.extend({
         this.$('.groups-container').append(itemView.render().$el);
     },
     render: function () {
-        console.log("%crender Schemas ", "color: #2C4", this.activeSchema);
+        console.log("%cSchemasListView: render Schemas ", "color: red;", this.activeSchema);
         var self = this;
         this.$el.html("");
         this.collection.each(function (schema) {
-            console.log('%c schema ','background:#0a0;color:#fff',schema);
+            // console.log('%c schema ','background:#0a0;color:#fff',schema);
             // if (self.activeSchema && _.isEqual(schema, self.activeSchema)) {
             //     m.set('active', true);
             // }
@@ -406,6 +215,7 @@ eco.Views.SchemasListView = Backbone.View.extend({
     },
     setActiveSchema: function (schema) {
         this.activeSchema = schema;
+        this.render();
     }
 });
 
@@ -484,18 +294,26 @@ eco.Views.SchemasNew = Backbone.View.extend({
     className: "schema_new",
     tagName: 'div',
     template: _.template($('#schemasNew-template').html()),
+    submitText: 'Vytvořit',
+    titleText: 'Vytvořit nové schéma',
     error: {
         invalidName: false,
         invalidArchitecture: false
     },
     initialize: function (opts) {
         this.listenTo(this.collection, 'sync', this.render);
+        if (opts.submitText) {
+            this.submitText = opts.submitText;
+        }
+        if (opts.titleText) {
+            this.titleText = opts.titleText;
+        }
     },
     events: {
         'submit form': 'schemaNewSubmit',
     },
     render: function () {
-        var html = this.template({error: this.error, schema: this.model.toJSON()});
+        var html = this.template({error: this.error, submitText: this.submitText,  titleText: this.titleText,  schema: this.model.toJSON()});
         this.$el.html(html);
 
         return this;
