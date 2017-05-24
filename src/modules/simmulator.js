@@ -12,6 +12,10 @@ eco.Models.Simulation = Backbone.Model.extend({
 
         var gates = {
             rs: new joint.shapes.mylib.RS({ position: { x: 25, y: 25 }}),
+            mux: new joint.shapes.mylib.MUX2({ position: { x: 25, y: 125 }}),
+            dec: new joint.shapes.mylib.DEC18({ position: { x: 25, y: 225 }}),
+            ram: new joint.shapes.mylib.ARAM4x16({ position: { x: 25, y: 325 }}),
+            fadd: new joint.shapes.mylib.FULLADDER({ position: { x: 25, y: 425 }}),
         };
         this.paper.model.addCells(_.toArray(gates));
 

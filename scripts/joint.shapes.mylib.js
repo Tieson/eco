@@ -26,7 +26,7 @@ joint.shapes.mylib = {};
 //------------------ OBECNÁ DEFINICE HRADLA -------------------------------------------------//
 
 joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/><text class="jm"/></g><text class="label"/><rect class="input"/><path class="wire"/><rect class="output"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/><text class="jm"/></g><text class="label"/><circle class="input"/><path class="wire"/><circle class="output output1"/></g>',
     
     defaults: joint.util.deepSupplement({
 
@@ -38,18 +38,20 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
                 width: 12, height: 12,
                 stroke: 'black'
             },
+            circle: {
+                r: 6,
+                stroke: 'black'
+            },
             '.output' : {
-                width: 12, height: 12
+                r: 10,
+                width: 20, height: 20
             },
             '.input' : {
-                width: 12, height: 12
+                r: 10,
+                width: 20, height: 20
             },
             '.entitybody': {
                 width: 50, height: 70,
-                stroke: 'black'
-            },
-            circle: {
-                r: 6,
                 stroke: 'black'
             },
             text: {
@@ -85,7 +87,7 @@ joint.shapes.mylib.HradloIO = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.INPUT = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/></g>',
     signal: true,
     defaults: joint.util.deepSupplement({
 
@@ -93,7 +95,7 @@ joint.shapes.mylib.INPUT = joint.shapes.mylib.HradloIO.extend({
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
             
-            '.output': { ref: 'rect', 'ref-dx': 24, 'ref-y': 8, magnet: true, port: 'q' },
+            '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
             '.label': { text: 'X0', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'},                
@@ -107,7 +109,7 @@ joint.shapes.mylib.INPUT = joint.shapes.mylib.HradloIO.extend({
 });
 
 joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/></g>',
     clock: 0,
     // clockSpd: 1000,
     interval: 250,
@@ -118,7 +120,7 @@ joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
         type: 'mylib.CLK',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
-            '.output': { ref: 'rect', 'ref-dx': 24, 'ref-y': 8, magnet: true, port: 'q' },
+            '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
             '.label': { text: 'CLK0', ref: 'rect', 'ref-x': 5, 'ref-y': 10, stroke: 'black'}            
@@ -143,14 +145,14 @@ joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
 });
 
 joint.shapes.mylib.OUTPUT = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="input"/></g><g><text class="jm"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><circle class="input input1"/></g><g><text class="jm"/></g>',
     
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.OUTPUT',
         attrs: {
             '.wire': { 'ref-x': -25, d: 'M 0 0 L 25 0' },
-            '.input': { ref: 'rect', 'ref-x': -30, 'ref-y': 8, magnet: 'passive', port: 'a' },
+            '.input1': { ref: 'rect', 'ref-x': -30, 'ref-y': .5, magnet: 'passive', port: 'a' },
             '.jm': { text: 'a', ref: 'rect', 'ref-dx': -90, 'ref-dy': -45 },
             
             '.label': { text: 'Z0', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
@@ -160,14 +162,14 @@ joint.shapes.mylib.OUTPUT = joint.shapes.mylib.HradloIO.extend({
 });
 
 joint.shapes.mylib.VCC = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/></g>',
     signal: 1,
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.VCC',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
-            '.output': { ref: 'rect', 'ref-dx': 24, 'ref-y': 8, magnet: true, port: 'q' },
+            '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
             '.label': { text: 'vcc', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
@@ -178,14 +180,14 @@ joint.shapes.mylib.VCC = joint.shapes.mylib.HradloIO.extend({
 });
 
 joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/></g>',
     signal: 0,
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.GND',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
-            '.output': { ref: 'rect', 'ref-dx': 24, 'ref-y': 8, magnet: true, port: 'q' },
+            '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
             '.label': { text: 'gnd', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
@@ -198,15 +200,15 @@ joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
 //---------------------- HRADLA BEZ NOT ---------------------------------------//
 
 joint.shapes.mylib.Hradlo11 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><rect class="input"/><rect class="output"/></g><g><text class="jm"/><text class="jm2"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo11',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -6, 'ref-y': .415, magnet: 'passive', port: 'a' },
-            '.output': { ref: 'rect', 'ref-dx': -6, 'ref-y': .415, magnet: true, port: 'q' },
+            '.input1': { ref: 'rect', 'ref-x': -6, 'ref-y': .5, magnet: 'passive', port: 'a' },
+            '.output1': { ref: 'rect', 'ref-dx': -6, 'ref-y': .5, magnet: true, port: 'q' },
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -215,16 +217,16 @@ joint.shapes.mylib.Hradlo11 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo21 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><rect class="input"/><rect class="input2"/><rect class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo21',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
-            '.input2': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.6, magnet: 'passive', port: 'b' },
-            '.output': { ref: 'rect', 'ref-dx': -6, 'ref-y': 0.415, magnet: true, port: 'q' },
+            '.input1': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.333, magnet: 'passive', port: 'a' },
+            '.input2': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.666, magnet: 'passive', port: 'b' },
+            '.output1': { ref: 'rect', 'ref-dx': -6, 'ref-y': 0.5, magnet: true, port: 'q' },
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -233,17 +235,17 @@ joint.shapes.mylib.Hradlo21 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo31 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo31',
         size: { width: 50, height: 90 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
+            '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'a' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.5, magnet: 'passive', port: 'b' },
-            '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'c' },
-            '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' },
+            '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.75, magnet: 'passive', port: 'c' },
+            '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' },
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -252,18 +254,18 @@ joint.shapes.mylib.Hradlo31 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo41 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo41',
         size: { width: 60, height: 100 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
+            '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.4, magnet: 'passive', port: 'b' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.6, magnet: 'passive', port: 'c' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'd' },            
-            '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' },
+            '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' },
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -274,16 +276,16 @@ joint.shapes.mylib.Hradlo41 = joint.shapes.mylib.Hradlo.extend({
 //-------------------- HRADLA S NOT -------------------------------------//
 
 joint.shapes.mylib.Hradlo11N = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><rect class="input"/><circle class="not_gate"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/><text class="jm2"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="not_gate"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo11N',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -6, 'ref-y': .415, magnet: 'passive', port: 'a' },
+            '.input1': { ref: 'rect', 'ref-x': -10, 'ref-y': .5, magnet: 'passive', port: 'a' },
             '.not_gate': { ref: 'rect', 'ref-dx': 8, 'ref-y': .5, stroke: 'black'},
-            '.output': { ref: 'rect', 'ref-dx': 34, 'ref-y': .415, magnet: true, port: 'q' }
+            '.output1': { ref: 'rect', 'ref-dx': 34, 'ref-y': .5, magnet: true, port: 'q' }
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -292,17 +294,17 @@ joint.shapes.mylib.Hradlo11N = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo21N = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><rect class="input"/><rect class="input2"/><circle class="not_gate"/><path class="wire"/><rect class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="not_gate"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo21N',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.215, magnet: 'passive', port: 'a' },
-            '.input2': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.615, magnet: 'passive', port: 'b' },
+            '.input1': { ref: 'rect', 'ref-x': -10, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
+            '.input2': { ref: 'rect', 'ref-x': -10, 'ref-y': 0.8, magnet: 'passive', port: 'b' },
             '.not_gate': { ref: 'rect', 'ref-dx': 8, 'ref-y': 0.5, stroke: 'black'},
-            '.output': { ref: 'rect', 'ref-dx': 34, 'ref-y': 0.415, magnet: true, port: 'q' }
+            '.output1': { ref: 'rect', 'ref-dx': 40, 'ref-y': 0.5, magnet: true, port: 'q' }
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -311,18 +313,18 @@ joint.shapes.mylib.Hradlo21N = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo31N = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="not_gate"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="not_gate"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo31N',
         size: { width: 50, height: 90 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
+            '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.5, magnet: 'passive', port: 'b' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'c' },
             '.not_gate': { ref: 'rect', 'ref-dx': 8, 'ref-y': 0.5, stroke: 'black'},
-            '.output': { ref: 'rect', 'ref-dx': 40, 'ref-y': 0.5, magnet: true, port: 'q' }
+            '.output1': { ref: 'rect', 'ref-dx': 40, 'ref-y': 0.5, magnet: true, port: 'q' }
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -331,19 +333,19 @@ joint.shapes.mylib.Hradlo31N = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.Hradlo41N = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="not_gate"/><path class="wire"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="not_gate"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo41N',
         size: { width: 60, height: 100 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
+            '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.4, magnet: 'passive', port: 'b' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.6, magnet: 'passive', port: 'c' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'd' },
             '.not_gate': { ref: 'rect', 'ref-dx': 8, 'ref-y': 0.5, stroke: 'black'},
-            '.output': { ref: 'rect', 'ref-dx': 40, 'ref-y': 0.5, magnet: true, port: 'q' }
+            '.output1': { ref: 'rect', 'ref-dx': 40, 'ref-y': 0.5, magnet: true, port: 'q' }
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -354,19 +356,19 @@ joint.shapes.mylib.Hradlo41N = joint.shapes.mylib.Hradlo.extend({
 //-------------------------------- Hradla jiná ----------------------------------------------//
 
 joint.shapes.mylib.HradloMux31 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloMux31',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'a0' },
+            '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'a0' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 'a1' },
             
             '.input3': { ref: 'rect', 'ref-dx': -30, 'ref-dy': 2, magnet: 'passive', port: 'sel' },
             
-            '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': .5, magnet: true, port: 'q' },
+            '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': .5, magnet: true, port: 'q' },
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -375,14 +377,14 @@ joint.shapes.mylib.HradloMux31 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloMux61 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloMux61',
         size: { width: 65, height: 100 },
         attrs: {
-            '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a0' },
+            '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a0' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.4, magnet: 'passive', port: 'a1' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.6, magnet: 'passive', port: 'a2' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'a3' },
@@ -390,7 +392,7 @@ joint.shapes.mylib.HradloMux61 = joint.shapes.mylib.Hradlo.extend({
             '.input5': { ref: 'rect', 'ref-dx': -48, 'ref-dy': 2, magnet: 'passive', port: 'sel0' },
             '.input6': { ref: 'rect', 'ref-dx': -24, 'ref-dy': 2, magnet: 'passive', port: 'sel1' },
             
-            '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': .5, magnet: true, port: 'q' },
+            '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': .5, magnet: true, port: 'q' },
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -399,14 +401,14 @@ joint.shapes.mylib.HradloMux61 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloMux11_1 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="input input11"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloMux11_1',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'a0' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'a0' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'a1' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.35, magnet: 'passive', port: 'a2' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.45, magnet: 'passive', port: 'a3' },
@@ -419,7 +421,7 @@ joint.shapes.mylib.HradloMux11_1 = joint.shapes.mylib.Hradlo.extend({
             '.input10': { ref: 'rect', 'ref-dx': -48, 'ref-dy': 2, magnet: 'passive', port: 'sel1' },
             '.input11': { ref: 'rect', 'ref-dx': -18, 'ref-dy': 2, magnet: 'passive', port: 'sel2' },
             
-            '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': .5, magnet: true, port: 'q' },
+            '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': .5, magnet: true, port: 'q' },
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -428,17 +430,17 @@ joint.shapes.mylib.HradloMux11_1 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloDec14 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloDec14',
         size: { width: 85, height: 150 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'sel0' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'sel0' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.75, magnet: 'passive', port: 'sel1' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'y0' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'y0' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.4, magnet: true, port: 'y1' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.6, magnet: true, port: 'y2' },
             '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.8, magnet: true, port: 'y3' }
@@ -450,18 +452,18 @@ joint.shapes.mylib.HradloDec14 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloDec18 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/><circle class="output7"/><circle class="output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/><circle class="output output6"/><circle class="output output7"/><circle class="output output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloDec18',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'sel0' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'sel0' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.5, magnet: 'passive', port: 'sel1' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'sel2' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 'y0' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 'y0' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.25, magnet: true, port: 'y1' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.35, magnet: true, port: 'y2' },
             '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.45, magnet: true, port: 'y3' },
@@ -477,14 +479,14 @@ joint.shapes.mylib.HradloDec18 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloPrCo83 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloPrCo83',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'a0' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'a0' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'a1' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.35, magnet: 'passive', port: 'a2' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.45, magnet: 'passive', port: 'a3' },
@@ -493,7 +495,7 @@ joint.shapes.mylib.HradloPrCo83 = joint.shapes.mylib.Hradlo.extend({
             '.input7': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.75, magnet: 'passive', port: 'a6' },
             '.input8': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.85, magnet: 'passive', port: 'a7' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q0' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q0' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.4, magnet: true, port: 'q1' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.6, magnet: true, port: 'q2' },
             '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.8, magnet: true, port: 'v' }
@@ -505,20 +507,20 @@ joint.shapes.mylib.HradloPrCo83 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloPrCo42 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/><circle class="output2"/><circle class="output3"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloPrCo42',
         size: { width: 100, height: 150 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a0' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'a0' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.4, magnet: 'passive', port: 'a1' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.6, magnet: 'passive', port: 'a2' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'a3' },
             
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q0' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q0' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q1' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'v' },
 
@@ -530,7 +532,7 @@ joint.shapes.mylib.HradloPrCo42 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloRS22 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     state: -1,
     defaults: joint.util.deepSupplement({
@@ -538,10 +540,10 @@ joint.shapes.mylib.HradloRS22 = joint.shapes.mylib.Hradlo.extend({
         type: 'mylib.HradloRS22',
         size: { width: 80, height: 120 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'r' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'r' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 's' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'qn' },
         }
 
@@ -564,17 +566,17 @@ joint.shapes.mylib.HradloRS22 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloD22 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
     state: false,
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloD22',
         size: { width: 80, height: 120 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'd' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'd' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 'clk' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'qn' },
         }
 
@@ -603,19 +605,19 @@ joint.shapes.mylib.HradloD22 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloD42 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloD42',
         size: { width: 80, height: 120 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'd' },
+            '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'd' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.4, magnet: 'passive', port: 'clk' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.6, magnet: 'passive', port: 'ar' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'as' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'qn' },
         }
 
@@ -625,19 +627,19 @@ joint.shapes.mylib.HradloD42 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloD42SR = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloD42SR',
         size: { width: 80, height: 120 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'd' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'd' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.4, magnet: 'passive', port: 'clk' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.6, magnet: 'passive', port: 'ss' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'sr' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'qn' },
         }
 
@@ -647,18 +649,18 @@ joint.shapes.mylib.HradloD42SR = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloJK32 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloJK32',
         size: { width: 80, height: 120 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'j' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'j' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.5, magnet: 'passive', port: 'k' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 'clk' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'qn' },
         }
 
@@ -668,20 +670,20 @@ joint.shapes.mylib.HradloJK32 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloJK52AR = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloJK52AR',
         size: { width: 80, height: 120 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.1, magnet: 'passive', port: 'j' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.1, magnet: 'passive', port: 'j' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'k' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.5, magnet: 'passive', port: 'clk' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 'as' },
             '.input5': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.9, magnet: 'passive', port: 'ar' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'qn' },
         }
 
@@ -691,20 +693,20 @@ joint.shapes.mylib.HradloJK52AR = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloJK52SR = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloJK52SR',
         size: { width: 80, height: 120 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.1, magnet: 'passive', port: 'j' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.1, magnet: 'passive', port: 'j' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'k' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.5, magnet: 'passive', port: 'clk' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 'ss' },
             '.input5': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.9, magnet: 'passive', port: 'sr' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'qn' },
         }
 
@@ -714,17 +716,17 @@ joint.shapes.mylib.HradloJK52SR = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloHALFADD = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloHALFADD',
         size: { width: 80, height: 120 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'a' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'a' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 'b' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 's' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 's' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'c' },
         }
 
@@ -747,18 +749,18 @@ joint.shapes.mylib.HradloHALFADD = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloFULLADD = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloFULLADD',
         size: { width: 80, height: 120 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'a' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'a' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.5, magnet: 'passive', port: 'b' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.7, magnet: 'passive', port: 'cin' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 's' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 's' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'cout' },
         }
 
@@ -782,14 +784,14 @@ joint.shapes.mylib.HradloFULLADD = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloADD4 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloADD4',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.05, magnet: 'passive', port: 'a3' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.05, magnet: 'passive', port: 'a3' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'a2' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'a1' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.35, magnet: 'passive', port: 'a0' },
@@ -802,7 +804,7 @@ joint.shapes.mylib.HradloADD4 = joint.shapes.mylib.Hradlo.extend({
             '.input9': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.85, magnet: 'passive', port: 'cin' },
             '.input10': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.95, magnet: 'passive', port: 'invb' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.1, magnet: true, port: 's3' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.1, magnet: true, port: 's3' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 's2' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 's1' },
             '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 's0' },
@@ -815,14 +817,14 @@ joint.shapes.mylib.HradloADD4 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloMUL8 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/><circle class="output7"/><circle class="output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/><circle class="output output6"/><circle class="output output7"/><circle class="output output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloMUL8',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'a3' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'a3' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'a2' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.35, magnet: 'passive', port: 'a1' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.45, magnet: 'passive', port: 'a0' },           
@@ -831,7 +833,7 @@ joint.shapes.mylib.HradloMUL8 = joint.shapes.mylib.Hradlo.extend({
             '.input7': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.75, magnet: 'passive', port: 'b1' },
             '.input8': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.85, magnet: 'passive', port: 'b0' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 's7' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 's7' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.25, magnet: true, port: 's6' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.35, magnet: true, port: 's5' },
             '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.45, magnet: true, port: 's4' },
@@ -847,14 +849,14 @@ joint.shapes.mylib.HradloMUL8 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloCLEQ = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="output"/><circle class="output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloCLEQ',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'a3' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'a3' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'a2' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.35, magnet: 'passive', port: 'a1' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.45, magnet: 'passive', port: 'a0' },           
@@ -863,7 +865,7 @@ joint.shapes.mylib.HradloCLEQ = joint.shapes.mylib.Hradlo.extend({
             '.input7': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.75, magnet: 'passive', port: 'b1' },
             '.input8': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.85, magnet: 'passive', port: 'b0' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 'leq' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 'leq' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.25, magnet: true, port: 'leqn' },
         }
 
@@ -873,14 +875,14 @@ joint.shapes.mylib.HradloCLEQ = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloUDCOUNTER = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/><circle class="output output6"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloUDCOUNTER',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.10, magnet: 'passive', port: 'clk' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.10, magnet: 'passive', port: 'clk' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.20, magnet: 'passive', port: 'clk_en' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.30, magnet: 'passive', port: 'sreset' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.40, magnet: 'passive', port: 'spreset' },           
@@ -890,7 +892,7 @@ joint.shapes.mylib.HradloUDCOUNTER = joint.shapes.mylib.Hradlo.extend({
             '.input8': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.80, magnet: 'passive', port: 'a0' },
             '.input9': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.90, magnet: 'passive', port: 'down' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 'q3' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 'q3' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.25, magnet: true, port: 'q2' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.35, magnet: true, port: 'q1' },
             '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.45, magnet: true, port: 'q0' },
@@ -904,14 +906,14 @@ joint.shapes.mylib.HradloUDCOUNTER = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloARAM116 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloARAM116',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.10, magnet: 'passive', port: 'ce' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.10, magnet: 'passive', port: 'ce' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.20, magnet: 'passive', port: 'we' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.30, magnet: 'passive', port: 'a3' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.40, magnet: 'passive', port: 'a2' },           
@@ -919,7 +921,7 @@ joint.shapes.mylib.HradloARAM116 = joint.shapes.mylib.Hradlo.extend({
             '.input6': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.60, magnet: 'passive', port: 'a0' },
             '.input7': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.70, magnet: 'passive', port: 'd' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' }
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' }
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -928,14 +930,14 @@ joint.shapes.mylib.HradloARAM116 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloRAM116 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="output"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloRAM116',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.10, magnet: 'passive', port: 'clk' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.10, magnet: 'passive', port: 'clk' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.20, magnet: 'passive', port: 'we' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.30, magnet: 'passive', port: 'a3' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.40, magnet: 'passive', port: 'a2' },           
@@ -943,7 +945,7 @@ joint.shapes.mylib.HradloRAM116 = joint.shapes.mylib.Hradlo.extend({
             '.input6': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.60, magnet: 'passive', port: 'a0' },
             '.input7': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.70, magnet: 'passive', port: 'd' },
             
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' }
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' }
         }
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
@@ -952,14 +954,14 @@ joint.shapes.mylib.HradloRAM116 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloARAM416 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloARAM416',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.05, magnet: 'passive', port: 'ce' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.05, magnet: 'passive', port: 'ce' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'we' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'a3' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.35, magnet: 'passive', port: 'a2' },           
@@ -970,7 +972,7 @@ joint.shapes.mylib.HradloARAM416 = joint.shapes.mylib.Hradlo.extend({
             '.input9': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.85, magnet: 'passive', port: 'd1' },
            '.input10': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.95, magnet: 'passive', port: 'd0' },
             
-              '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q3' },
+              '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q3' },
              '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.4, magnet: true, port: 'q2' },
              '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.6, magnet: true, port: 'q1' },
              '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.8, magnet: true, port: 'q0' }
@@ -982,14 +984,14 @@ joint.shapes.mylib.HradloARAM416 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloRAM416 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloRAM416',
         size: { width: 100, height: 180 },
         attrs: {
-             '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.05, magnet: 'passive', port: 'clk' },
+             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.05, magnet: 'passive', port: 'clk' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.15, magnet: 'passive', port: 'we' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.25, magnet: 'passive', port: 'a3' },
             '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.35, magnet: 'passive', port: 'a2' },           
@@ -1000,7 +1002,7 @@ joint.shapes.mylib.HradloRAM416 = joint.shapes.mylib.Hradlo.extend({
             '.input9': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.85, magnet: 'passive', port: 'd1' },
            '.input10': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.95, magnet: 'passive', port: 'd0' },
             
-              '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q3' },
+              '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q3' },
              '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.4, magnet: true, port: 'q2' },
              '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.6, magnet: true, port: 'q1' },
              '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.8, magnet: true, port: 'q0' }
@@ -1012,14 +1014,14 @@ joint.shapes.mylib.HradloRAM416 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloARAM4256 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="input12"/><circle class="input13"/><circle class="input14"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="input input11"/><circle class="input input12"/><circle class="input input13"/><circle class="input input14"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloARAM4256',
         size: { width: 100, height: 200 },
         attrs: {
-              '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.06, magnet: 'passive', port: 'ce' },
+              '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.06, magnet: 'passive', port: 'ce' },
              '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.13, magnet: 'passive', port: 'we' },
              '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.20, magnet: 'passive', port: 'a7' },
              '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.27, magnet: 'passive', port: 'a6' },           
@@ -1034,7 +1036,7 @@ joint.shapes.mylib.HradloARAM4256 = joint.shapes.mylib.Hradlo.extend({
             '.input13': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.90, magnet: 'passive', port: 'd1' },
             '.input14': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.97, magnet: 'passive', port: 'd0' },
                         
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q3' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q3' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.4, magnet: true, port: 'q2' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.6, magnet: true, port: 'q1' },
             '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.8, magnet: true, port: 'q0' }
@@ -1046,14 +1048,14 @@ joint.shapes.mylib.HradloARAM4256 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloRAM4256 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="input12"/><circle class="input13"/><circle class="input14"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="input input11"/><circle class="input input12"/><circle class="input input13"/><circle class="input input14"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloRAM4256',
         size: { width: 100, height: 200 },
         attrs: {
-              '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.06, magnet: 'passive', port: 'clk' },
+              '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.06, magnet: 'passive', port: 'clk' },
              '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.13, magnet: 'passive', port: 'we' },
              '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.20, magnet: 'passive', port: 'a7' },
              '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.27, magnet: 'passive', port: 'a6' },           
@@ -1068,7 +1070,7 @@ joint.shapes.mylib.HradloRAM4256 = joint.shapes.mylib.Hradlo.extend({
             '.input13': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.90, magnet: 'passive', port: 'd1' },
             '.input14': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.97, magnet: 'passive', port: 'd0' },
                         
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q3' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.2, magnet: true, port: 'q3' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.4, magnet: true, port: 'q2' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.6, magnet: true, port: 'q1' },
             '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.8, magnet: true, port: 'q0' }
@@ -1080,14 +1082,14 @@ joint.shapes.mylib.HradloRAM4256 = joint.shapes.mylib.Hradlo.extend({
 });
 
 joint.shapes.mylib.HradloDPRAM4256 = joint.shapes.mylib.Hradlo.extend({
-    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input"/><circle class="input2"/><circle class="input3"/><circle class="input4"/><circle class="input5"/><circle class="input6"/><circle class="input7"/><circle class="input8"/><circle class="input9"/><circle class="input10"/><circle class="input11"/><circle class="input12"/><circle class="input13"/><circle class="input14"/><circle class="input15"/><circle class="input16"/><circle class="input17"/><circle class="input18"/><circle class="input19"/><circle class="input20"/><circle class="input21"/><circle class="input22"/><circle class="input23"/><circle class="input24"/><circle class="input25"/><circle class="input26"/><circle class="input27"/><circle class="input28"/><circle class="output"/><circle class="output2"/><circle class="output3"/><circle class="output4"/><circle class="output5"/><circle class="output6"/><circle class="output7"/><circle class="output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/><text class="jm19"/><text class="jm20"/><text class="jm21"/><text class="jm22"/><text class="jm23"/><text class="jm24"/><text class="jm25"/><text class="jm26"/><text class="jm27"/><text class="jm28"/><text class="jm29"/><text class="jm30"/><text class="jm31"/><text class="jm32"/><text class="jm33"/><text class="jm34"/><text class="jm35"/><text class="jm36"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="input input11"/><circle class="input input12"/><circle class="input input13"/><circle class="input input14"/><circle class="input input15"/><circle class="input input16"/><circle class="input input17"/><circle class="input input18"/><circle class="input input19"/><circle class="input input20"/><circle class="input input21"/><circle class="input input22"/><circle class="input input23"/><circle class="input input24"/><circle class="input input25"/><circle class="input input26"/><circle class="input input27"/><circle class="input input28"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/><circle class="output output6"/><circle class="output output7"/><circle class="output output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/><text class="jm19"/><text class="jm20"/><text class="jm21"/><text class="jm22"/><text class="jm23"/><text class="jm24"/><text class="jm25"/><text class="jm26"/><text class="jm27"/><text class="jm28"/><text class="jm29"/><text class="jm30"/><text class="jm31"/><text class="jm32"/><text class="jm33"/><text class="jm34"/><text class="jm35"/><text class="jm36"/></g>',
 
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloDPRAM4256',
         size: { width: 150, height: 400 },
         attrs: {
-              '.input': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.035, magnet: 'passive', port: 'aclk' },
+              '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.035, magnet: 'passive', port: 'aclk' },
              '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.070, magnet: 'passive', port: 'awe' },
              '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.105, magnet: 'passive', port: 'bclk' },
              '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.140, magnet: 'passive', port: 'bwe' },           
@@ -1116,7 +1118,7 @@ joint.shapes.mylib.HradloDPRAM4256 = joint.shapes.mylib.Hradlo.extend({
             '.input27': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.945, magnet: 'passive', port: 'db1' },
             '.input28': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.980, magnet: 'passive', port: 'db0' },           
                                     
-             '.output': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 'qa3' },
+             '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.15, magnet: true, port: 'qa3' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.25, magnet: true, port: 'qa2' },
             '.output3': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.35, magnet: true, port: 'qa1' },
             '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.45, magnet: true, port: 'qa0' },
@@ -1506,7 +1508,7 @@ joint.shapes.mylib.DEC14 = joint.shapes.mylib.HradloDec14.extend({
               '.jm6': { text: 'y3', ref: 'rect', 'ref-dx': 10, 'ref-dy': -50 },            
         }                                 
     }, joint.shapes.mylib.HradloDec14.prototype.defaults),
-    operation: function (sel0, sel1) {
+    operation: function (sel1, sel0) {
         if (sel0 < 0 || sel1 < 0) return -1;
         var results = {
             'y0' : sel0==0 && sel1==0,
@@ -1536,7 +1538,7 @@ joint.shapes.mylib.DEC18 = joint.shapes.mylib.HradloDec18.extend({
              '.jm11': { text: 'y7', ref: 'rect', 'ref-dx': 10, 'ref-dy': -43 },             
         }                                 
     }, joint.shapes.mylib.HradloDec18.prototype.defaults),
-    operation: function (sel0, sel1, sel2) {
+    operation: function (sel2, sel1, sel0) {
         if (sel0 < 0 || sel1 < 0 || sel2 < 0) return -1;
         var results = {
             'y0' : sel0==0 && sel1==0 && sel2==0,
