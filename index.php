@@ -26,11 +26,10 @@
 	<script src="assets/js/libs/moment/locale/cs.js"></script>
 
 	<script src="assets/js/libs/jointjs/dist/joint.js"></script>
-	<script src="assets/js/libs/jointjs/dist/joint.shapes.logic.min.js"></script>
 	<script src="assets/js/libs/bootstrap/dist/js/bootstrap.min.js"></script>
 
 
-	<script src="scripts/joint.shapes.mylib.js"></script>
+	<script src="scripts/joint.shapes.mylib.js?<?php echo(filemtime('./scripts/joint.shapes.mylib.js'))?>"></script>
 	<!--<script src="/scripts/utils/fileLoader.js"></script>-->
 	<!--<script src="/scripts/utils/Counter.js"></script>-->
 	<!--<script src="/scripts/utils/Serialization.js"></script>-->
@@ -40,6 +39,36 @@
 	<!--<script src="/scripts/VhdExport.js"></script>-->
 	<!--<script src="/scripts/VhdImport.js"></script>-->
 
+
+    <style>
+        .joint-element .output, .joint-element .input
+        {
+            fill: #fff;
+            stroke: #7f8c8d;
+            stroke-opacity: 0.5;
+            stroke-width: 2px;
+        }
+        .joint-element .not_gate
+        {
+            fill: none;
+            stroke: #000000;
+            stroke-opacity: 1;
+            stroke-width: 2px;
+        }
+        .joint-element .entitybody
+        {
+            fill: #fff;
+            stroke: #000000;
+            stroke-opacity: 1;
+            stroke-width: 2px;
+        }
+        .joint-element .label
+        {
+            fill: #000000;
+            font-size: 15px;
+            font-weight:400;
+        }
+    </style>
 
 </head>
 <body style="position: relative;">
@@ -155,22 +184,22 @@
 
 <div id="scripts">
 
-    <script src="src/application.js"></script>
-    <script src="src/helpers/templates.js"></script>
+    <script src="src/application.js?<?php echo(filemtime('./src/application.js')) ?>"></script>
+    <script src="src/helpers/templates.js?<?php echo(filemtime('./src/helpers/templates.js')) ?>"></script>
 
-    <script src="src/helpers/util.js"></script>
+    <script src="src/helpers/util.js?<?php echo(filemtime('./src/helpers/util.js')) ?>"></script>
 
-    <script src="src/modules/entities.js"></script>
-    <script src="src/modules/schema.js"></script>
-    <script src="src/modules/modal.js"></script>
-    <script src="src/modules/settings.js"></script>
-    <script src="src/modules/task.js"></script>
-    <script src="src/modules/group.js"></script>
-    <script src="src/modules/student.js"></script>
-    <script src="src/modules/homeworks.js"></script>
-    <script src="src/modules/simmulator.js"></script>
+    <script src="src/modules/entities.js?<?php echo(filemtime('./src/modules/entities.js')) ?>"></script>
+    <script src="src/modules/schema.js?<?php echo(filemtime('./src/modules/schema.js')) ?>"></script>
+    <script src="src/modules/modal.js?<?php echo(filemtime('./src/modules/modal.js')) ?>"></script>
+    <script src="src/modules/settings.js?<?php echo(filemtime('./src/modules/settings.js')) ?>"></script>
+    <script src="src/modules/task.js?<?php echo(filemtime('./src/modules/task.js')) ?>"></script>
+    <script src="src/modules/group.js?<?php echo(filemtime('./src/modules/group.js')) ?>"></script>
+    <script src="src/modules/student.js?<?php echo(filemtime('./src/modules/student.js')) ?>"></script>
+    <script src="src/modules/homeworks.js?<?php echo(filemtime('./src/modules/homeworks.js')) ?>"></script>
+    <script src="src/modules/simmulator.js?<?php echo(filemtime('./src/modules/simmulator.js')) ?>"></script>
 
-    <script src="src/application_ready.js"></script>
+    <script src="src/application_ready.js?<?php echo(filemtime('./src/application_ready.js')) ?>"></script>
 </div>
 
 </body>

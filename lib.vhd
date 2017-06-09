@@ -722,7 +722,7 @@ begin
 		end if;
 	end process;
 
-	qn_int <= q_int;
+	qn_int <= not (q_int);
 
 	q  <= q_int;
 	qn <= qn_int;
