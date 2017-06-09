@@ -15,7 +15,7 @@ function schemas() {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, description, created 
+		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
             FROM schema_base");
 
 		$sth->execute();
@@ -42,14 +42,13 @@ function schemaCreate() {
 	$values = array(
 		"name" => $allPostVars['name'],
 		"architecture" => $allPostVars['architecture'],
-		"user_id" => 1,
-		"description" => $allPostVars['description']
+		"user_id" => 1
 	);
 
 	try
 	{
 		$db = getDB();
-		$result = $db->prepare("INSERT INTO schema_base (user_id, name, architecture, description) VALUES (:user_id,:name,:architecture, :description)")->execute($values);
+		$result = $db->prepare("INSERT INTO schema_base (user_id, name, architecture) VALUES (:user_id,:name,:architecture)")->execute($values);
 
 		if ($result){
 			$id = $db->lastInsertId();
@@ -135,7 +134,7 @@ function schemaDetail($id) {
 	{
 		$db = getDB();
 
-		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, description, created 
+		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
             FROM schema_base
             WHERE id = :id");
 

@@ -16,7 +16,7 @@ function groups() {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT *
+		$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created AS created, u.name AS name, u.mail, t.user_id, gt.teacher_id
             FROM `group` AS g
             JOIN group_teaching AS gt
             JOIN teacher AS t

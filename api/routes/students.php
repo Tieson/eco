@@ -47,7 +47,7 @@ function student($id) {
             FROM `student` 
             JOIN `user` 
             ON user.id = student.user_id 
-            WHERE student.id = :id");
+            WHERE student.id = :id LIMIT 1");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetch(PDO::FETCH_OBJ);

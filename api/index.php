@@ -38,6 +38,7 @@ $app->get('/', function() use($app) {
  * TODO: přihlášení a identifikace uživatele
  */
 $_SESSION['teacher_id'] = 9;
+$_SESSION['student_id'] = 9;
 
 
 require_once 'routes/schemas.php';
@@ -49,6 +50,8 @@ require_once 'routes/users.php';
 require_once 'routes/entities.php';
 require_once 'routes/homeworks.php';
 
+//$app->post('/file', 'uploadFile');
+
 $app->get('/users', 'users');
 $app->get('/users/:id', 'user');
 
@@ -57,6 +60,7 @@ $app->get('/students/:id', 'student');
 $app->get('/students/:id/hw', 'studentHomeworkList');
 $app->get('/students/:id/hw/:hw_id', 'studentHomeworkDetail');
 $app->get('/students/:id/groups', 'studentGroupList');
+$app->delete('/students/:id', 'student');
 
 $app->get('/homework/:id', 'homework');
 $app->get('/homework/:id/solutions', 'homeworkSolutionList');
