@@ -21,6 +21,34 @@
 //     };
 // }
 
+function fromBinary(downtoArray){
+    var result = 0;
+        _.each(downtoArray, function (value) {
+            result <<= 1;
+            result |= value;
+        });
+    // (_.map(bPick, function(x){ if (x) return 0; else return 1;}).reverse().join(''), 2 )
+    return result;
+}
+
+function toBinary(value, size) {
+    var result = [];
+    for (var i = 0; i < size; i++){
+        result.unshift(value & 1);
+        value>>=1;
+    }
+    return result;
+}
+
+
+//TODO: dodělat
+function toBinaryDigits(value, count){
+    var result = [];
+    for(var i = 0; i< count; i++) {
+        result.push()
+    }
+}
+
 
 function inputsAreInvalid(params, inputs) {
     var status = false;
@@ -103,6 +131,10 @@ function logXor(result, value, key){
     return result != value;
 }
 
+
+function createRAMKey(p, a){
+    return _.pick(p, a).join('');
+}
 
 function executerAnd(pick){
     return _.reduce(pick, logAnd, true);
@@ -917,16 +949,15 @@ joint.shapes.mylib.HradloHALFADD = joint.shapes.mylib.Hradlo.extend({
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
 
-    operation: function (a, b) {
-        //TODO: předěllat na p
-        if (a < 0 || b < 0) {
+    operation: function (p) {
+        if (p['a'] < 0 || p['b'] < 0) {
             return {
                 "s": -1,
                 "c": -1
             }
         }
-        var s = a != b,
-            c = a == 1 && b == 1;
+        var s = p['a'] != p['b'],
+            c = p['a'] == 1 && p['b'] == 1;
         return {
             "s": s,
             "c": c
@@ -954,16 +985,16 @@ joint.shapes.mylib.HradloFULLADD = joint.shapes.mylib.Hradlo.extend({
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
 
-    operation: function(a, b, cin) {
+    operation: function(p) {
         //TODO: předělat na p
-        if (a < 0 || b < 0) {
+        if (p['a']< 0 || p['b']< 0) {
             return {
                 "s": -1,
                 "cout": -1
             }
         }
-        var s = (a != b) != cin;
-        var cout = (a + b + cin > 1);
+        var s = (p['a']!= p['b']) != p['cin'];
+        var cout = (p['a']+ p['b']+ p['cin']> 1);
         return {
             "s": s,
             "cout": cout
@@ -1224,30 +1255,31 @@ joint.shapes.mylib.HradloARAM416 = joint.shapes.mylib.Hradlo.extend({
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
 
-    operation: function(a0, a1, a2, a3, ce, d0, d1, d2, d3, we) {
-        var key = [a0, a1, a2, a3].join('');
-        var result = {
-            q0: 0,
-            q1: 0,
-            q2: 0,
-            q3: 0
-        };
-        if (ce === 1) {
-            if (we === 1){
-                this.memory[key] = [d0, d1, d2, d3];
-            }
-            if (this.memory[key]){
-                var data = this.memory[key];
-                result = {
-                    q0: data[0],
-                    q1: data[1],
-                    q2: data[2],
-                    q3: data[3]
-                }
-            }
-        }
-        return result;
-    }
+    //implementováno v potomkovi
+    // operation: function(a0, a1, a2, a3, ce, d0, d1, d2, d3, we) {
+    //     var key = [a0, a1, a2, a3].join('');
+    //     var result = {
+    //         q0: 0,
+    //         q1: 0,
+    //         q2: 0,
+    //         q3: 0
+    //     };
+    //     if (ce === 1) {
+    //         if (we === 1){
+    //             this.memory[key] = [d0, d1, d2, d3];
+    //         }
+    //         if (this.memory[key]){
+    //             var data = this.memory[key];
+    //             result = {
+    //                 q0: data[0],
+    //                 q1: data[1],
+    //                 q2: data[2],
+    //                 q3: data[3]
+    //             }
+    //         }
+    //     }
+    //     return result;
+    // }
 });
 
 joint.shapes.mylib.HradloRAM416 = joint.shapes.mylib.Hradlo.extend({
@@ -2271,9 +2303,10 @@ joint.shapes.mylib.MUL8 = joint.shapes.mylib.HradloMUL8.extend({
     }, joint.shapes.mylib.HradloMUL8.prototype.defaults)
 });
 
-joint.shapes.mylib.COMPARELEQ = joint.shapes.mylib.HradloCLEQ.extend({
+//TODO: otestovat hradlo
+joint.shapes.mylib.COMPARATORLEQ = joint.shapes.mylib.HradloCLEQ.extend({
     defaults: joint.util.deepSupplement({
-        type: 'mylib.COMPARELEQ',
+        type: 'mylib.COMPARATORLEQ',
         attrs: {
              '.label': { text: 'CompLEQ', ref: 'rect', 'ref-x': .1, 'ref-y': .1, stroke: 'black'},            
                 '.jm': { text: 'a3', ref: 'rect', 'ref-dx': -125, 'ref-dy': -169 },
@@ -2286,10 +2319,22 @@ joint.shapes.mylib.COMPARELEQ = joint.shapes.mylib.HradloCLEQ.extend({
                '.jm8': { text: 'b0', ref: 'rect', 'ref-dx': -125, 'ref-dy': -43 },          
                '.jm9': { text: 'leq', ref: 'rect', 'ref-dx': 10, 'ref-dy': -173 },
               '.jm10': { text: 'leqn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -153 },
-        }                                 
-    }, joint.shapes.mylib.HradloCLEQ.prototype.defaults)
+        }      ,
+        inPorts: ["a3","a2","a1","a0","b3","b2","b1","b0"],
+        outPorts: ["leq", "leqn"],
+    }, joint.shapes.mylib.HradloCLEQ.prototype.defaults),
+    operation: function(p) {
+        var result = createInvalidOutput(this);
+        if (inputsAreInvalid(p)) {
+            return result;
+        }
+        result.leq = fromBinary(_.pick(p, ['a3', 'a2', 'a1', 'a0'])) <= fromBinary(_.pick(p, ['b3', 'b2', 'b1', 'b0']))?1:0;
+        result.leq = !result.leq;
+        return result;
+    }
 });
 
+//TODO: otestovat hradlo
 joint.shapes.mylib.UPDOWNCOUNTER = joint.shapes.mylib.HradloUDCOUNTER.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.UPDOWNCOUNTER',
@@ -2311,8 +2356,47 @@ joint.shapes.mylib.UPDOWNCOUNTER = joint.shapes.mylib.HradloUDCOUNTER.extend({
               '.jm13': { text: 'q0', ref: 'rect', 'ref-dx': 10, 'ref-dy': -115 },
               '.jm14': { text: 'zero', ref: 'rect', 'ref-dx': 10, 'ref-dy': -99 },
               '.jm15': { text: 'match', ref: 'rect', 'ref-dx': 10, 'ref-dy': -80 },
-        }                                 
-    }, joint.shapes.mylib.HradloUDCOUNTER.prototype.defaults)
+        },
+        inPorts: ["clk", "clk_en", "sreset", "spreset", "a3", "a2", "a1", "a0", "down"],
+        outPorts: ["q3", "q2", "q1", "q0", "zero", "match"],
+        cnt_reg: 0
+    }, joint.shapes.mylib.HradloUDCOUNTER.prototype.defaults),
+    operation: function(p) {
+        var result = createInvalidOutput(this);
+        if (inputsAreInvalid(p)) {
+            return result;
+        }
+
+        if (rising_edge(this.clk_edge, p['clk'])) {
+            if (portIsHigh(p, 'sreset')) {
+                this.cnt_reg = 0;
+            } else if (portIsHigh(p, 'spreset')) {
+                this.cnt_reg = fromBinary(_.pick(p, ['a3', 'a2', 'a1', 'a0']));
+            } else if (portIsHigh(p, 'clk_en')) {
+                if (portIsHigh(p, 'down')) {
+                    this.cnt_reg--;
+                    if (this.cnt_reg < 0) {
+                        this.cnt_reg = 15;
+                    }
+                } else {
+                    this.cnt_reg++;
+                    if (this.cnt_reg > 15) {
+                        this.cnt_reg = 0;
+                    }
+                }
+            }
+        }
+        result.zero = (this.cnt_reg === 0) ? 1 : 0;
+        result.match = (this.cnt_reg === fromBinary(_.pick(p, ['a3', 'a2', 'a1', 'a0']))) ? 1 : 0;
+        var r = toBinary(this.cnt_reg);
+        result.q3 = r[3];
+        result.q2 = r[2];
+        result.q1 = r[1];
+        result.q0 = r[0];
+        this.clk_edge = p['clk'];
+
+        return result;
+    }
 });
 
 joint.shapes.mylib.ARAM1x16 = joint.shapes.mylib.HradloARAM116.extend({
@@ -2327,12 +2411,28 @@ joint.shapes.mylib.ARAM1x16 = joint.shapes.mylib.HradloARAM116.extend({
                '.jm5': { text: 'a1', ref: 'rect', 'ref-dx': -125, 'ref-dy': -107 },
                '.jm6': { text: 'a0', ref: 'rect', 'ref-dx': -125, 'ref-dy': -89 },
                '.jm7': { text: 'd', ref: 'rect', 'ref-dx': -125, 'ref-dy': -71 },
-         
                '.jm8': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -107 },
-        }                                 
-    }, joint.shapes.mylib.HradloARAM116.prototype.defaults)
+        },
+        inPorts: ['ce','we','a3','a2','a1','a0','d'],
+        outPorts: ['q'],
+        memory: {}
+    }, joint.shapes.mylib.HradloARAM116.prototype.defaults),
+    operation: function(p) {
+        var key = createRAMKey(p,['a3', 'a2', 'a1', 'a0']);
+        if (inputsAreInvalid(p)) {
+            return 1;
+        }
+        if (portIsHigh(p,'ce')){
+            if(portIsHigh(p,'we')){
+                this.memory[key] = p['d']?1:0;
+            }
+            return this.memory[key]?1:0;
+        }
+        return 0;
+    }
 });
 
+//TODO: Otestovat entitu
 joint.shapes.mylib.RAM1x16 = joint.shapes.mylib.HradloRAM116.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.RAM1x16',
@@ -2347,8 +2447,24 @@ joint.shapes.mylib.RAM1x16 = joint.shapes.mylib.HradloRAM116.extend({
                '.jm7': { text: 'd', ref: 'rect', 'ref-dx': -125, 'ref-dy': -71 },
          
                '.jm8': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -107 },
-        }                                 
-    }, joint.shapes.mylib.HradloRAM116.prototype.defaults)
+        },
+        inPorts: ['clk','ce','we','a3','a2','a1','a0','d'],
+        outPorts: ['q'],
+        clk: false
+    }, joint.shapes.mylib.HradloRAM116.prototype.defaults),
+    operation: function(p) {
+        var key = createRAMKey(p,['a3', 'a2', 'a1', 'a0']);
+        if (inputsAreInvalid(p)) {
+            return 1;
+        }
+        if (rising_edge(this.clk, p['clk'])){
+            if(portIsHigh(p,'we')){
+                this.memory[key] = p['d']?1:0;
+            }
+        }
+        this.clk = !this.clk;
+        return this.memory[key];
+    }
 });
 
 joint.shapes.mylib.ARAM4x16 = joint.shapes.mylib.HradloARAM416.extend({
@@ -2375,6 +2491,7 @@ joint.shapes.mylib.ARAM4x16 = joint.shapes.mylib.HradloARAM416.extend({
     }, joint.shapes.mylib.HradloARAM416.prototype.defaults)
 });
 
+//TODO: zkontrolovat
 joint.shapes.mylib.RAM4x16 = joint.shapes.mylib.HradloRAM416.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.RAM4x16',
@@ -2395,8 +2512,32 @@ joint.shapes.mylib.RAM4x16 = joint.shapes.mylib.HradloRAM416.extend({
               '.jm12': { text: 'q2', ref: 'rect', 'ref-dx': 10, 'ref-dy': -128 },
               '.jm13': { text: 'q1', ref: 'rect', 'ref-dx': 10, 'ref-dy': -95 },
               '.jm14': { text: 'q0', ref: 'rect', 'ref-dx': 10, 'ref-dy': -57 },
-        }                                 
-    }, joint.shapes.mylib.HradloRAM416.prototype.defaults)
+        },
+        inPorts: ['clk','ce','we','a3','a2','a1','a0','d3','d2','d1','d0'],
+        outPorts: ['q3','q2','q1','q0'],
+        memory: {}
+    }, joint.shapes.mylib.HradloRAM416.prototype.defaults),
+    operation: function(p) {
+        var key = createRAMKey(p,['a3', 'a2', 'a1', 'a0']);
+        if (inputsAreInvalid(p)) {
+            return 1;
+        }
+        if (rising_edge(this.clk, p['clk'])){
+            if(portIsHigh(p,'we')){
+                this.memory[key] = _.map(_.pick(p,['d3','d2','d1','d0']), function (x) {
+                    return x?1:0;
+                });
+            }
+        }
+        this.clk = !this.clk;
+        var result = this.memory[key];
+        return {
+            'q3': result[3],
+            'q2': result[2],
+            'q1': result[1],
+            'q0': result[0],
+        };
+    }
 });
 
 joint.shapes.mylib.ARAM4x256 = joint.shapes.mylib.HradloARAM4256.extend({
