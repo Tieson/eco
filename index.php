@@ -78,10 +78,10 @@
 
 <div class="templates">
 	<!-- šablony pro Backbone -->
-	<?php include 'templates/templates/homeworkList.html' ?>
+	<?php include 'templates/templates/homework.html' ?>
 	<?php include 'templates/templates/schemas.html' ?>
-	<?php include 'templates/templates/schemaListModal.html' ?>
 	<?php include 'templates/templates/groups.html' ?>
+	<?php include 'templates/templates/tasks.html' ?>
 
     <script type="text/template" id="schemaListItem-template">
         <%=name%>
@@ -96,69 +96,77 @@
 <!--            </div>-->
 <!--        </div>-->
     </script>
+
+
+    <script type="text/template" id="main_bar-template">
+
+    </script>
 </div>
 
 <div class="page_wrap">
 
-	<div class="main_bar">
-		<div class="dropdown">
-			<a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
-				<i class=" glyphicon glyphicon-file"></i> Soubor
-			</a>
-			<ul class="dropdown-menu">
-				<li><a href="#schemas/new" id="menu-file-new_schema">Nové schéma</a></li>
-				<li><a href="#" id="menu-file-close_schema">Zavřít schéma</a></li>
-				<li><a href="#schemas" id="menu-file-open_schema">Otevřít schéma</a></li>
-				<li><a href="#" id="menu-file-save_schema_as">Uložit schéma jako &hellip;</a></li>
-				<li><a href="#" id="menu-file-export_schema">Exportovat schéma do VHDL</a></li>
-				<li class="divider"></li>
-				<li><a href="#" id="menu-file-download_lib">Stáhnout lib.vdl</a></li>
-			</ul>
-		</div>
-		<div class="dropdown">
-			<a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
-				<i class=" glyphicon glyphicon-education"></i> Student
-			</a>
-			<ul class="dropdown-menu">
-				<li><a href="#homeworks" id="menu-task-show">Úkoly</a></li>
-				<li><a href="#groups" id="menu-task-show">Skupiny</a></li>
-			</ul>
-		</div>
-		<div class="dropdown">
-			<a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
-				<i class=" glyphicon glyphicon-king"></i> Vyučující
-			</a>
-			<ul class="dropdown-menu">
-				<li><a href="#teacher/circles">Skupiny</a></li>
-				<li><a href="#teacher/circles/add">Přidat novou skukpinu</a></li>
-			</ul>
-		</div>
+	<div class="main_bar" id="main_bar">
+        <div class="dropdown">
+            <a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
+                <i class=" glyphicon glyphicon-file"></i> Soubor
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#schemas/new" id="menu-file-new_schema">Nové schéma</a></li>
+                <li><a href="#" id="menu-file-close_schema">Zavřít schéma</a></li>
+                <li><a href="#schemas" id="menu-file-open_schema">Otevřít schéma</a></li>
+                <li><a href="#" id="menu-file-save_schema_as">Uložit schéma jako &hellip;</a></li>
+                <li><a href="#" id="menu-file-export_schema">Exportovat schéma do VHDL</a></li>
+                <li class="divider"></li>
+                <li><a href="#" id="menu-file-download_lib">Stáhnout lib.vdl</a></li>
+            </ul>
+        </div>
+        <div class="dropdown">
+            <a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
+                <i class=" glyphicon glyphicon-education"></i> Student
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#homeworks" id="menu-task-show">Úkoly</a></li>
+                <li><a href="#students/groups" id="menu-task-show">Skupiny</a></li>
+            </ul>
+        </div>
+        <div class="dropdown">
+            <a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
+                <i class=" glyphicon glyphicon-king"></i> Vyučující
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#groups">Skupiny</a></li>
+                <li><a href="#groups/add">Přidat novou skukpinu</a></li>
+                <li><a href="#teachers/9/tasks">Zadání</a></li>
+                <li><a href="#teachers/9/tasks">Úkoly</a></li>
+                <li><a href="#"></a></li>
+            </ul>
+        </div>
 
-		<div class="schema_list">
-			<div class="schema_list__items" id="schema_list_container"></div>
-			<a class="schema_list__add" id="addSchema" href="#schemas/new"> + </a>
-		</div>
+        <div class="schema_list">
+            <div class="schema_list__items" id="schema_list_container"></div>
+            <a class="schema_list__add" id="addSchema" href="#schemas/new"> + </a>
+        </div>
 
-		<div id='usermenu' class="main_bar__usermenu">
+        <div id='usermenu' class="main_bar__usermenu">
 
-			<div class="main_bar__usermenu__item item" id="userInfo">
-				<div class="menuLabel clickmenu noselect">
-					<i class="glyphicon glyphicon-user"></i> Účet
-				</div>
-				<!--<div class='menuitemsContainer'>
-					<a href='./?logout' class="button remove"><i class="glyphicon glyphicon-log-out"></i> Log out</a>
-					<a href="#logForm" class="button button--primary popup"><i class="glyphicon glyphicon-log-in"></i> Log in</a>
-					<div class="nebo">or</div>
-					<a href="#regForm" class="button button--default reg popup"><i class="glyphicon glyphicon-edit"></i> Create account</a>
-				</div>-->
-			</div>
-			<div class="main_bar__usermenu__item item" id="saveSchema">
-				<div class="menuLabel noselect">
-					<i class="glyphicon glyphicon-floppy-disk"></i> Uložit schéma
-				</div>
-			</div>
+            <div class="main_bar__usermenu__item item" id="userInfo">
+                <div class="menuLabel clickmenu noselect">
+                    <i class="glyphicon glyphicon-user"></i> Účet
+                </div>
+                <!--<div class='menuitemsContainer'>
+				<a href='./?logout' class="button remove"><i class="glyphicon glyphicon-log-out"></i> Log out</a>
+			<a href="#logForm" class="button button--primary popup"><i class="glyphicon glyphicon-log-in"></i> Log in</a>
+				<div class="nebo">or</div>
+				<a href="#regForm" class="button button--default reg popup"><i class="glyphicon glyphicon-edit"></i> Create account</a>
+			</div>-->
+            </div>
+            <div class="main_bar__usermenu__item item" id="saveSchema">
+                <div class="menuLabel noselect">
+                    <i class="glyphicon glyphicon-floppy-disk"></i> Uložit schéma
+                </div>
+            </div>
 
-		</div>
+        </div>
 	</div>
 
 
@@ -198,16 +206,19 @@
 <div id="modals"></div>
 
 <div id="scripts">
+    <script src="src/helpers/util.js?<?php echo(filemtime('./src/helpers/util.js')) ?>"></script>
     <script src="src/application.js?<?php echo(filemtime('./src/application.js')) ?>"></script>
     <script src="src/helpers/templates.js?<?php echo(filemtime('./src/helpers/templates.js')) ?>"></script>
 
-    <script src="src/helpers/util.js?<?php echo(filemtime('./src/helpers/util.js')) ?>"></script>
+    <script src="src/helpers/formaters.js?<?php echo(filemtime('./src/helpers/formaters.js')) ?>"></script>
 
+    <script src="src/modules/generic.js?<?php echo(filemtime('./src/modules/generic.js')) ?>"></script>
     <script src="src/modules/entities.js?<?php echo(filemtime('./src/modules/entities.js')) ?>"></script>
+    <script src="src/modules/main.js?<?php echo(filemtime('./src/modules/main.js')) ?>"></script>
     <script src="src/modules/schema.js?<?php echo(filemtime('./src/modules/schema.js')) ?>"></script>
     <script src="src/modules/modal.js?<?php echo(filemtime('./src/modules/modal.js')) ?>"></script>
     <script src="src/modules/settings.js?<?php echo(filemtime('./src/modules/settings.js')) ?>"></script>
-    <script src="src/modules/task.js?<?php echo(filemtime('./src/modules/task.js')) ?>"></script>
+    <script src="src/modules/tasks.js?<?php echo(filemtime('./src/modules/tasks.js')) ?>"></script>
     <script src="src/modules/group.js?<?php echo(filemtime('./src/modules/group.js')) ?>"></script>
     <script src="src/modules/student.js?<?php echo(filemtime('./src/modules/student.js')) ?>"></script>
     <script src="src/modules/homeworks.js?<?php echo(filemtime('./src/modules/homeworks.js')) ?>"></script>

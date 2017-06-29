@@ -1,0 +1,129 @@
+<script type="text/template" id="tasksList-template">
+    <h2>Seznam zadání</h2>
+    <input class="search" placeholder="Filtr" />
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Název</th>
+                <th>Vytvořeno</th>
+                <th>Správné řešení</th>
+                <th>Testovací soubor</th>
+                <th>Smazat</th>
+                <th>Detail</th>
+            </tr>
+            </thead>
+            <tbody class="items-container list">
+
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<script type="text/template" id="tasksListItem-template">
+    <td class="list-name"><%=name%></td>
+    <td class="list-created"><%=created%></td>
+    <td class="list-etalon"><a href="<%=etalon_file%>" target="_blank"><%=etalon_file%></a></td>
+    <td class="list-test"><a href="<%=test_file%>" target="_blank"><%=test_file%></a></td>
+    <td><a href="#tasks" class="btn btn-xs btn-danger task_delete">Smazat</a></td>
+    <td><a href="#tasks/<%=id%>" class="btn btn-xs button--default">Detail</a></td>
+</script>
+
+
+
+<script type="text/template" id="taskDetail-template">
+    <h1>Zadání: <%=name%></h1>
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-4">
+            <dl>
+                <dt>Vytvořeno:</dt>
+                <dd><%=created%></dd>
+            </dl>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+            <dl>
+                <dt>Soubor správného řešení:</dt>
+                <dd><a href="<%=etalon_file%>" target="_blank"><i class="glyphicon glyphicon-file"></i> <%=etalon_file%></a>
+                </dd>
+            </dl>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+            <dl>
+                <dt>Testovací soubor:</dt>
+                <dd><a href="<%=test_file%>" target="_blank"><i class="glyphicon glyphicon-file"></i> <%=test_file%></a>
+                </dd>
+            </dl>
+        </div>
+        <div class="col-xs-12">
+            <dl>
+                <dt>Zadání:</dt>
+                <dd><%=description%></dd>
+            </dl>
+        </div>
+        <!--TODO: -->
+
+    </div>
+</script>
+
+<script type="text/template" id="taskForm-template">
+    <h1><%=title%></h1>
+    <form action="#">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="task_name">Název</label>
+                    <input type="text" class="form-control" id="task_name" placeholder="Název zadání"
+                           value="<%=data.name%>">
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="task_description">Popis</label>
+                    <textarea class="form-control" id="task_description" placeholder="Detailní popis"><%=data.description%></textarea>
+
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="task_etalon">Soubor správného řešení</label>
+                    <input type="file" class="form-control" id="task_etalon" value="<%=data.etalon%>">
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="task_test">Testovací soubor</label>
+                    <input type="file" class="form-control" id="task_test" value="<%=data.test%>">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-3">
+                <div class="form-group">
+                    <button class="btn btn-block button--success"><%=submitText%></button>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+
+<script type="text/template" id="homeworkDetail-template">
+    <h1>Zadání: <%=name%></h1>
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-4">
+            <dl>
+                <dt>Vytvořeno:</dt>
+                <dd><%=created%></dd>
+            </dl>
+        </div>
+        <div class="col-xs-12">
+            <dl>
+                <dt>Zadání:</dt>
+                <dd><%=description%></dd>
+            </dl>
+        </div>
+
+    </div>
+</script>

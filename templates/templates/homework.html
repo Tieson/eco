@@ -1,15 +1,15 @@
 
 <script type="text/template" id="homeworkList-template">
-	<h2>Seznam úkolů</h2>
+	<h1>Seznam úkolů</h1>
 	<div class="table-responsive">
 		<table class="table">
 			<thead>
-			<th>Název</th>
-			<th>Termín</th>
-			<th>Stav</th>
-			<th>Akce</th>
+				<th>Název</th>
+				<th>Termín</th>
+				<th>Stav</th>
+				<th>Akce</th>
 			</thead>
-			<tbody class="homeworks-container">
+			<tbody class="items-container">
 
 			</tbody>
 		</table>
@@ -18,7 +18,6 @@
 
 
 <script type="text/template" id="homeworkListItem-template">
-
 	<td><a href="#homeworks/<%= id %>" class="btn btn-xs button--default" data-id="<%= id %>"><%= name %></a></td>
 	<td><%= deadline %></td>
 	<td><div class="badge badge-default"><%= status %></div></td>
@@ -27,32 +26,33 @@
 		<a href="#" class="btn btn-xs button--primary hw-btn-test" data-hw-id="<%= id %>">Otestovat</a>
 		<a href="#" class="btn btn-xs button--success hw-btn-submit" data-hw-id="<%= id %>">Odevzdat</a>
 	</td>
-
 </script>
+
+
 <script type="text/template" id="homeworkDetail-template">
 
 	<div class="row">
 		<div class="col-xs-12">
-			<h1>Detail úkolu: <%= name %></h1>
+			<h1><%= name %></h1>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-xs-12 col-sm-4">
 			<dl>
-			<dt>Termín</dt>
-			<dd><%= deadline %></dd>
+				<dt>Termín</dt>
+				<dd><%= deadline %></dd>
 			</dl>
 		</div>
 		<div class="col-xs-12 col-sm-4">
 			<dl>
-			<dt>Stav</dt>
-			<dd><%= status %></dd>
+				<dt>Stav</dt>
+				<dd><%= status %></dd>
 			</dl>
 		</div>
 		<div class="col-xs-12 col-sm-4">
 			<dl>
-			<dt>Vytvořeno</dt>
-			<dd><%= created %></dd>
+				<dt>Vytvořeno</dt>
+				<dd><%= created %></dd>
 			</dl>
 		</div>
 	</div>

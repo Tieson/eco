@@ -239,31 +239,31 @@ function initializeSignal(paper, graph) {
     return signal;
 }
 
-/*
-function initializeSignal(schema) {
 
-    var graph = schema.get("graph");
-    var signal = Math.random();
-    // > 0 wire with a positive signal is alive
-    // < 0 wire with a negative signal means, there is no signal
 
-    // 0 none of the above - reset value
+function getUtils() {
+    var functions = {
+        getDay: function(key){
+            var days = {
+                po: 'Pondělí',
+                ut: 'Úterý',
+                st: 'Středa',
+                ct: 'Čtvrtek',
+                pa: 'Pátek',
+                so: 'Sobota',
+                ne: 'Neděle'
+            };
+            return days[key];
+        },
+        getWeeks: function(key) {
+            var weeks = {
+                both: 'Každý',
+                odd: 'Lichý',
+                even: 'Sudý'
+            };
+            return weeks[key];
+        }
+    };
 
-    // cancel all signals stores in wires
-    _.invoke(graph.getLinks(), 'set', 'signal', 0);
-
-    // remove all 'live' classes
-    $('.live').each(function () {
-        V(this).removeClass('live');
-    });
-
-    _.each(graph.getElements(), function (element) {
-        // broadcast a new signal from every input in the graph
-        (element instanceof joint.shapes.mylib.INPUT) && broadcastSignal(element, element.signal, schema);
-        (element instanceof joint.shapes.mylib.VCC) && broadcastSignal(element, element.signal, schema);
-        (element instanceof joint.shapes.mylib.GND) && broadcastSignal(element, element.signal, schema);
-        (element instanceof joint.shapes.mylib.CLK) && startClock(element, element.signal, schema);
-    });
-
-    return signal;
-}*/
+    return functions;
+}

@@ -1,7 +1,9 @@
 <script type="text/template" id="groupsList-template">
     <h2>Seznam skupin</h2>
+    <input class="search" placeholder="Filtr" />
+
     <div class="table-responsive">
-        <table class="table">
+        <table class="table table-striped">
             <thead>
             <tr>
                 <th>Předmět</th>
@@ -10,9 +12,32 @@
                 <th>Týden</th>
                 <th>Vyučující</th>
                 <th>Vytvořeno</th>
+                <th>Akce</th>
             </tr>
             </thead>
-            <tbody class="groups-container">
+            <tbody class="items-container list">
+
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<script type="text/template" id="userGroupsList-template">
+    <h2>Skupiny ve kterých jste členem</h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Předmět</th>
+                <th>Den</th>
+                <th>Blok</th>
+                <th>Týden</th>
+                <th>Vyučující</th>
+                <th>Datum vstoupení</th>
+            </tr>
+            </thead>
+            <tbody class="items-container list">
 
             </tbody>
         </table>
@@ -20,23 +45,22 @@
 </script>
 
 <script type="text/template" id="groupsListItem-template">
-    <td><%=subject%></td>
-    <td><%=day%></td>
-    <td><%=block%>.</td>
-    <td><%=weeks%></td>
-    <td><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
-    <td><%=created%></td>
+    <td class="list-subject"><%=subject%></td>
+    <td class="list-day"><%=day%></td>
+    <td class="list-block"><%=block%>.</td>
+    <td class="list-weeks"><%=weeks%></td>
+    <td class="list-teacher"><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
+    <td class="list-created"><%=created%></td>
     <td><a href="#groups/<%=id%>" class="btn btn-xs button--default">Spravovat</a></td>
 </script>
 
-<script type="text/template" id="groupsListItemStudent-template">
+<script type="text/template" id="userGroupsListItem-template">
     <td><%=subject%></td>
     <td><%=day%></td>
     <td><%=block%>.</td>
     <td><%=weeks%></td>
     <td><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
-    <td><%=created%></td>
-    <td><a href="#groups/<%=id%>" class="btn btn-xs button--default">Spravovat</a></td>
+    <td><%=entered%></td>
 </script>
 
 
@@ -83,6 +107,51 @@
             <tbody class="students-container">
             </tbody>
         </table>
+    </div>
+</script>
+<script type="text/template" id="addGroup-template">
+
+    <h1>Vytvoření nové skupiny</h1>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-6">
+            <div class="form-group">
+                <label for="nova_skupina-predmet">Předmět</label>
+                <input type="text" class="form-control" id="nova_skupina-predmet" placeholder="CIT" value="<%=subject%>">
+            </div>
+            <div class="form-group">
+                <label for="nova_skupina-predmet">Den</label>
+                <select class="form-control" id="nova_skupina-den">
+                    <option value="po">Pondělí</option>
+                    <option value="ut">Úterý</option>
+                    <option value="st">Středa</option>
+                    <option value="ct">Čtvrtek</option>
+                    <option value="pa">Pátek</option>
+                    <option value="so">Sobota</option>
+                    <option value="ne">Neděle</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="nova_skupina-predmet">Blok</label>
+                <input type="number" min="1" max="10" class="form-control" id="nova_skupina-blok" placeholder="CIT" value="<%=block%>">
+            </div>
+            <div class="form-group">
+                <label for="nova_skupina-predmet">Týden</label>
+                <select class="form-control" id="nova_skupina-tyden" value="<%=weeks%>">
+                    <option value="both">Každý</option>
+                    <option value="even">Sudý</option>
+                    <option value="odd">Lichý</option>
+                </select>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-3">
+            <div class="form-group">
+                <button class="btn btn-block button--success">Přidat</button>
+            </div>
+        </div>
     </div>
 </script>
 

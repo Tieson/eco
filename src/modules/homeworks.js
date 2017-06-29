@@ -25,6 +25,9 @@ eco.Models.Homework = Backbone.Model.extend({
     },
     urlRoot: function(){
         return '/api/students/'+this.get('student_id') + '/hw';
+    },
+    haveSolution: function () {
+        return false;
     }
 });
 
@@ -60,17 +63,7 @@ eco.Views.Homework = Backbone.View.extend({
     },
 
     render: function() {
-        var data = {
-            cid: this.model.cid,
-            id: this.model.get('id'),
-            student_id: this.model.get('student_id'),
-            teacher_id: this.model.get('teacher_id'),
-            status: this.model.getStatus(),
-            name: this.model.get('name'),
-            description: this.model.get('description'),
-            created: moment(this.model.get('created')).format('LLL'),
-            deadline: moment(this.model.get('deadline')).format('LLL'),
-        };
+        var data = eco.Formaters.HomeworkFormater(this.model);
         console.log(data);
         var html = this.template(data);
         this.$el.append(html);
@@ -90,7 +83,7 @@ eco.Views.HomeworkList = Backbone.View.extend({
     renderOne: function(item) {
         var itemView = new eco.Views.Homework({model: item});
         eco.ViewGarbageCollector.add(itemView);
-        this.$('.homeworks-container').append(itemView.render().$el);
+        this.$('.items-container').append(itemView.render().$el);
     },
     render: function () {
         console.log('HomeworkList: render');

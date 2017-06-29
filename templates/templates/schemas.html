@@ -65,7 +65,7 @@
             <div class="modal-body">
                 <div class="list-group schema_open_list">
                     <% _.each(collection, function(schema) { %>
-                    <a href="#schema/<%= schema.id %>" data-schema-id="<%= schema.id %>"
+                    <a href="#schemas/<%= schema.id %>" data-schema-id="<%= schema.id %>"
                        class="list-group-item schema_open_list__item"><strong><%= schema.name %></strong> -
                         <%= schema.architecture %></a>
                     <% }); %>
@@ -106,7 +106,7 @@
     <td>
         <% if(opened) { %>
         <% } else { %>
-        <a href="#schema/<%= id %>" class="btn button button--success open-schema" data-schema-id="<%=id%>">Otevřít</a>
+        <a href="#schemas/<%= id %>" class="btn button button--success open-schema" data-schema-id="<%=id%>">Otevřít</a>
         <% } %>
         <a href="#schemas/<%= id %>/edit" class="btn button button--default edit-schema" data-schema-id="<%=id%>">Upravit</a>
     </td>

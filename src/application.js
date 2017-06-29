@@ -14,6 +14,8 @@ window.eco = {
     Models: {},
     Collections: {},
     Views: {},
+    Formaters: {},
+    Utils: getUtils(),
     ViewGarbageCollector: {
         items: [],
         clear: function () {
@@ -34,7 +36,8 @@ window.eco = {
 
     start: function(data) {
         var main = $('#page_main_content'),
-            main_tab = $('#container--pages');
+            main_tab = $('#container--pages'),
+            main_bar = $('#main_bar');
         var schemaContainer = $('#canvasWrapper'),
             schemas_tab = $('#container--schemas');
 
@@ -46,8 +49,9 @@ window.eco = {
 
         var schemas = new eco.Collections.Schemas();
         schemas.fetch();
-        var groups = new eco.Collections.GroupCollection();
-
+        var groups = new eco.Collections.GroupCollection({
+            url: "/api/groups"
+        });
 
         var entities = new eco.Collections.Entities();
         entities.fetch();
@@ -59,6 +63,27 @@ window.eco = {
             openedSchemasPapers = {};
 
         var openedSchemasButtonsView = new eco.Views.SchemasListView({collection: openedSchemas, active: activeSchemaView});
+
+
+        //MOCK user object
+        var user = {
+            get: function (key) {
+                switch(key){
+                    case 'id':
+                        return 1;
+                    case 'student_id':
+                        return 9;
+                    default:
+                        return null;
+                }
+            }
+        };
+
+        // main view zrušen protože potom nefunguje list otevřených schémat - je přepsán
+        // var mainBarView = new eco.Views.MainBar({
+        //     user: user,
+        //     el: $('#main_bar'),
+        // });
 
 
         var categoriesView = new eco.Views.CategoriesView({model: new eco.Models.EntityPanel({
@@ -215,21 +240,104 @@ window.eco = {
 
 
         router.on('route:home', showHome);
-        router.on('route:openedSchema', showOpenSchema);
-        router.on('route:teacher', showTeacher);
         router.on('route:showHwList', showHomeworkList);
         router.on('route:showHwDetail', showHomeworkDetail);
+
+        /** Skupiny **/
+        router.on('route:showGroups', showGroups);
+        router.on('route:showGroupDetail', showGroupDetail);
+        router.on('route:addGroup', showAddGroup);
+
+        /** Studenti **/
+        // router.on('route:showStudents', showStudents);
         router.on('route:showUserGroups', showUserGroups);
         router.on('route:showUserGroupDetail', showUserGroupDetail);
-        router.on('route:showCircles', showGroups);
-        router.on('route:circleDetail', showGroupDetail);
+        // router.on('route:showStudentsHwList', showStudentsHwList);
+
+        /** Schémata **/
         router.on('route:showSchemas', showSchemaListAndNew);
         router.on('route:schemaCreateNew', showSchemaListAndNew);
+        router.on('route:openedSchema', showOpenSchema);
         router.on('route:showSchemaEdit', showSchemaEdit);
+
+
+        router.on('route:showTasks', showTasks);
+        router.on('route:showAllTasks', showAllTasks);
+        router.on('route:showTaskDetail', showTaskDetail);
 
         /**
          * Nsledují router metody
          */
+
+        function showTasks(id) {
+            //TODO: omezit práva pouze pro vyučující (i na serrveru)
+            setPageTitle('Seznam zadání');
+            main_tab.show();
+            schemas_tab.hide();
+            eco.ViewGarbageCollector.clear();
+
+            var collection = new eco.Collections.Tasks({
+                url: "/api/teachers/"+id+"/tasks",
+            });
+
+            var view = new eco.Views.GenericList({
+                template: '#tasksList-template',
+                itemTemplate: '#tasksListItem-template',
+                formater: eco.Formaters.TaksFormater,
+                collection: collection,
+                searchName: [
+                    'list-name',
+                    'list-created',
+                    'list-etalon',
+                    'list-test',
+                ],
+                el: main
+            });
+
+            var viewAddNew = new eco.Views.
+
+            collection.fetch();
+        }
+        function showAllTasks() {
+            //TODO: omezit práva pouze pro vyučující (i na serrveru)
+            setPageTitle('Seznam zadání');
+            main_tab.show();
+            schemas_tab.hide();
+            eco.ViewGarbageCollector.clear();
+
+            var collection = new eco.Collections.Tasks({
+                url: "/api/tasks",
+            });
+
+            var view = new eco.Views.GenericList({
+                template: '#tasksList-template',
+                itemTemplate: '#tasksListItem-template',
+                formater: eco.Formaters.TaksFormater,
+                collection: collection,
+                el: main
+            });
+
+            collection.fetch();
+        }
+        function showTaskDetail(id) {
+            //TODO: omezit práva pouze pro vyučující (i na serrveru)
+            setPageTitle('Seznam zadání');
+            main_tab.show();
+            schemas_tab.hide();
+            eco.ViewGarbageCollector.clear();
+
+            var model = new eco.Models.Task({id: id});
+            console.log(model);
+
+            var view = new eco.Views.GenericDetail({
+                template: '#taskDetail-template',
+                formater: eco.Formaters.TaksFormater,
+                model: model,
+                el: main
+            });
+
+            model.fetch();
+        }
 
         function showHome() {
             main_tab.hide();
@@ -245,7 +353,7 @@ window.eco = {
                 });
             }else{
                 //přejít na poslední otevřené schéma
-                router.navigate('schema/'+activeSchemaView.get('id'), {
+                router.navigate('schemas/'+activeSchemaView.get('id'), {
                     trigger: true,
                     replace: true
                 });
@@ -286,13 +394,6 @@ window.eco = {
             }
             //TODO: dodělat zapamatovávání schémat a jejich otevírání
         }
-        function showTeacher() {
-            console.log('route:teacher');
-            router.navigate('teacher/circles', {
-                trigger: true,
-                replace: true
-            });
-        }
         function showHomeworkList() {
             setPageTitle('Domácí úkoly');
             main.html('');
@@ -300,7 +401,7 @@ window.eco = {
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
             console.log('route:showHwList');
-            var hws = new eco.Collections.Homeworks({student_id: 9}); //TODO: dinamicky získávat id uživatele
+            var hws = new eco.Collections.Homeworks({student_id: user.get('student_id')}); //TODO: dinamicky získávat id uživatele
             var view = new eco.Views.HomeworkList({
                 collection: hws,
                 el: main
@@ -314,8 +415,8 @@ window.eco = {
 
             setPageTitle('Domácí úkol');
             eco.ViewGarbageCollector.clear();
-            console.log('route:showHwList');
-            var hw = new eco.Models.Homework({id: id, student_id: 9}); //TODO: dinamicky získávat id uživatele
+            console.log('route:showHwDetail');
+            var hw = new eco.Models.Homework({id: id, student_id: user.get('student_id')}); //TODO: dinamicky získávat id uživatele
             var view = new eco.Views.HomeworkDetail({
                 model: hw,
                 el: main
@@ -323,15 +424,53 @@ window.eco = {
             main.append(view.render().$el);
             hw.fetch();
         }
-        function showUserGroups() {
+        function showUserGroups(id) {
             setPageTitle('Skupiny');
             main_tab.show();
             schemas_tab.hide();
+            var groups = new eco.Collections.GroupCollection({
+                url: "/api/students/"+user.get('student_id')+"/groups",
+            });
             eco.ViewGarbageCollector.clear();
-            var groupsView = new eco.Views.GroupList({
+            var groupsView = new eco.Views.GenericList({
+                template: '#userGroupsList-template',
+                itemTemplate: '#userGroupsListItem-template',
+                formater: eco.Formaters.StudentGroupFormater,
                 collection: groups,
                 el: main
             });
+            console.log("group url", groups);
+            groups.fetch();
+        }
+        function showUserAddGroups() {
+            setPageTitle('Přidání do skupiny');
+            main_tab.show();
+            schemas_tab.hide();
+            var groups = new eco.Collections.GroupCollection({
+                url: "/api/students/"+user.get('student_id')+"/groups",
+            });
+            eco.ViewGarbageCollector.clear();
+            var groupsView = new eco.Views.GroupList({
+                template: '#userInviteGroupsList-template',
+                collection: groups,
+                el: main
+            });
+            eco.ViewGarbageCollector.add(groupsView);
+            console.log("group url", groups);
+            groups.fetch();
+        }
+        function showAddGroup() {
+            setPageTitle('Vytvoření nové skupiny');
+            main_tab.show();
+            schemas_tab.hide();
+            var group = new eco.Model.Group({});
+            eco.ViewGarbageCollector.clear();
+            var groupsView = new eco.Views.GroupAdd({
+                template: '#addGroup-template',
+                model: group,
+                el: main
+            });
+            eco.ViewGarbageCollector.add(groupsView);
             groups.fetch();
         }
         function showUserGroupDetail(id) {
@@ -351,13 +490,22 @@ window.eco = {
             main_tab.show();
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
-            console.log('route:showCircles');
-            var groupsView = new eco.Views.GroupList({
+            var groupsView = new eco.Views.GenericList({
+                template: '#groupsList-template',
+                itemTemplate: '#groupsListItem-template',
+                formater: eco.Formaters.GroupFormater,
+                searchNames: [
+                    'list-subject',
+                    'list-day',
+                    'list-block',
+                    'list-weeks',
+                    'list-teacher',
+                    'list-created',
+                ],
                 collection: groups,
                 el: main
             });
             groups.fetch();
-            // groupsView.show();
         }
         function showGroupDetail(id) {
             setPageTitle('Detail skupiny');

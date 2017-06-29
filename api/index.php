@@ -55,10 +55,11 @@ require_once 'routes/homeworks.php';
 $app->get('/users', 'users');
 $app->get('/users/:id', 'user');
 
-$app->get('/students', 'students');
-$app->get('/students/:id', 'student');
-$app->get('/students/:id/hw', 'studentHomeworkList');
+$app->get('/students', 'students'); //401, 403, 404
+$app->get('/students/:id', 'student'); //401, 403, 404
+$app->get('/students/:id/hw', 'studentHomeworkList'); //401, 403
 $app->get('/students/:id/hw/:hw_id', 'studentHomeworkDetail');
+$app->get('/students/:id/hw/:hw_id/solutions', 'studentHomeworkSolutionList');
 $app->get('/students/:id/groups', 'studentGroupList');
 $app->delete('/students/:id', 'student');
 
@@ -88,5 +89,8 @@ $app->get('/teachers/:id', 'teacher');
 $app->get('/teachers/:id/groups', 'techerGroups');
 $app->get('/teachers/:id/hw/', 'teacherHomeworks');
 $app->get('/teachers/:id/tasks/', 'teacherTasks');
+
+//$app->get('/tasks/', 'teacherTasks');
+$app->get('/tasks/:id', 'task');
 
 $app->run();

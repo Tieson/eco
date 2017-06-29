@@ -143,7 +143,7 @@ eco.Views.SchemaItemView = Backbone.View.extend({
     render: function () {
         this.$el.html(this.template(this.model.toJSON()));
         this.$el.attr('data-id', this.model.get('id'));
-        this.$el.attr('href', '#schema/'+this.model.get('id'));
+        this.$el.attr('href', '#schemas/'+this.model.get('id'));
         console.log(this.model.toJSON());
         return this;
     }

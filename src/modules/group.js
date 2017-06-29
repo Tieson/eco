@@ -12,103 +12,71 @@ eco.Models.Group = Backbone.Model.extend({
         created: null
     },
     parse: function (data) {
+        return data;
+    },
+    initialize: function (opts) {
+
+    },
+    dayFormat: function () {
+        var self = this;
+        return eco.Utils.getDay(self.get('day'));
+    }
+});
+
+eco.Models.UserGroup = Backbone.Model.extend({
+    urlRoot: '/api/groups',
+    defaults: {
+        id: null,
+        student_id: null,
+        entered: null,
+        approved: false,
+        subject: "",
+        name: "",
+        mail: "",
+        day: null,
+        weeks: null,
+        block: null,
+    },
+    parse: function (data) {
         return {
-            id: data.id,
+            id: data.group_id,
+            student_id: data.student_id,
+            entered: data.entered,
+            approved: data.approved,
             subject: data.subject,
-            day: data.day,
-            weeks: data.weeks,
             name: data.name,
             mail: data.mail,
+            day: data.day,
+            weeks: data.weeks,
             block: data.block,
-            created: data.created
         };
     },
     initialize: function (opts) {
 
     },
-    getDay: function (key) {
-        var days = {
-            po: 'Pondělí',
-            ut: 'Úterý',
-            st: 'Středa',
-            ct: 'Čtvrtek',
-            pa: 'Pátek',
-            so: 'Sobota',
-            ne: 'Neděle'
-        };
-        return days[key];
-    },
-    getWeeks: function (key) {
-        var weeks = {
-            both: 'Každý',
-            odd: 'Lichý',
-            even: 'Sudý'
-        };
-        return weeks[key];
-    }
 });
 
 eco.Collections.GroupCollection = Backbone.Collection.extend({
     model: eco.Models.Group,
-    url: '/api/groups'
-});
-
-eco.Views.GroupView = Backbone.View.extend({
-    tagName: 'tr',
-    template: _.template($('#groupsListItem-template').html()),
-
-    events: {
-        'click': 'groupClick'
-    },
-    groupClick: function () {
-        console.log('groupClick');
-        // Backbone.history.navigate('teacher/circles/'+this.model.get('id'), {trigger: true, replace: true});
-    },
-
-    render: function() {
-        var data = {
-            cid: this.model.cid,
-            id: this.model.get('id'),
-            subject: this.model.get('subject'),
-            day: this.model.getDay(this.model.get('day')),
-            weeks: this.model.getWeeks(this.model.get('weeks')),
-            block: this.model.get('block'),
-            teacher: {name: this.model.get('name'), mail: this.model.get('mail')},
-            created: moment(this.model.get('created')).format('LLL')
-        };
-        console.log(data);
-        var html = this.template(data);
-        this.$el.append(html);
-        this.$el.attr('data-id', data.id);
-        this.$el.attr('data-cid', data.cid);
-        return this;
-    }
-});
-
-eco.Views.GroupList = Backbone.View.extend({
-    template: _.template($('#groupsList-template').html()),
     initialize: function (opts) {
-        this.listenTo(this.collection, 'sync', this.render);
+        this.urlString = opts.url;
     },
-    events: {
-    },
-    renderOne: function(group) {
-        var itemView = new eco.Views.GroupView({model: group});
-        eco.ViewGarbageCollector.add(itemView);
-        this.$('.groups-container').append(itemView.render().$el);
-    },
-    render: function () {
-        console.log('eco.Views.GroupList: render');
-
-        var html = this.template();
-        this.$el.html(html);
-
-        this.collection.each(this.renderOne, this);
-
-        return this;
+    url: function(){
+        return this.urlString;
     }
-
 });
+
+eco.Collections.UserGroupCollection = Backbone.Collection.extend({
+    model: eco.Models.UserGroup,
+    initialize: function (opts) {
+        this.urlString = opts.url;
+    },
+    url: function(){
+        return this.urlString;
+    }
+});
+
+
 
 eco.Views.GroupDetail = Backbone.View.extend({
     tagName: 'div',
@@ -134,8 +102,8 @@ eco.Views.GroupDetail = Backbone.View.extend({
         var data = {
             id: this.model.get('id'),
             subject: this.model.get('subject'),
-            day: this.model.getDay(this.model.get('day')),
-            weeks: this.model.getWeeks(this.model.get('weeks')),
+            day: eco.Utils.getDay(this.model.get('day')),
+            weeks: eco.Utils.getWeeks(this.model.get('weeks')),
             block: this.model.get('block'),
             teacher: {name: this.model.get('name'), mail: this.model.get('mail')},
             created: moment(this.model.get('created')).format('LLL')
