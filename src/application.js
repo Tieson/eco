@@ -49,6 +49,11 @@ window.eco = {
         var groups = new eco.Collections.GroupCollection();
 
 
+        var entities = new eco.Collections.Entities();
+        entities.fetch();
+        var categories = new eco.Collections.Categories();
+        categories.fetch();
+
         var activeSchemaView = null,
             openedSchemas = new eco.Collections.Schemas(null,{local: true}),
             openedSchemasPapers = {};
@@ -56,6 +61,21 @@ window.eco = {
         var openedSchemasButtonsView = new eco.Views.SchemasListView({collection: openedSchemas, active: activeSchemaView});
 
 
+        var categoriesView = new eco.Views.CategoriesView({model: new eco.Models.EntityPanel({
+            entities: entities,
+            categories: categories,
+        })});
+
+        $("#saveSchema").on('click', function () {
+            saveSchema(activeSchemaView);
+        });
+
+
+        function saveSchema(schema){
+            if (schema){
+                schema.saveGraph();
+            }
+        }
 
         /**
          * Nastaví titulek stránky
@@ -108,10 +128,40 @@ window.eco = {
 
                         showSchemaPaper(schema);
                         setSchemaActive(schema);
+
                         var sim = new eco.Models.Simulation({paper: paper});
-                    });
+                        sim.startSimulation();
+
+                        paper.$el.droppable({
+                            drop: function( event, ui ) {
+                                console.log("paper DROP", ui, $(ui.helper), $(ui.draggable));
+                                var entityId = parseInt($(ui.helper).attr('data-entityid'));
+                                console.log("categories", entities);
+                                console.log("catId", entityId);
+
+                                var foundEntity = (entities.find(function (x) {
+                                    return x.get('id') == entityId;
+                                }));
+
+                                var entityName = foundEntity.get('name');
+                                console.log(entityName);
+                                if (joint.shapes.mylib[entityName]){
+                                    var newCell = new joint.shapes.mylib[entityName]({ position: {
+                                        x: ui.offset.left - schemaContainer.offset().left,
+                                        y: ui.offset.top - schemaContainer.offset().top
+                                    }});
+                                    schema.get('graph').addCell(newCell);
+                                    //TODO: Přidat label hlavně u vstupů a výstupů s ID od counteru
+                                }
+                                else {
+                                    foundEntity.set('disabled', true);
+                                }
+                            }
+                        });
+                     });
             //     }
             // });
+
         }
 
         function showSchemaPaper(schema) {

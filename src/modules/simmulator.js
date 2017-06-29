@@ -5,10 +5,28 @@
 
 
 eco.Models.Simulation = Backbone.Model.extend({
+
     initialize: function (opts) {
         this.paper = opts.paper;
+    },
 
-        ///
+    stopSimulation: function () {
+        var paper = this.paper;
+
+        paper.off('cell:pointerclick');
+        paper.model.off('change:source change:target');
+        paper.model.off('change:signal');
+
+        // vynulování všech signálů
+        _.invoke(graph.getLinks(), 'set', 'signal', 0);
+
+        // odebrání všech aktivních tříd
+        paper.$el.find('.live').each(function () {
+            V(this).removeClass('live');
+        });
+    },
+
+    startSimulation: function () {
 
         var gates = {
             // JKFFAR: new joint.shapes.mylib.JKFFAR({position: {x: 50, y: 50}}),
@@ -27,8 +45,6 @@ eco.Models.Simulation = Backbone.Model.extend({
         this.paper.model.addCells(_.toArray(gates));
 
 
-        ///
-
         var self = this;
         console.log(this.paper);
         initializeSignal(self.paper, self.paper.model);
@@ -40,6 +56,48 @@ eco.Models.Simulation = Backbone.Model.extend({
 
         }));
         this.paper.on('cell:pointerclick', function (cellView) {
+            console.log('click');
+
+            var gate = cellView.model;
+            console.log("gatě ->>>>", gate);
+
+            var ports = {};
+            _.each(gate.ports, function(x) {
+                ports[x.id] = 1;
+            });
+
+
+                var inputs = _.chain(_.sortBy(self.paper.model.getConnectedLinks(gate, {inbound: true}),function (x) {
+                    return x.get('target').port;
+                }))
+                .groupBy(function (wire) {
+                    return wire.get('target').port;
+                })
+                .map(function (wires) {
+                    console.log("wires", wires);
+                    var inSignal = Math.max.apply(this, _.invoke(wires, 'get', 'signal'));
+                    ports[_.first(wires).get('target'). port] = inSignal;
+                    console.log("ppprts", ports);
+                    return  inSignal;
+                })
+                .value();
+
+
+            console.log("inpts______xxx->", inputs);
+
+            var ops = gate.operation.apply(gate, _.map(ports, function (x) {
+                return x;
+            }));
+            if (_.size(ops)>0){
+                _.each(ops, function (value, key) {
+                    ports[key] = value;
+                });
+
+            }else{
+                ports["q"] = ops;
+            }
+
+            console.log("portss->>>", ports);
 
             // console.log(cellView.model.get('outPorts') );
 

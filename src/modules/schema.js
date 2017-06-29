@@ -100,7 +100,7 @@ eco.Models.Schema = Backbone.Model.extend({
         } else {
             console.log("no ID");
         }
-    }
+    },
 });
 
 eco.Views.OpenedSchemaView = Backbone.Collection.extend({
@@ -135,6 +135,7 @@ eco.Views.SchemaItemView = Backbone.View.extend({
 
         this.template = _.template($('#schemaListItem-template').html());
         // this.listenTo(this.model.collection, 'sync', this.render);
+        this.listenTo(this.model, 'change', this.render);
     },
     events: {
         // 'click .schema_list__item': 'onSchemaClick'

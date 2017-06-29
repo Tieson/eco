@@ -2,6 +2,122 @@
  * Created by Tom on 21.04.2017.
  */
 
+
+function createBorderedCounter(min, max, start) {
+    var start = start || 0;
+    if (min > max) {
+        console.log("Minimum value is larger than max");
+        error("Minimum value is larger than max");
+    }
+    if (start < min) {
+        start = min;
+        console.log("The start was set to the min value (" + min + ")");
+    } else if (start > max) {
+        start = max;
+        console.log("The start was set to the max value (" + max + ")");
+    }
+    var count = start;
+
+    var functions = {
+        get: function () {
+            return count;
+        },
+        set: function (value) {
+            if (value > max) {
+                value = max;
+            } else if (value < min) {
+                value = min;
+            }
+            count = value;
+        },
+        add: function (value) {
+            count += value;
+            if (count > max) {
+                count = max;
+            } else if (value < min) {
+                count = min;
+            }
+            return count;
+        },
+        inc: function () {
+            if (count < max){
+                count++;
+            }
+            return count;
+        },
+        dec: function () {
+            if (count > min){
+                count--;
+            }
+            return count;
+        },
+        reset: function () {
+            count = start;
+        }
+    };
+    return functions;
+}
+
+function Counter(start){
+    this.count = 0;
+    this.start = start || 0;
+}
+
+Counter.prototype = {
+    get: function () {
+        return this.count;
+    },
+    set: function (value) {
+        this.count = value;
+        return this.count;
+    },
+    add: function (value) {
+        this.count += value;
+        return this.count;
+    },
+    inc: function () {
+        this.count++;
+        return this.count;
+    },
+    dec: function () {
+        this.count--;
+        return this.count;
+    },
+    reset: function () {
+        this.count = this.start;
+    }
+};
+
+function createSimpleCounter(start) {
+    var start = start || 0;
+    var count = start;
+    var functions = {
+        get: function () {
+            return count;
+        },
+        set: function (value) {
+            count = value;
+        },
+        add: function (value) {
+            count += value;
+            return count;
+        },
+        inc: function () {
+            count++;
+            return count;
+        },
+        dec: function () {
+            count--;
+            return count;
+        },
+        reset: function () {
+            count = start;
+        }
+    };
+    return functions;
+}
+
+
 function isVhdlName(text) {
     var rxArchBlock = /^([a-zA-Z](_?[a-zA-Z0-9])*[a-zA-Z0-9]*)$/i;
     return rxArchBlock.test(text);

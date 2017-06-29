@@ -225,13 +225,13 @@ joint.shapes.mylib.INPUT = joint.shapes.mylib.HradloIO.extend({
         type: 'mylib.INPUT',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
-            
+
             '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
-            
-            '.label': { text: 'X0', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'},                
+
+            '.label': { text: 'X0', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'},
         }
-        
+
     }, joint.shapes.mylib.HradloIO.prototype.defaults),
     switchSignal: function () {
         this.signal = !this.signal;
@@ -1456,8 +1456,8 @@ joint.shapes.mylib.TUL_AND = joint.shapes.mylib.Hradlo21.extend({
         attrs: {
             '.label': { text: '&', ref: 'rect', 'ref-x': .3, 'ref-y': .1, stroke: 'black'},
                '.jm': { text: 'a', ref: 'rect', 'ref-dx': -70, 'ref-dy': -70 },
-              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
-              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },            
+              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },
+              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
         }
     }, joint.shapes.mylib.Hradlo21.prototype.defaults),
     operation: function (p) {
@@ -1519,22 +1519,6 @@ joint.shapes.mylib.TUL_NOR = joint.shapes.mylib.Hradlo21N.extend({
     }
 });
 
-joint.shapes.mylib.TUL_XNOR = joint.shapes.mylib.Hradlo21N.extend({
-    defaults: joint.util.deepSupplement({
-        type: 'mylib.TUL_XNOR',
-        attrs: {
-             '.wire': { 'ref-dx': 15, d: 'M 0 0 L 30 0' },
-            '.label': { text: '=1', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
-               '.jm': { text: 'a', ref: 'rect', 'ref-dx': -70, 'ref-dy': -70 },
-              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
-              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -60 },            
-        }
-    }, joint.shapes.mylib.Hradlo21N.prototype.defaults),
-    operation: function (p) {
-        if (inputsAreInvalid(p)) return -1;
-        return (p['a'] == p['b']);
-    }
-});
 
 joint.shapes.mylib.TUL_XOR = joint.shapes.mylib.Hradlo21.extend({
     defaults: joint.util.deepSupplement({

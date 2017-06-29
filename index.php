@@ -17,6 +17,7 @@
 	<!--TODO: stahnout jquery.hotkeys jako bower plugin	<script src="../scripts/jquery.hotkeys.js"></script>-->
 
 	<script src="assets/js/libs/jquery/dist/jquery.min.js"></script>
+	<script src="assets/js/libs/jquery-ui/jquery-ui.min.js"></script>
 	<script src="assets/js/libs/lodash/lodash.min.js"></script>
 	<script src="assets/js/libs/backbone/backbone-min.js"></script>
 <!--	<script src="assets/js/libs/backbone-relational/backbone-relational.js"></script>-->
@@ -27,6 +28,8 @@
 
 	<script src="assets/js/libs/jointjs/dist/joint.js"></script>
 	<script src="assets/js/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+
+	<script src="assets/js/libs/list.js/dist/list.min.js"></script>
 
 
 	<script src="scripts/joint.shapes.mylib.js?<?php echo(filemtime('./scripts/joint.shapes.mylib.js'))?>"></script>
@@ -81,7 +84,17 @@
 	<?php include 'templates/templates/groups.html' ?>
 
     <script type="text/template" id="schemaListItem-template">
-    <%=name%>
+        <%=name%>
+    </script>
+    <script type="text/template" id="categoryItem-template">
+<!--        <div class="ribbon__contents__category noselect" data-idCategory="<%=id%>">-->
+            <div class="ribbon__contents__header noselect">
+                <%=name%>
+            </div>
+<!--            <div class="ribbon__contents__items">-->
+<!--                <p>Kategorie neobsahuje žádné entity.</p>-->
+<!--            </div>-->
+<!--        </div>-->
     </script>
 </div>
 
@@ -160,12 +173,14 @@
                 <div id="ribbon" class="ribbon">
 
                     <div id="contentToggler" class="ribbon__toggle noselect">
-                        <i class="glyphicon glyphicon-arrow-right ribbon__toggle__show" title="Show entities"
-                           style="display: none;"></i>
+                        <i class="glyphicon glyphicon-arrow-right ribbon__toggle__show" title="Show entities"></i>
                         <i class="glyphicon glyphicon-arrow-left ribbon__toggle__hide"></i>
                     </div>
 
                     <div id="ribbonContent" class="ribbon__contents">
+                        <p class="text-muted text-center">
+                            Nic tu není. Entity se načítají...
+                        </p>
 
                     </div>
                 </div>
@@ -183,7 +198,6 @@
 <div id="modals"></div>
 
 <div id="scripts">
-
     <script src="src/application.js?<?php echo(filemtime('./src/application.js')) ?>"></script>
     <script src="src/helpers/templates.js?<?php echo(filemtime('./src/helpers/templates.js')) ?>"></script>
 

@@ -5,9 +5,22 @@
   flex-direction: column;
   border-right: solid 3px $bar-bg;
 
+  .ribbon__toggle__show {
+    display: none;
+  }
+  .ribbon__toggle__hide {
+    display: inline-block;
+  }
+
   &--hidden {
     width: 32px;
     .ribbon__contents {
+      display: none;
+    }
+    .ribbon__toggle__show {
+      display: inline-block;
+    }
+    .ribbon__toggle__hide {
       display: none;
     }
   }
@@ -15,6 +28,8 @@
   &__toggle {
     text-align: center;
     cursor: pointer;
+    line-height: 24px;
+    height: 24px;
     &:hover {
       background: $bar-bg;
     }
@@ -64,12 +79,23 @@
     &__items {
       width: auto;
       padding: 5px 0px;
+      p {
+        padding: 2px 10px;
+      }
       .entity {
         cursor: pointer;
         padding: 2px 10px;
         &:hover {
           background: $dark;
           color: #fff;
+        }
+        .disabled {
+          color: #fff;
+          background: #7a7a7a;
+          &:hover {
+            background: #7a7a7a;
+            color: #fff;
+          }
         }
       }
       &--hidden {
