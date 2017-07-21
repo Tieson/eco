@@ -15,6 +15,7 @@ window.eco = {
     Collections: {},
     Views: {},
     Formaters: {},
+    Validators: {},
     Utils: getUtils(),
     ViewGarbageCollector: {
         items: [],
@@ -261,17 +262,77 @@ window.eco = {
         router.on('route:showSchemaEdit', showSchemaEdit);
 
 
+        router.on('route:showGroupHomeworks', showGroupHomeworks);
+
         router.on('route:showTasks', showTasks);
         router.on('route:showAllTasks', showAllTasks);
         router.on('route:showTaskDetail', showTaskDetail);
+        router.on('route:editTask', editTask);
+
+
+        router.on('route:defaultRoute', defaultRoute);
 
         /**
          * Nsledují router metody
          */
 
+        function defaultRoute() {
+            console.log("404 Stránka nenalezena.");
+            setPageTitle('404 Stránka nenalezena');
+            main.html('<h1>404 Stránka nenalezena</h1>');
+            main_tab.show();
+            schemas_tab.hide();
+
+            // router.navigate('schemas/new', {
+            //     trigger: true,
+            //     replace: true
+            // });
+        }
+
+        function showGroupHomeworks(id_teacher) {
+            //TODO: omezit práva pouze pro vyučující (i na serrveru)
+            setPageTitle('Seznam zadání');
+            main.html('');
+            main_tab.show();
+            schemas_tab.hide();
+            eco.ViewGarbageCollector.clear();
+
+            var collection = new eco.Collections.HomeworksTeacher({
+                url: "/api/teachers/"+id_teacher+"/hw",
+            });
+
+            var view = new eco.Views.GenericList({
+                template: '#hwList-template', //TODO: změnit šablony -- bude to D&D
+                itemTemplate: '#hwListItem-template',
+                formater: eco.Formaters.HwTeacherFormater,
+                collection: collection,
+            });
+            main.append(view.$el);
+
+
+            // var viewAddNew = new eco.Views.GenericForm({
+            //     //TODo: předělat na úkoly!!!! --- celé to bude jinou formou D&D
+            //     title: "Zadat úkol",
+            //     template: '#taskForm-template',
+            //     mapper: function ($element) {
+            //         return {
+            //             'name': $element.find('#task_name').val(),
+            //             'description': $element.find('#task_description').val(),
+            //             'etalon_file': $element.find('#task_etalon').val(),
+            //             'test_file': $element.find('#task_test').val(),
+            //         }
+            //     },
+            //     model: new eco.Models.Task(),
+            // });
+            // main.append(viewAddNew.render().$el);
+
+            collection.fetch();
+        }
+
         function showTasks(id) {
             //TODO: omezit práva pouze pro vyučující (i na serrveru)
             setPageTitle('Seznam zadání');
+            main.html('');
             main_tab.show();
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
@@ -283,7 +344,7 @@ window.eco = {
             var view = new eco.Views.GenericList({
                 template: '#tasksList-template',
                 itemTemplate: '#tasksListItem-template',
-                formater: eco.Formaters.TaksFormater,
+                formater: eco.Formaters.TasksFormater,
                 collection: collection,
                 searchName: [
                     'list-name',
@@ -291,13 +352,66 @@ window.eco = {
                     'list-etalon',
                     'list-test',
                 ],
-                el: main
             });
+            main.append(view.$el);
 
-            var viewAddNew = new eco.Views.
+
+            var viewAddNew = new eco.Views.GenericForm({
+                title: "Přidat nové zadání",
+                template: '#taskForm-template',
+                mapper: function ($element) {
+                    return {
+                        'name': $element.find('#task_name').val(),
+                        'description': $element.find('#task_description').val(),
+                        'etalon_file': $element.find('#task_etalon').val(),
+                        'test_file': $element.find('#task_test').val(),
+                    }
+                },
+                model: new eco.Models.Task(),
+            });
+            main.append(viewAddNew.render().$el);
 
             collection.fetch();
         }
+
+        function editTask(id){
+            setPageTitle('Seznam zadání');
+            main.html('');
+            main_tab.show();
+            schemas_tab.hide();
+            eco.ViewGarbageCollector.clear();
+
+            var model = new eco.Models.Task({
+                url: "/api/tasks/"+id,
+            });
+
+            var viewAddNew = new eco.Views.EditTask({
+                title: "Upravit zadání",
+                template: '#taskEditForm-template',
+                mapper: function ($element) {
+                    var e = $element.find('#task_etalon').val(),
+                        t = $element.find('#task_test').val();
+                    var result = {
+                        'name': $element.find('#task_name').val(),
+                        'description': $element.find('#task_description').val(),
+                        'etalon_file': e,
+                        'test_file': t,
+                    };
+
+                    if (!e || e==''){
+                        delete result.etalon_file;
+                    }
+                    if (!t || t==''){
+                        delete result.test_file;
+                    }
+                    return result;
+                },
+                model: model,
+            });
+            model.fetch();
+            main.append(viewAddNew.$el);
+        }
+
         function showAllTasks() {
             //TODO: omezit práva pouze pro vyučující (i na serrveru)
             setPageTitle('Seznam zadání');
@@ -312,7 +426,7 @@ window.eco = {
             var view = new eco.Views.GenericList({
                 template: '#tasksList-template',
                 itemTemplate: '#tasksListItem-template',
-                formater: eco.Formaters.TaksFormater,
+                formater: eco.Formaters.TasksFormater,
                 collection: collection,
                 el: main
             });
@@ -331,7 +445,7 @@ window.eco = {
 
             var view = new eco.Views.GenericDetail({
                 template: '#taskDetail-template',
-                formater: eco.Formaters.TaksFormater,
+                formater: eco.Formaters.TasksFormater,
                 model: model,
                 el: main
             });
@@ -401,7 +515,9 @@ window.eco = {
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
             console.log('route:showHwList');
-            var hws = new eco.Collections.Homeworks({student_id: user.get('student_id')}); //TODO: dinamicky získávat id uživatele
+            var hws = new eco.Collections.Homeworks(
+                {url: '/api/students/'+ user.get('student_id') + '/hw'}
+            ); //TODO: dinamicky získávat id uživatele
             var view = new eco.Views.HomeworkList({
                 collection: hws,
                 el: main
@@ -487,10 +603,11 @@ window.eco = {
         }
         function showGroups() {
             setPageTitle('Skupiny');
+            main.empty();
             main_tab.show();
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
-            var groupsView = new eco.Views.GenericList({
+            var groupsView = new eco.Views.GroupsList({
                 template: '#groupsList-template',
                 itemTemplate: '#groupsListItem-template',
                 formater: eco.Formaters.GroupFormater,
@@ -503,8 +620,30 @@ window.eco = {
                     'list-created',
                 ],
                 collection: groups,
-                el: main
             });
+            main.append(groupsView.$el);
+
+            var newModel = new eco.Models.Group({});
+
+            var addGroupView = new eco.Views.GroupAddForm({
+                title: "Vytvoření nové skupiny",
+                template: "#addGroupForm-template",
+                mapper: function ($element) {
+                    var result = eco.Utils.mapValues({
+                        'subject': eco.Utils.inputParsers.byValue,
+                        'day': eco.Utils.inputParsers.byValue,
+                        'weeks': eco.Utils.inputParsers.byValue,
+                        'block': eco.Utils.inputParsers.byValue,
+                    }, "#nova_skupina-" , $element);
+                    return result;
+                },
+                model: newModel,
+                collection: groups,
+            });
+            addGroupView.render();
+
+            main.append(addGroupView.$el);
+
             groups.fetch();
         }
         function showGroupDetail(id) {

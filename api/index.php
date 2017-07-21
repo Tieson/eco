@@ -86,11 +86,12 @@ $app->delete('/groups/:group_id/students/:student_id', 'groupRemoveStudent'); //
 
 $app->get('/teachers', 'teachers');
 $app->get('/teachers/:id', 'teacher');
-$app->get('/teachers/:id/groups', 'techerGroups');
-$app->get('/teachers/:id/hw/', 'teacherHomeworks');
-$app->get('/teachers/:id/tasks/', 'teacherTasks');
+$app->get('/teachers/:id/groups', 'teacherGroups');
+$app->get('/teachers/:id/hw', 'teacherHomeworks');
+$app->get('/teachers/:id/tasks', 'teacherTasks');
 
 //$app->get('/tasks/', 'teacherTasks');
 $app->get('/tasks/:id', 'task');
+$app->put('/tasks/:id', 'taskUpdate');
 
 $app->run();

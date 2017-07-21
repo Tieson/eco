@@ -51,7 +51,10 @@
     <td class="list-weeks"><%=weeks%></td>
     <td class="list-teacher"><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
     <td class="list-created"><%=created%></td>
-    <td><a href="#groups/<%=id%>" class="btn btn-xs button--default">Spravovat</a></td>
+    <td>
+        <a href="#groups/<%=id%>/delete" class="btn btn-xs btn-danger group-delete" data-cid="<%=cid%>">Smazat</a>
+        <a href="#groups/<%=id%>" class="btn btn-xs button--default">Zobrazit studenty</a>
+    </td>
 </script>
 
 <script type="text/template" id="userGroupsListItem-template">
@@ -109,50 +112,70 @@
         </table>
     </div>
 </script>
-<script type="text/template" id="addGroup-template">
 
-    <h1>Vytvoření nové skupiny</h1>
 
-    <div class="row">
-        <div class="col-xs-12 col-sm-6">
-            <div class="form-group">
-                <label for="nova_skupina-predmet">Předmět</label>
-                <input type="text" class="form-control" id="nova_skupina-predmet" placeholder="CIT" value="<%=subject%>">
+
+<script type="text/template" id="addGroupForm-template">
+
+    <h1>Vytvořit novou skupinu</h1>
+
+    <form action="#">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-3">
+                <div class="form-group">
+                    <label for="nova_skupina-subject">Předmět</label>
+                    <input type="text" class="form-control" id="nova_skupina-subject" placeholder="___"
+                           value="<%=model.subject%>">
+                </div>
             </div>
-            <div class="form-group">
-                <label for="nova_skupina-predmet">Den</label>
-                <select class="form-control" id="nova_skupina-den">
-                    <option value="po">Pondělí</option>
-                    <option value="ut">Úterý</option>
-                    <option value="st">Středa</option>
-                    <option value="ct">Čtvrtek</option>
-                    <option value="pa">Pátek</option>
-                    <option value="so">Sobota</option>
-                    <option value="ne">Neděle</option>
-                </select>
+            <div class="col-xs-12 col-sm-6 col-md-3">
+                <div class="form-group">
+                    <label for="nova_skupina-day">Den</label>
+                    <select class="form-control" id="nova_skupina-day">
+                        <option value="po">Pondělí</option>
+                        <option value="ut">Úterý</option>
+                        <option value="st">Středa</option>
+                        <option value="ct">Čtvrtek</option>
+                        <option value="pa">Pátek</option>
+                        <option value="so">Sobota</option>
+                        <option value="ne">Neděle</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="nova_skupina-predmet">Blok</label>
-                <input type="number" min="1" max="10" class="form-control" id="nova_skupina-blok" placeholder="CIT" value="<%=block%>">
+            <div class="col-xs-12 col-sm-6 col-md-3">
+                <div class="form-group">
+                    <label for="nova_skupina-block">Blok</label>
+                    <select class="form-control" id="nova_skupina-block">
+                        <% _.each([1,2,3,4,5,6,7,8,9,10],function(index) { %>
+                        <option value="<%=index%>"
+                        <% if(index==model.block){%> selected <%}%> > <%=index%>.</option>
+                        <% }); %>
+
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="nova_skupina-predmet">Týden</label>
-                <select class="form-control" id="nova_skupina-tyden" value="<%=weeks%>">
-                    <option value="both">Každý</option>
-                    <option value="even">Sudý</option>
-                    <option value="odd">Lichý</option>
-                </select>
+            <div class="col-xs-12 col-sm-6 col-md-3">
+                <div class="form-group">
+                    <label for="nova_skupina-weeks">Týden</label>
+                    <select class="form-control" id="nova_skupina-weeks" value="<%=model.weeks%>">
+                        <option value="both">Každý</option>
+                        <option value="even">Sudý</option>
+                        <option value="odd">Lichý</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-3">
-            <div class="form-group">
-                <button class="btn btn-block button--success">Přidat</button>
+        <div class="row">
+            <div class="col-xs-12 col-sm-3">
+                <div class="form-group">
+                    <button type="submit" class="btn btn-block button--success">Přidat</button>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
+
+
 </script>
 
 
@@ -163,4 +186,14 @@
         <a href="#teacher/circles/<%=group_id%>/students/remove/<%=id%>"
            class="btn btn-xs btn-danger remove-student">Odebrat</a>
     </td>
+</script>
+
+
+
+<script type="text/template" id=select-template">
+    <select>
+        <% rates.each(function(rate) { %>
+            <option value="<%= rate.get('duration') %>"><%= rate.get('duration') %></option>
+        <% }); %>
+    </select>
 </script>

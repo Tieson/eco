@@ -242,28 +242,41 @@ function initializeSignal(paper, graph) {
 
 
 function getUtils() {
-    var functions = {
+    var namespace = {
+        days: {
+            po: 'Pondělí',
+            ut: 'Úterý',
+            st: 'Středa',
+            ct: 'Čtvrtek',
+            pa: 'Pátek',
+            so: 'Sobota',
+            ne: 'Neděle'
+        },
+        weeks: {
+            both: 'Každý',
+            odd: 'Lichý',
+            even: 'Sudý'
+        },
+        inputParsers: {
+            byValue: function (x) {
+                return x.val();
+            },
+        },
         getDay: function(key){
-            var days = {
-                po: 'Pondělí',
-                ut: 'Úterý',
-                st: 'Středa',
-                ct: 'Čtvrtek',
-                pa: 'Pátek',
-                so: 'Sobota',
-                ne: 'Neděle'
-            };
-            return days[key];
+            return this.days[key];
         },
         getWeeks: function(key) {
-            var weeks = {
-                both: 'Každý',
-                odd: 'Lichý',
-                even: 'Sudý'
-            };
-            return weeks[key];
+            return this.weeks[key];
+        },
+        mapValues: function (names, prefix, $element) {
+            var result = {};
+            _.each(names, function (item, key) {
+                result[key] = item($element.find(prefix+ key));
+            });
+            return result;
+            return _.ma
         }
     };
 
-    return functions;
+    return namespace;
 }

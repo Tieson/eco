@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="assets/js/libs/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="assets/js/libs/jointjs/dist/joint.min.css">
+    <link rel="stylesheet" href="assets/js/libs/sweetalert/dist/sweetalert.css" type="text/css">
 	<link rel="stylesheet" href="assets/css/style.css">
 
 	<!--TODO: stahnout jquery.hotkeys jako bower plugin	<script src="../scripts/jquery.hotkeys.js"></script>-->
@@ -31,6 +32,7 @@
 
 	<script src="assets/js/libs/list.js/dist/list.min.js"></script>
 
+    <script src="assets/js/libs/sweetalert/dist/sweetalert.min.js"></script>
 
 	<script src="scripts/joint.shapes.mylib.js?<?php echo(filemtime('./scripts/joint.shapes.mylib.js'))?>"></script>
 	<!--<script src="/scripts/utils/fileLoader.js"></script>-->
@@ -135,9 +137,8 @@
             </a>
             <ul class="dropdown-menu">
                 <li><a href="#groups">Skupiny</a></li>
-                <li><a href="#groups/add">Přidat novou skukpinu</a></li>
                 <li><a href="#teachers/9/tasks">Zadání</a></li>
-                <li><a href="#teachers/9/tasks">Úkoly</a></li>
+                <li><a href="#teachers/9/hw">Úkoly</a></li>
                 <li><a href="#"></a></li>
             </ul>
         </div>
@@ -211,6 +212,7 @@
     <script src="src/helpers/templates.js?<?php echo(filemtime('./src/helpers/templates.js')) ?>"></script>
 
     <script src="src/helpers/formaters.js?<?php echo(filemtime('./src/helpers/formaters.js')) ?>"></script>
+    <script src="src/helpers/validators.js?<?php echo(filemtime('./src/helpers/validators.js')) ?>"></script>
 
     <script src="src/modules/generic.js?<?php echo(filemtime('./src/modules/generic.js')) ?>"></script>
     <script src="src/modules/entities.js?<?php echo(filemtime('./src/modules/entities.js')) ?>"></script>

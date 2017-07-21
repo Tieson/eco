@@ -8,10 +8,10 @@ eco.Models.Homework = Backbone.Model.extend({
         id: null,
         task_id: null,
         student_id: null,
+        teacher_id: null,
         created: null,
         deadline: null,
         status: "open",
-        teacher_id: null,
         name: "",
         description: ""
     },
@@ -35,12 +35,55 @@ eco.Models.Homework = Backbone.Model.extend({
 eco.Collections.Homeworks = Backbone.Collection.extend({
     model: eco.Models.Homework,
     initialize: function (options) {
-        this.student_id = options.student_id;
+        this._url = options.url;
     },
     url: function(){
-        return '/api/students/'+this.student_id + '/hw';
+        return this._url;
     }
 });
+
+
+eco.Models.HomeworkTeacher = Backbone.Model.extend({
+    defaults: {
+        id: null,
+        task_id: null,
+        student_id: null,
+        teacher_id: null,
+        created: null,
+        deadline: null,
+        status: "open",
+        name: "",
+        description: "",
+        student_name: "",
+        student_mail: "",
+        student_number: "",
+    },
+    statuses: {
+        open: 'Nové / zadáno',
+        done: 'Hotovo',
+        sended: 'Odesláno'
+    },
+    getStatus: function(){
+        return this.statuses[this.get('status')];
+    },
+    urlRoot: function(){
+        return '/api/students/'+this.get('student_id') + '/hw';
+    },
+    haveSolution: function () {
+        return false;
+    }
+});
+
+eco.Collections.HomeworksTeacher = Backbone.Collection.extend({
+    model: eco.Models.HomeworkTeacher,
+    initialize: function (opts) {
+        this._url = opts.url;
+    },
+    url: function(){
+        return this._url;
+    }
+});
+
 
 eco.Views.Homework = Backbone.View.extend({
     tagName: 'tr',

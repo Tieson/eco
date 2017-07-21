@@ -13,10 +13,12 @@ eco.Router = Backbone.Router.extend({
         'schemas/:id/edit': 'showSchemaEdit',
 
         'teacher/groups/:id/students/remove/:student_id': 'removeStudentFromGroup', //TODO: dodělat funkci pro odebrání studenta z kruhu
-
         'teachers/:id/tasks': 'showTasks',
+        'teachers/:id/hw': 'showGroupHomeworks',
+
         'tasks': 'showAllTasks',
         'tasks/:id': 'showTaskDetail',
+        'tasks/:id/edit': 'editTask',
 
 
 
@@ -33,6 +35,8 @@ eco.Router = Backbone.Router.extend({
 
         'homeworks': 'showHwList', //zobrazí seznam úkolů
         'homeworks/:id': 'showHwDetail', //zobrazí detail úkolů se zadáním a dalšími informacemi
+
+        '*path':  'defaultRoute',
 
     }
 });

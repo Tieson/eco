@@ -46,9 +46,13 @@ function group($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT *
-            FROM `group`
-            WHERE id=:id");
+		$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created AS created, u.name AS name, u.mail, t.user_id, gt.teacher_id
+            FROM `group` AS g
+            JOIN group_teaching AS gt
+            JOIN teacher AS t
+            JOIN `user` AS u
+            ON g.id = gt.group_id AND t.id = gt.teacher_id AND t.user_id = u.id
+            WHERE g.id=:id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchObject();
@@ -228,7 +232,7 @@ function groupDelete($id) {
 		if ($result) {
 			$app->response()->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
-			echo '{"status": "ok"}';
+			echo json_encode(array( 'response' => 'success' ));
 
 			$db = null;
 		} else {

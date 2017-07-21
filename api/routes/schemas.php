@@ -85,10 +85,9 @@ function schemaUpdate($id) {
 	try
 	{
 		$db = getDB();
-		$request = $db->prepare("UPDATE schema_base SET name=:name, architecture=:architecture WHERE id=:id")->execute($values);
-		$request->bindParam(":id", $id, PDO::PARAM_INT);
+		$request = $db->prepare("UPDATE schema_base SET name=:name, architecture=:architecture WHERE id=:id");
 
-		if ($request->execute()){
+		if ($request->execute($values)){
 			$app->response()->setStatus(200);
 			echo '{"result":"Update ok"}}';
 		}

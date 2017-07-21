@@ -35,8 +35,8 @@ eco.Formaters.StudentGroupFormater = function (model) {
     return result;
 };
 
-eco.Formaters.TaksFormater = function (model) {
-    var result = {
+eco.Formaters.TasksFormater = function (model) {
+    var result = _.extend({},model.toJSON(),{
         cid: model.cid,
         id: model.get('id'),
         name: model.get('name'),
@@ -44,7 +44,17 @@ eco.Formaters.TaksFormater = function (model) {
         etalon_file: model.get('etalon_file'),
         test_file: model.get('test_file'),
         created: moment(model.get('created')).format('LLL')
-    };
+    });
+    return result;
+};
+
+eco.Formaters.HwTeacherFormater = function (model) {
+    var result = _.extend({},model.toJSON(),{
+        cid: model.cid,
+        status: model.getStatus(),
+        created: moment(model.get('created')).format('LLL'),
+        deadline: moment(model.get('deadline')).format('LLL'),
+    });
     return result;
 };
 
@@ -52,6 +62,7 @@ eco.Formaters.HomeworkFormater = function (model) {
     var result = {
         cid: model.cid,
         id: model.get('id'),
+        task_id: model.get('task_id'),
         student_id: model.get('student_id'),
         teacher_id: model.get('teacher_id'),
         status: model.getStatus(),

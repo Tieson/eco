@@ -16,8 +16,11 @@ eco.Models.Task = Backbone.Model.extend({
         test_file: ""
     },
     initialize: function (opts) {
-        if (opts.urlRoot){
-            this._urlRoot = opts.urlRoot;
+        if (opts) {
+            if (opts.urlRoot)
+                this._urlRoot = opts.urlRoot;
+            if (opts.url)
+                this.url = opts.url;
         }
     },
 });
@@ -88,4 +91,22 @@ eco.Views.Tasks = Backbone.View.extend({
 
         return this;
     }
+});
+
+eco.Views.EditTask = eco.Views.GenericForm.extend({
+   events: {
+       'click .remove_file' : 'removeFile',
+       'submit form': 'formSubmit',
+   },
+    removeFile: function (event) {
+        console.log('click .remove_file', $(this), event);
+        event.preventDefault();
+
+        var target = $(event.currentTarget);
+        var name = target.attr('data-name');
+
+        this.model.set(name, null);
+
+        return false;
+    },
 });

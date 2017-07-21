@@ -339,3 +339,8 @@ dl {
 .joint-element.invalid .body {
   fill: #e1092d;
   stroke: #e1092d; }
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; }

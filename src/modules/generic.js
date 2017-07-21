@@ -26,11 +26,14 @@ eco.Views.GenericList = Backbone.View.extend({
         this.$el.attr('id', "genericList");
         this.collection.each(this.renderOne, this);
 
-
-        var options = {
-            valueNames: this.searchNames
-        };
-        this.userList = new List('genericList', options);
+        try {
+            var options = {
+                valueNames: this.searchNames
+            };
+            this.userList = new List('genericList', options);
+        }catch (err){
+            ;
+        }
 
         return this;
     }
@@ -65,7 +68,7 @@ eco.Views.GenericDetail = Backbone.View.extend({
         this.model = opts.model;
         this.listenTo(this.model, 'sync change', this.render);
     },
-    render: function() {
+    render: function () {
         console.log(this.model);
         var self = this;
         var data = this.formater(this.model);
@@ -75,4 +78,54 @@ eco.Views.GenericDetail = Backbone.View.extend({
         this.$el.attr('data-cid', data.cid);
         return this;
     },
+});
+
+eco.Views.GenericForm = Backbone.View.extend({
+    tagName: 'div',
+    initialize: function (opts) {
+        this.title = opts.title || "";
+        this.template = _.template($(opts.template).html());
+        this.formater = opts.formater || eco.Formaters.GenericFormater;
+        this.validator = opts.validator || eco.Validators.NoValidator;
+        this.mapper = opts.mapper;
+        if (!this.mapper) {
+            throw new Error("Mapper must be set!");
+        }
+        this.model = opts.model;
+        this.listenTo(this.model, 'sync change', this.render);
+    },
+    events: {
+        'submit form': 'formSubmit',
+    },
+    render: function () {
+        var data = this.formater(this.model);
+        console.log("DATA", data, this.model);
+        var html = this.template({error: this.error, title: this.title, model: data});
+        this.$el.html(html);
+
+        return this;
+    },
+        formSubmit: function (e) {
+            e.preventDefault();
+            console.log("formSubmit");
+            var self = this;
+            var schema = this.model;
+
+            var data = this.model.clone();
+            data.set(this.mapper(self.$el));
+
+            if (this.validator(data)) {
+                data.save(data.toJSON(),{
+                    success: function(model, response) {
+                    },
+                    error: function(model, response) {
+                        self.render();
+                    },
+                    wait: true
+                });
+
+                // this.trigger("formSubmited", schema);
+            }
+            return false;
+    }
 });

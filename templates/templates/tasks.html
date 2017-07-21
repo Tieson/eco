@@ -10,8 +10,7 @@
                 <th>Vytvořeno</th>
                 <th>Správné řešení</th>
                 <th>Testovací soubor</th>
-                <th>Smazat</th>
-                <th>Detail</th>
+                <th>Akce</th>
             </tr>
             </thead>
             <tbody class="items-container list">
@@ -22,12 +21,14 @@
 </script>
 
 <script type="text/template" id="tasksListItem-template">
-    <td class="list-name"><%=name%></td>
+    <td class="list-name"><a href="#tasks/<%=id%>" class="btn btn-xs button--default"><%=name%></a></td>
     <td class="list-created"><%=created%></td>
     <td class="list-etalon"><a href="<%=etalon_file%>" target="_blank"><%=etalon_file%></a></td>
     <td class="list-test"><a href="<%=test_file%>" target="_blank"><%=test_file%></a></td>
-    <td><a href="#tasks" class="btn btn-xs btn-danger task_delete">Smazat</a></td>
-    <td><a href="#tasks/<%=id%>" class="btn btn-xs button--default">Detail</a></td>
+    <td>
+        <a href="#tasks/<%=id%>" class="btn btn-xs btn-danger task_delete">Smazat</a>
+        <a href="#tasks/<%=id%>/edit" class="btn btn-xs btn-default">Upravit</a>
+    </td>
 </script>
 
 
@@ -75,33 +76,87 @@
                 <div class="form-group">
                     <label for="task_name">Název</label>
                     <input type="text" class="form-control" id="task_name" placeholder="Název zadání"
-                           value="<%=data.name%>">
+                           value="<%=model.name%>">
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6">
                 <div class="form-group">
                     <label for="task_description">Popis</label>
-                    <textarea class="form-control" id="task_description" placeholder="Detailní popis"><%=data.description%></textarea>
+                    <textarea class="form-control" id="task_description" placeholder="Detailní popis"><%=model.description%></textarea>
 
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6">
                 <div class="form-group">
                     <label for="task_etalon">Soubor správného řešení</label>
-                    <input type="file" class="form-control" id="task_etalon" value="<%=data.etalon%>">
+                    <input type="file" class="form-control" id="task_etalon" value="<%=model.etalon%>">
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6">
                 <div class="form-group">
                     <label for="task_test">Testovací soubor</label>
-                    <input type="file" class="form-control" id="task_test" value="<%=data.test%>">
+                    <input type="file" class="form-control" id="task_test" value="<%=model.test%>">
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-xs-12 col-sm-3">
                 <div class="form-group">
-                    <button class="btn btn-block button--success"><%=submitText%></button>
+                    <button class="btn btn-block button--success">Vytvořit zadání</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+
+
+<script type="text/template" id="taskEditForm-template">
+    <h1><%=title%></h1>
+    <form action="#">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="task_name">Název</label>
+                    <input type="text" class="form-control" id="task_name" placeholder="Název zadání"
+                           value="<%=model.name%>">
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="task_description">Popis</label>
+                    <textarea class="form-control" id="task_description" placeholder="Detailní popis"><%=model.description%></textarea>
+
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="task_etalon">Soubor správného řešení</label>
+                    <div class="flex">
+                        <%if(model.etalon_file) {%>
+                        <a href="<%=model.etalon_file%>" target="_blank"><i class="glyphicon glyphicon-file"></i> <%=model.etalon_file%></a> <a href="#" class="btn btn-xs btn-danger remove_file" data-name="etalon_file"><i class="glyphicon glyphicon-trash"></i></a>
+                        <%}else{%>
+                            <input type="file" class="form-control" id="task_etalon" value="<%=model.etalon%>">
+                        <%}%>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="form-group">
+                    <label for="task_test">Testovací soubor</label>
+                    <div class="flex">
+                        <%if(model.test_file) {%>
+                        <a href="<%=model.test_file%>" target="_blank"><i class="glyphicon glyphicon-file"></i> <%=model.test_file%></a> <a href="#" class="btn btn-xs btn-danger remove_file" data-name="test_file"><i class="glyphicon glyphicon-trash"></i></a>
+                        <%}else{%>
+                            <input type="file" class="form-control" id="task_test" value="<%=model.test%>">
+                        <%}%>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-3">
+                <div class="form-group">
+                    <button class="btn btn-block button--success">Uložit úpravy</button>
                 </div>
             </div>
         </div>

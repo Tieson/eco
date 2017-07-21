@@ -64,3 +64,35 @@
 	</div>
 
 </script>
+
+
+
+<script type="text/template" id="hwList-template">
+	<h1>Seznam úkolů</h1>
+	<div class="table-responsive">
+		<table class="table table-striped">
+			<thead>
+			<th>Zadání</th>
+			<th>Student</th>
+			<th>Termín</th>
+			<th>Stav</th>
+			<th>Akce</th>
+			</thead>
+			<tbody class="items-container">
+
+			</tbody>
+		</table>
+	</div>
+</script>
+
+
+<script type="text/template" id="hwListItem-template">
+	<td><a href="#homeworks/<%= id %>" class="btn btn-xs button--default" data-id="<%= id %>"><%= name %></a></td>
+	<td><a href="mailto:<%= student_mail %>"><%= student_name %> (<%= student_number %>)</a></td>
+	<td><%= deadline %></td>
+	<td><div class="badge badge-default"><%= status %></div></td>
+	<td>
+		<a href="#" class="btn btn-xs btn-danger hw-btn-delete" data-hw-id="<%= id %>"><i class="glyphicon glyphicon-trash"></i> Smazat</a>
+		<!--<a href="#" class="btn btn-xs button&#45;&#45;default hw-btn-open" data-hw-id="<%= id %>">Otevřít</a>-->
+	</td>
+</script>
