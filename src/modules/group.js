@@ -29,10 +29,13 @@ eco.Models.Group = Backbone.Model.extend({
 });
 
 eco.Models.UserGroup = Backbone.Model.extend({
-    urlRoot: '/api/groups',
+    url:function(){
+        return this.instanceUrl;
+    },
     defaults: {
         id: null,
         student_id: null,
+        group_id: null,
         entered: null,
         approved: false,
         subject: "",
@@ -41,10 +44,12 @@ eco.Models.UserGroup = Backbone.Model.extend({
         day: null,
         weeks: null,
         block: null,
+        instanceUrl: '/api/groups/',
     },
     parse: function (data) {
         return {
-            id: data.group_id,
+            id: data.group_id + '_' + data.student_id,
+            group_id: data.group_id,
             student_id: data.student_id,
             entered: data.entered,
             approved: data.approved,
@@ -59,6 +64,16 @@ eco.Models.UserGroup = Backbone.Model.extend({
     initialize: function (opts) {
 
     },
+    dayFormat: function () {
+        var self = this;
+        return eco.Utils.getDay(self.get('day'));
+    },
+    getDayList: function () {
+        return eco.Utils.days;
+    },
+    getWeeksList: function () {
+        return eco.Utils.weeks;
+    }
 });
 
 eco.Collections.GroupCollection = Backbone.Collection.extend({
@@ -92,26 +107,25 @@ eco.Views.GroupDetail = Backbone.View.extend({
         this.students.url = '/api/groups/' + this.model.get('id') + '/students';
         this.students.fetch();
 
+        this.vent = _.extend({}, Backbone.Events);
+
+        this.listenTo(this.vent, 'student:remove', this.removeStudent);
         // this.listenTo(this.students, 'sync', this.render);
         // this.listenTo(this.students, 'remove', this.removeStudent);
     },
     renderOne: function (student) {
-        var itemView = new eco.Views.StudentGroupItem({model: student});
+        var itemView = new eco.Views.StudentGroupItem({model: student, vent: this.vent});
         eco.ViewGarbageCollector.add(itemView);
         this.$('.students-container').append(itemView.render().$el);
     },
     render: function () {
         var self = this;
-
-        var data = {
-            id: this.model.get('id'),
-            subject: this.model.get('subject'),
+        var data = _.extend({}, this.model.toJSON(), {
             day: eco.Utils.getDay(this.model.get('day')),
             weeks: eco.Utils.getWeeks(this.model.get('weeks')),
-            block: this.model.get('block'),
             teacher: {name: this.model.get('name'), mail: this.model.get('mail')},
             created: moment(this.model.get('created')).format('LLL')
-        };
+        });
         var html = this.template(data);
         this.$el.html(html);
 
@@ -197,4 +211,80 @@ eco.Views.GroupsList = eco.Views.GenericList.extend({
             });
         return false;
     }
+});
+
+
+eco.Views.StudentAssignGroupsList = eco.Views.GenericList.extend({
+    events: {
+        'click .leaveGroup': 'leaveGroup',
+    },
+    afterInitialization:  function () {
+        console.log("AFTER INIT");
+        this.initSortable();
+    },
+    leaveGroup: function (event) {
+        event.preventDefault();
+        var self = this;
+        swal({
+                title: "Opravdu chtete opustit skupinu?",
+                text: "Nebudou vám přidělovány žádné úkoly pocházející z této skupiny.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ano, odejít! (Yes)",
+                cancelButtonText: "Ne, zůstat. (No)",
+                closeOnConfirm: true
+            },
+            function () {
+                var cid = $(event.currentTarget).attr('data-cid'),
+                    model = self.collection.get(cid);
+                console.log(cid, self.collection, model);
+
+                model.set({instanceUrl:'/api/groups/'+model.get('group_id')+'/students/'+model.get('student_id')});
+
+                console.log("_-_-_-_-_", model, cid);
+
+                model.destroy();
+
+                self.render();
+                // swal("Smazáno!", "Skupina byla smazána.", "success");
+            });
+        return false;
+    },
+    initSortable: function () {
+    }
+});
+
+
+eco.Models.UserInGroup = Backbone.Model.extend({
+    urlRoot: '/api/groups',
+    defaults: {
+        id: null,
+        student_id: null,
+        entered: null,
+        approved: false,
+        subject: "",
+        name: "",
+        mail: "",
+        day: null,
+        weeks: null,
+        block: null,
+    },
+    parse: function (data) {
+        return {
+            id: data.group_id,
+            student_id: data.student_id,
+            entered: data.entered,
+            approved: data.approved,
+            subject: data.subject,
+            name: data.name,
+            mail: data.mail,
+            day: data.day,
+            weeks: data.weeks,
+            block: data.block,
+        };
+    },
+    initialize: function (opts) {
+
+    },
 });

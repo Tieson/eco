@@ -3,6 +3,7 @@
  */
 
 eco.Views.GenericList = Backbone.View.extend({
+    views: [],
     initialize: function (opts) {
         this.title = opts.title || "";
         this.template = _.template($(opts.template).html());
@@ -12,6 +13,10 @@ eco.Views.GenericList = Backbone.View.extend({
         this.collection = opts.collection;
         this.searchNames = opts.searchNames || ['list-one'];
         this.listenTo(this.collection, 'sync', this.render);
+        this.afterInitialization();
+    },
+    afterInitialization: function () {
+
     },
     events: {},
     renderOne: function (item) {

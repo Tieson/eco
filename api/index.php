@@ -81,7 +81,7 @@ $app->get('/groups/:id', 'group'); //detail skupiny
 $app->get('/groups/:id/students', 'groupStudents'); //studenti skupiny
 $app->post('/groups', 'groupCreate'); //vytvoření skupiny
 $app->post('/groups/:id/students/:student_id', 'groupAddStudent'); // přidání studenta do skupiny
-$app->delete('/groups/:id', 'groupDelete'); // odebrání studenta ze skupiny
+$app->delete('/groups/:id', 'groupDelete'); // odebrání skupiny
 $app->delete('/groups/:group_id/students/:student_id', 'groupRemoveStudent'); // odebrání studenta ze skupiny
 
 $app->get('/teachers', 'teachers');

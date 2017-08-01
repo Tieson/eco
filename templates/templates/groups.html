@@ -64,40 +64,48 @@
     <td><%=weeks%></td>
     <td><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
     <td><%=entered%></td>
+    <td><a href="#groups/<%=id%>/students/<%=student_id%>/remove" class="leaveGroup btn btn-danger btn-xs" data-cid="<%=cid%>" data-student="<%=student_id%>">opustit skupinu</a></td>
 </script>
 
 
 <script type="text/template" id="groupsDetail-template">
 
-    <h1>Detail skupiny</h1>
-    <div class="row">
-        <div class="col-xs-12 col-sm-3">
-            <dt>Předmět</dt>
-            <dd><%=subject%></dd>
-        </div>
-        <div class="col-xs-12 col-sm-3">
-            <dt>Den</dt>
-            <dd><%=day%></dd>
-        </div>
-        <div class="col-xs-12 col-sm-3">
-            <dt>Blok</dt>
-            <dd><%=block%>.</dd>
-        </div>
-        <div class="col-xs-12 col-sm-3">
-            <dt>Týden</dt>
-            <dd><%=weeks%></dd>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-3">
-            <dt>Vytvořeno</dt>
-            <dd><%=created%></dd>
+    <h1>
+        <span>Detail skupiny: <%=subject%></span>
+        <small class="translates">Group detail: <%=subject%></small>
+    </h1>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3">
+                    <dt>Den
+                        <!--<small class="translates">Day</small>-->
+                    </dt>
+                    <dd><%=day%></dd>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <dt>Blok
+                        <!--<small class="translates">Block</small>-->
+                    </dt>
+                    <dd><%=block%>.</dd>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <dt>Týden
+                        <!--<small class="translates">week</small>-->
+                    </dt>
+                    <dd><%=weeks%></dd>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <dt>Vytvořeno
+                        <!--<small class="translates">created</small>-->
+                    </dt>
+                    <dd><%=created%></dd>
+                </div>
+            </div>
         </div>
     </div>
 
-    <hr>
-
-    <h2>Seznam Studentů</h2>
+    <h2>Studenti <small class="translates">Students</small></h2>
     <div class="table-responsive">
         <table class="table">
             <thead>

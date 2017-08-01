@@ -22,6 +22,7 @@ window.eco = {
         clear: function () {
             _.each(this.items, function (item) {
                 if (item && item.remove) {
+                    item.stopListening();
                     item.remove();
                 }
             });
@@ -36,13 +37,48 @@ window.eco = {
     },
 
     start: function(data) {
+        //Routes
+        var router = new eco.Router();
+
+        router.on('route:home', showHome);
+        router.on('route:showHwList', showHomeworkList);
+        router.on('route:showHwDetail', showHomeworkDetail);
+
+        /** Skupiny **/
+        router.on('route:showGroups', showGroups);
+        router.on('route:showGroupDetail', showGroupDetail);
+        router.on('route:addGroup', showAddGroup);
+
+        /** Studenti **/
+        // router.on('route:showStudents', showStudents);
+        router.on('route:showUserGroups', showUserGroups);
+        router.on('route:showUserGroupDetail', showUserGroupDetail);
+        // router.on('route:showStudentsHwList', showStudentsHwList);
+
+        /** Schémata **/
+        router.on('route:showSchemas', showSchemaListAndNew);
+        router.on('route:schemaCreateNew', showSchemaListAndNew);
+        router.on('route:openedSchema', showOpenSchema);
+        router.on('route:showSchemaEdit', showSchemaEdit);
+
+
+        router.on('route:showGroupHomeworks', showGroupHomeworks);
+
+        router.on('route:showTasks', showTasks);
+        router.on('route:showAllTasks', showAllTasks);
+        router.on('route:showTaskDetail', showTaskDetail);
+        router.on('route:editTask', editTask);
+
+        router.on('route:defaultRoute', defaultRoute);
+
+
+        //global Variables
         var main = $('#page_main_content'),
             main_tab = $('#container--pages'),
             main_bar = $('#main_bar');
         var schemaContainer = $('#canvasWrapper'),
             schemas_tab = $('#container--schemas');
 
-        var router = new eco.Router();
         var baseTitle = $('title').html();
 
         // var user = new eco.Models.Student();
@@ -238,39 +274,6 @@ window.eco = {
             showSchemaPaper(schema);
             setSchemaActive(schema);
         }
-
-
-        router.on('route:home', showHome);
-        router.on('route:showHwList', showHomeworkList);
-        router.on('route:showHwDetail', showHomeworkDetail);
-
-        /** Skupiny **/
-        router.on('route:showGroups', showGroups);
-        router.on('route:showGroupDetail', showGroupDetail);
-        router.on('route:addGroup', showAddGroup);
-
-        /** Studenti **/
-        // router.on('route:showStudents', showStudents);
-        router.on('route:showUserGroups', showUserGroups);
-        router.on('route:showUserGroupDetail', showUserGroupDetail);
-        // router.on('route:showStudentsHwList', showStudentsHwList);
-
-        /** Schémata **/
-        router.on('route:showSchemas', showSchemaListAndNew);
-        router.on('route:schemaCreateNew', showSchemaListAndNew);
-        router.on('route:openedSchema', showOpenSchema);
-        router.on('route:showSchemaEdit', showSchemaEdit);
-
-
-        router.on('route:showGroupHomeworks', showGroupHomeworks);
-
-        router.on('route:showTasks', showTasks);
-        router.on('route:showAllTasks', showAllTasks);
-        router.on('route:showTaskDetail', showTaskDetail);
-        router.on('route:editTask', editTask);
-
-
-        router.on('route:defaultRoute', defaultRoute);
 
         /**
          * Nsledují router metody
@@ -544,11 +547,11 @@ window.eco = {
             setPageTitle('Skupiny');
             main_tab.show();
             schemas_tab.hide();
-            var groups = new eco.Collections.GroupCollection({
+            var groups = new eco.Collections.UserGroupCollection({
                 url: "/api/students/"+user.get('student_id')+"/groups",
             });
             eco.ViewGarbageCollector.clear();
-            var groupsView = new eco.Views.GenericList({
+            var groupsView = new eco.Views.StudentAssignGroupsList({
                 template: '#userGroupsList-template',
                 itemTemplate: '#userGroupsListItem-template',
                 formater: eco.Formaters.StudentGroupFormater,
@@ -648,17 +651,22 @@ window.eco = {
         }
         function showGroupDetail(id) {
             setPageTitle('Detail skupiny');
+            main.empty();
+            main_tab.show();
+            schemas_tab.hide();
             // eco.ViewGarbageCollector.clear();
+            // var students = new eco.Collections.Students();
             console.log('route:circleDetail', id);
-            var students =new eco.Collections.Students();
             var group = new eco.Models.Group({id:id});
-            group.fetch();
-            students.url = 'api/groups/'+id+'/students';
-            students.fetch();
+            // students.url = 'api/groups/'+id+'/students';
+            // console.log('route:circleDetail', id, students);
             var groupsDetailView = new eco.Views.GroupDetail({
-                collection: students,
+                // collection: students,
                 model: group,
             });
+            group.fetch();
+            // students.fetch();
+            main.append(groupsDetailView.$el);
         }
 
         function showSchemaEdit(id) {
