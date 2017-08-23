@@ -37,7 +37,6 @@ eco.Router = Backbone.Router.extend({
         'homeworks/:id': 'showHwDetail', //zobrazí detail úkolů se zadáním a dalšími informacemi
 
         '*path':  'defaultRoute',
-
     }
 });
 

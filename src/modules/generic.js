@@ -14,6 +14,7 @@ eco.Views.GenericList = Backbone.View.extend({
         this.searchNames = opts.searchNames || ['list-one'];
         this.listenTo(this.collection, 'sync', this.render);
         this.afterInitialization();
+        this.vent = opts.vent;
     },
     afterInitialization: function () {
 
@@ -36,7 +37,7 @@ eco.Views.GenericList = Backbone.View.extend({
                 valueNames: this.searchNames
             };
             this.userList = new List('genericList', options);
-        }catch (err){
+        } catch (err) {
             ;
         }
 
@@ -49,11 +50,12 @@ eco.Views.GenericItem = Backbone.View.extend({
     initialize: function (opts) {
         this.template = _.template($(opts.template).html());
         this.model = opts.model;
-        this.formater = opts.formater;
+        this.formater = opts.formater || eco.Formaters.GenericFormater;
     },
     render: function () {
         var data = this.formater(this.model);
         var html = this.template(data);
+        console.log("_________FORMATER___________", data);
         this.$el.html(html);
         this.$el.attr('data-id', data.id);
         this.$el.attr('data-cid', data.cid);
@@ -97,7 +99,8 @@ eco.Views.GenericForm = Backbone.View.extend({
             throw new Error("Mapper must be set!");
         }
         this.model = opts.model;
-        this.listenTo(this.model, 'sync change', this.render);
+        this.vent = opts.vent;
+        this.listenTo(this.model, 'sync change add', this.render);
     },
     events: {
         'submit form': 'formSubmit',
@@ -110,27 +113,47 @@ eco.Views.GenericForm = Backbone.View.extend({
 
         return this;
     },
-        formSubmit: function (e) {
-            e.preventDefault();
-            console.log("formSubmit");
-            var self = this;
-            var schema = this.model;
+    formSubmit: function (e) {
+        e.preventDefault();
+        console.log("formSubmit");
+        var self = this;
+        var schema = this.model;
+        console.log("__________", self, self.collection, self.model);
 
-            var data = this.model.clone();
-            data.set(this.mapper(self.$el));
+        var data = this.model.clone();
+        data.set(this.mapper(self.$el));
 
-            if (this.validator(data)) {
-                data.save(data.toJSON(),{
-                    success: function(model, response) {
-                    },
-                    error: function(model, response) {
+        console.log("DATA:      ", data, self.$el);
+
+        if (this.validator(data)) {
+            data.save(data.toJSON(), {
+                success: function (model, response) {
+                    console.log("Generic formSubmit success");
+                    if (self.collection) {
+                        //     schema.fetch();
+                        // self.model = new eco.Models.Group();
+                        schema.set(data);
+                        if(self.collection){
+                            self.collection.add(schema);
+                        }
+                        schema.fetch();
                         self.render();
-                    },
-                    wait: true
-                });
+                    }
+                },
+                error: function (model, response) {
+                    if (self.collection) {
+                        self.collection.remove(schema);
+                    }
+                    self.render();
+                },
+                wait: true
+            });
 
-                // this.trigger("formSubmited", schema);
-            }
-            return false;
+            // this.trigger("formSubmited", schema);
+        }
+        if (this.vent) {
+            // this.vent.trigger('formSubmited', this);
+        }
+        return false;
     }
 });

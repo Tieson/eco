@@ -43,6 +43,7 @@ $_SESSION['student_id'] = 9;
 
 require_once 'routes/schemas.php';
 require_once 'routes/users.php';
+require_once 'routes/files.php';
 require_once 'routes/students.php';
 require_once 'routes/groups.php';
 require_once 'routes/teacher.php';
@@ -90,8 +91,18 @@ $app->get('/teachers/:id/groups', 'teacherGroups');
 $app->get('/teachers/:id/hw', 'teacherHomeworks');
 $app->get('/teachers/:id/tasks', 'teacherTasks');
 
-//$app->get('/tasks/', 'teacherTasks');
+//$app->get('/tasks', 'tasks');
+$app->post('/tasks', 'taskCreate');
 $app->get('/tasks/:id', 'task');
 $app->put('/tasks/:id', 'taskUpdate');
+$app->delete('/tasks/:id', 'taskDelete');
+
+$app->get('/tasks/:id/files', 'tasksFiles'); //získá seznam souborů pro dané zadání
+$app->put('/tasks/:id/files', 'addTaskFile'); //Přidá soubor k zadání
+
+$app->get('/files', 'filesList'); //Zobrazí všechny soubory //TODO: omezit práva
+$app->get('/files/:id', 'filesDetail'); //Vrátí pouze konkrétní subor
+$app->delete('/files/:id', 'fileDelete');
+$app->post('/files', 'uploadFile');
 
 $app->run();

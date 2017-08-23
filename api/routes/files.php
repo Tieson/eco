@@ -1,6 +1,134 @@
 <?php
 
+
+function filesList() {
+	$app = \Slim\Slim::getInstance();
+
+	try
+	{
+		$db = getDB();
+		$sth = $db->prepare("SELECT * FROM files");
+
+		$sth->execute();
+		$schemas = $sth->fetchAll(PDO::FETCH_OBJ);
+
+		if($schemas) {
+			$app->response->setStatus(200);
+			$app->response()->headers->set('Content-Type', 'application/json');
+			echo json_encode($schemas);
+			$db = null;
+		} else {
+			throw new PDOException('No records found.');
+		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(404);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+}
+
+function filesDetail($id) {
+	$app = \Slim\Slim::getInstance();
+
+	try
+	{
+		$db = getDB();
+		$sth = $db->prepare("SELECT * FROM files WHERE id=:id");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+
+		$sth->execute();
+		$schemas = $sth->fetchAll(PDO::FETCH_OBJ);
+
+		if($schemas) {
+			$app->response->setStatus(200);
+			$app->response()->headers->set('Content-Type', 'application/json');
+			echo json_encode($schemas);
+			$db = null;
+		} else {
+			throw new PDOException('No records found.');
+		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(404);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+}
+
+function tasksFiles($id) {
+	$app = \Slim\Slim::getInstance();
+
+	try
+	{
+		$db = getDB();
+		$sth = $db->prepare("SELECT tf.id, tf.task_id, tf.file, tf.name, tf.type FROM task_files AS tf WHERE task_id=:id");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->execute();
+		$items = $sth->fetchAll(PDO::FETCH_OBJ);
+
+		if($items) {
+			$app->response->setStatus(200);
+			$app->response()->headers->set('Content-Type', 'application/json');
+			echo json_encode($items);
+			$db = null;
+		} else {
+			throw new PDOException('No records found.');
+		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(404);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+}
+
+function addTaskFile($id) {
+	$app = \Slim\Slim::getInstance();
+
+	$allPostVars = json_decode($app->request->getBody(), true);
+	$values = array(
+		"task_id" => $id,
+		"name" => $_SESSION['name'],
+		"file" => $allPostVars['file'],
+		"type" => $allPostVars['type'],
+	);
+
+	try
+	{
+		$db = getDB();
+		$sth = $db->prepare("INSERT INTO task_files 	(task_id,	name, 	file, 	type) 
+														VALUES	(:task_id,	:name, 	:file, 	:type)");
+
+		$result = $sth->execute($values);
+
+		if ($result){
+			$id = $db->lastInsertId();
+			$sth = $db->prepare("SELECT * FROM `task_files` WHERE id = :id");
+			$sth->bindParam(":id", $id, PDO::PARAM_INT);
+			$sth->execute();
+
+			$item = $sth->fetch(PDO::FETCH_OBJ);
+
+			if($item) {
+				$app->response()->setStatus(200);
+				$app->response()->headers->set('Content-Type', 'application/json');
+				echo json_encode($item);
+
+				$db = null;
+			} else {
+				throw new PDOException('Getting inserted values was unsuccessful');
+			}
+		} else {
+			throw new PDOException('No task was created.');
+		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(404);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+}
+
 function uploadFile () {
+	$app = \Slim\Slim::getInstance();
+
 	if (!isset($_FILES['uploads'])) {
 		echo "No files uploaded!!";
 		return;
@@ -8,31 +136,119 @@ function uploadFile () {
 	$result = array();
 
 	$files = $_FILES['uploads'];
-	$file_count = count($files['name']);
+	$data = $_POST;
 
-	//TODO: zbytek uploadu
-	$data = $_POST[''];
+	$file_name = $files['name'];
+	$file_tempname = $files['tmp_name'];
 
-	for($i = 0 ; $i < $file_count ; $i++) {
-		if ($files['error'][$i] === 0) {
-			$name = uniqid('img-'.date('Ymd').'-');
-			if (move_uploaded_file($files['tmp_name'][$i], 'uploads/' . $name) === true) {
-				$result[] = array('url' => '/uploads/' . $name, 'name' => $files['name'][$i]);
+	$title = $data['filename'];
+	$type = $data['fileAddType'];
+	$task_id = $data['task_id'];
+
+//	echo $file_name, "<br>", $file_tempname, "<br>", $title, "<br>", $type;
+
+	$name = basename($file_name);
+
+	$uploads_dir = "../soubory/task_".$task_id."/".$type;
+	$destination = "$uploads_dir/$name";
+	if ( ! is_dir($uploads_dir)) {
+		mkdir($uploads_dir,0777, TRUE);
+	}
+	$result = move_uploaded_file($file_tempname, $destination);
+
+	try
+	{
+		$values = array(
+			"task_id" => $task_id,
+			"name" => $title,
+			"file" => $destination,
+			"type" => $type,
+		);
+		$db = getDB();
+		$sth = $db->prepare("INSERT INTO task_files 	(task_id,	name, 	file, 	type)
+														VALUES	(:task_id,	:name, 	:file, 	:type)");
+
+		$result = $sth->execute($values);
+
+		if ($result){
+			$id = $db->lastInsertId();
+			$sth = $db->prepare("SELECT * FROM `task_files` WHERE id = :id");
+			$sth->bindParam(":id", $id, PDO::PARAM_INT);
+			$sth->execute();
+
+			$item = $sth->fetch(PDO::FETCH_OBJ);
+
+			if($item) {
+				$app->response()->setStatus(200);
+//				$app->response()->headers->set('Content-Type', 'application/json');
+//				echo json_encode($item);
+
+				$db = null;
+			} else {
+				throw new PDOException('Getting inserted values was unsuccessful');
 			}
-
+		} else {
+			throw new PDOException('No file was added.');
 		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(404);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 
-	$imageCount = count($result);
+	echo "result ", $result;
 
-	if ($imageCount == 0) {
-		echo 'No files uploaded!!  <p><a href="/">Try again</a>';
-		return;
-	}
+//	for($i = 0 ; $i < $file_count ; $i++) {
+//		if ($files['error'][$i] === 0) {
+//			$name = uniqid('img-'.date('Ymd').'-');
+//			if (move_uploaded_file($files['tmp_name'][$i], 'uploads/' . $name) === true) {
+//				$result[] = array('url' => '/uploads/' . $name, 'name' => $files['name'][$i]);
+//			}
+//
+//		}
+//	}
+//
+//	$imageCount = count($result);
+//
+//	if ($imageCount == 0) {
+//		echo 'No files uploaded!!  <p><a href="/">Try again</a>';
+//		return;
+//	}
+//
+//	$plural = ($imageCount == 1) ? '' : 's';
+//
+//	foreach($result as $img) {
+//		printf('%s <img src="%s" width="50" height="50" /><br/>', $img['name'], $img['url']);
+//	}
+	$url = '/#tasks/'.$task_id.'/edit';
+	$app->redirect($url);
+}
 
-	$plural = ($imageCount == 1) ? '' : 's';
+function fileDelete($id) {
+	$app = \Slim\Slim::getInstance();
 
-	foreach($result as $img) {
-		printf('%s <img src="%s" width="50" height="50" /><br/>', $img['name'], $img['url']);
+	//TODO: kontrola oprávnění (skupina a student)
+
+	try
+	{
+		$db = getDB();
+//		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE group_id=:group_id");
+		$prepare = $db->prepare("DELETE FROM `task_files` WHERE id=:id");
+		$prepare->bindParam(':id', $id, PDO::PARAM_INT);
+		$result = $prepare->execute();
+
+		if ($result) {
+			$app->response()->setStatus(200);
+			$app->response()->headers->set('Content-Type', 'application/json');
+			echo json_encode(array( 'response' => 'success' ));
+
+			$db = null;
+		} else {
+			throw new PDOException('No group was deleted.');
+		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(400);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 }

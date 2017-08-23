@@ -257,6 +257,11 @@ function getUtils() {
             odd: 'Lichý',
             even: 'Sudý'
         },
+        fileTypes: {
+            normal : "Normální",
+            etalon : "Správné řešení VHDL",
+            test : "Testovací VHDL"
+        },
         inputParsers: {
             byValue: function (x) {
                 return x.val();
@@ -274,7 +279,7 @@ function getUtils() {
                 result[key] = item($element.find(prefix+ key));
             });
             return result;
-            return _.ma
+            // return _.ma
         }
     };
 

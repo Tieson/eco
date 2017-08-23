@@ -38,11 +38,11 @@ eco.Formaters.StudentGroupFormater = function (model) {
 eco.Formaters.TasksFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
-        id: model.get('id'),
-        name: model.get('name'),
-        description: model.get('description'),
-        etalon_file: model.get('etalon_file'),
-        test_file: model.get('test_file'),
+        // id: model.get('id'),
+        // name: model.get('name'),
+        // description: model.get('description'),
+        // etalon_file: model.get('etalon_file'),
+        // test_file: model.get('test_file'),
         created: moment(model.get('created')).format('LLL')
     });
     return result;
@@ -74,7 +74,19 @@ eco.Formaters.HomeworkFormater = function (model) {
     return result;
 };
 
+eco.Formaters.FileFormater = function (model) {
+    var result = _.extend({},model.toJSON(),{
+        cid: model.cid,
+        type: eco.Utils.fileTypes[model.get('type')],
+        // name: model.get('name'),
+        // file: model.get('file'),
+    });
+    console.log("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", result);
+    return result;
+};
 
 eco.Formaters.GenericFormater = function (x) {
-    return x.toJSON();
+    var result = _.extend({}, x.attributes, {cid: x.cid});
+    console.log("_.......................................", x, result);
+    return result  ;
 };

@@ -1,6 +1,14 @@
 
 
 
+eco.Mapper.TaskEditMapper = function ($element) {
+    return {
+        'name': $element.find('#task_name').val(),
+        'description': $element.find('#task_description').val(),
+    }
+};
+
+
 eco.Models.Task = Backbone.Model.extend({
     urlRoot: '/api/tasks',
     // urlRoot: function () {
@@ -13,7 +21,8 @@ eco.Models.Task = Backbone.Model.extend({
         description: "",
         created: null,
         etalon_file: "",
-        test_file: ""
+        test_file: "",
+        // files: {}
     },
     initialize: function (opts) {
         if (opts) {
@@ -27,7 +36,7 @@ eco.Models.Task = Backbone.Model.extend({
 
 eco.Collections.Tasks = Backbone.Collection.extend({
     model: eco.Models.Task,
-    initialize: function (opts) {
+    initialize: function (models, opts) {
         this.urlString = opts.url;
     },
     url: function(){
@@ -42,24 +51,20 @@ eco.Views.Task = Backbone.View.extend({
     template: _.template($('#tasksListItem-template').html()),
 
     events: {
-        'click .task_delete': 'taskDelete'
+        // 'click .task_delete': 'taskDelete'
     },
-    taskDelete: function () {
+    taskDelete: function (e) {
+        e.preventDefault();
         console.log('taskDelete');
+        return false;
         // this.model.delete();
         // Backbone.history.navigate('teacher/circles/'+this.model.get('id'), {trigger: true, replace: true});
     },
 
     render: function() {
-        var data = {
-            cid: this.model.cid,
-            id: this.model.get('id'),
-            name: this.model.get('name'),
-            description: this.model.get('description'),
-            etalon_file: this.model.get('etalon_file'),
-            test_file: this.model.get('test_file'),
+        var data = _.extend({}, this.model.toJSON(), {
             created: moment(this.model.get('created')).format('LLL')
-        };
+        });
         console.log(data);
         var html = this.template(data);
         this.$el.append(html);
@@ -70,30 +75,72 @@ eco.Views.Task = Backbone.View.extend({
 });
 
 
-eco.Views.Tasks = Backbone.View.extend({
-    initialize: function (opts) {
-        this.listenTo(this.collection, 'sync', this.render);
-        this.template = _.template($(opts.template).html());
-    },
+eco.Views.Tasks = eco.Views.GenericList.extend({
+    // afterInitialization: function (opts) {
+    //     this.listenTo(this.collection, 'sync', this.render);
+    //     this.template = _.template($(opts.template).html());
+    // },
     events: {
+        'click .task_delete': 'itemDelete',
     },
-    renderOne: function(item) {
-        var itemView = new eco.Views.Task({model: item});
-        eco.ViewGarbageCollector.add(itemView);
-        this.$('.tasks-container').append(itemView.render().$el);
-    },
-    render: function () {
+    // renderOne: function(item) {
+    //     var itemView = new eco.Views.Task({model: item});
+    //     eco.ViewGarbageCollector.add(itemView);
+    //     this.$('.tasks-container').append(itemView.render().$el);
+    // },
+    // render: function () {
+    //     var html = this.template();
+    //     this.$el.html(html);
+    //
+    //     this.collection.each(this.renderOne, this);
+    //
+    //     return this;
+    // },
+    itemDelete: function (event) {
+        event.preventDefault();
+        var self = this;
+        swal({
+                title: "Opravdu chtete zadání úkolu odstranit?",
+                text: "Odebrání nelze vzít zpět!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ano, smazat!",
+                cancelButtonText: "Ne",
+                closeOnConfirm: true
+            },
+            function () {
+                var cid = $(event.currentTarget).attr('data-cid'),
+                    model = self.collection.get(cid);
+                console.log(cid, self.collection, model);
 
-        var html = this.template();
-        this.$el.html(html);
+                model.destroy({
+                    success: function () {
+                        console.log("succes");
+                    }
+                });
 
-        this.collection.each(this.renderOne, this);
-
-        return this;
+                self.render();
+                // swal("Smazáno!", "Skupina byla smazána.", "success");
+            });
+        return false;
     }
+
 });
 
 eco.Views.EditTask = eco.Views.GenericForm.extend({
+    initialize: function (opts) {
+        this.title = opts.title || "";
+        this.template = _.template($(opts.template).html());
+        this.formater = opts.formater || eco.Formaters.GenericFormater;
+        this.validator = opts.validator || eco.Validators.NoValidator;
+        this.mapper = opts.mapper;
+        if (!this.mapper) {
+            throw new Error("Mapper must be set!");
+        }
+        this.model = opts.model;
+        this.listenTo(this.model, 'sync', this.render);
+    },
    events: {
        'click .remove_file' : 'removeFile',
        'submit form': 'formSubmit',
@@ -108,5 +155,13 @@ eco.Views.EditTask = eco.Views.GenericForm.extend({
         this.model.set(name, null);
 
         return false;
+    },
+    render: function () {
+        var data = this.formater(this.model);
+        console.log("DATA", data, this.model);
+        var html = this.template({error: this.error, title: this.title, model: data});
+        this.$el.html(html);
+
+        return this;
     },
 });

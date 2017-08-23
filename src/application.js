@@ -16,6 +16,7 @@ window.eco = {
     Views: {},
     Formaters: {},
     Validators: {},
+    Mapper: {},
     Utils: getUtils(),
     ViewGarbageCollector: {
         items: [],
@@ -333,32 +334,38 @@ window.eco = {
         }
 
         function showTasks(id) {
-            //TODO: omezit práva pouze pro vyučující (i na serrveru)
-            setPageTitle('Seznam zadání');
+            //TODO: omezit práva pouze pro vyučující (i na serveru)
+            setPageTitle('Zadání');
             main.html('');
             main_tab.show();
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
 
-            var collection = new eco.Collections.Tasks({
+            var vent = _.extend({}, Backbone.Events);
+
+            var collection = new eco.Collections.Tasks(null, {
                 url: "/api/teachers/"+id+"/tasks",
             });
 
-            var view = new eco.Views.GenericList({
+            var view = new eco.Views.Tasks({
                 template: '#tasksList-template',
                 itemTemplate: '#tasksListItem-template',
                 formater: eco.Formaters.TasksFormater,
                 collection: collection,
-                searchName: [
+                searchNames: [
                     'list-name',
                     'list-created',
                     'list-etalon',
                     'list-test',
                 ],
+                vent: vent,
             });
             main.append(view.$el);
 
+            collection.fetch();
 
+
+            // část s formulářem pro nové zadání
             var viewAddNew = new eco.Views.GenericForm({
                 title: "Přidat nové zadání",
                 template: '#taskForm-template',
@@ -371,10 +378,11 @@ window.eco = {
                     }
                 },
                 model: new eco.Models.Task(),
+                vent: vent,
+                collection: collection
             });
             main.append(viewAddNew.render().$el);
 
-            collection.fetch();
         }
 
         function editTask(id){
@@ -384,6 +392,8 @@ window.eco = {
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
 
+            var vent = _.extend({}, Backbone.Events);
+
             var model = new eco.Models.Task({
                 url: "/api/tasks/"+id,
             });
@@ -391,28 +401,43 @@ window.eco = {
             var viewAddNew = new eco.Views.EditTask({
                 title: "Upravit zadání",
                 template: '#taskEditForm-template',
-                mapper: function ($element) {
-                    var e = $element.find('#task_etalon').val(),
-                        t = $element.find('#task_test').val();
-                    var result = {
-                        'name': $element.find('#task_name').val(),
-                        'description': $element.find('#task_description').val(),
-                        'etalon_file': e,
-                        'test_file': t,
-                    };
-
-                    if (!e || e==''){
-                        delete result.etalon_file;
-                    }
-                    if (!t || t==''){
-                        delete result.test_file;
-                    }
-                    return result;
-                },
+                mapper: eco.Mapper.TaskEditMapper,
                 model: model,
             });
             model.fetch();
             main.append(viewAddNew.$el);
+
+            var files = new eco.Collections.Files(null,{
+                url: '/api/tasks/'+id+'/files',
+            });
+
+            console.log("FILES", files);
+
+            // část pro výpis souborů
+            var filesView = new eco.Views.Files({
+                title: "Soubory",
+                template: '#tasksFilesList-template',
+                itemTemplate: '#tasksFilesItem-template',
+                formater: eco.Formaters.FileFormater,
+                collection: files,
+                searchNames: [
+                    'list-file',
+                    'list-type',
+                ],
+                vent: vent,
+            });
+            main.append(filesView.render().$el);
+
+            files.fetch();
+
+            // část s formulářem pro nové zadání
+            var addFileView = new eco.Views.AddFileForm({
+                template: '#taskFilleAddForm-template',
+                vent: vent,
+                model: model,
+                task_id: id,
+            });
+            main.append(addFileView.render().$el);
         }
 
         function showAllTasks() {
@@ -422,7 +447,7 @@ window.eco = {
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
 
-            var collection = new eco.Collections.Tasks({
+            var collection = new eco.Collections.Tasks(null, {
                 url: "/api/tasks",
             });
 

@@ -216,6 +216,7 @@
 
     <script src="src/modules/generic.js?<?php echo(filemtime('./src/modules/generic.js')) ?>"></script>
     <script src="src/modules/entities.js?<?php echo(filemtime('./src/modules/entities.js')) ?>"></script>
+    <script src="src/modules/files.js?<?php echo(filemtime('./src/modules/files.js')) ?>"></script>
     <script src="src/modules/main.js?<?php echo(filemtime('./src/modules/main.js')) ?>"></script>
     <script src="src/modules/schema.js?<?php echo(filemtime('./src/modules/schema.js')) ?>"></script>
     <script src="src/modules/modal.js?<?php echo(filemtime('./src/modules/modal.js')) ?>"></script>
