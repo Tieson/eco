@@ -157,6 +157,10 @@ eco.Views.TaskStudent = Backbone.View.extend({
         e.preventDefault();
         console.log("submit form");
         this.model = new eco.Models.TaskStudent();
+        var elem = this.$el.find("#hw_form-student");
+        elem.html("");
+        elem = this.$el.find("#hw_form-task");
+        elem.html("");
     },
     selectStudent: function (e) {
         var elem = this.$el.find("#hw_form-student");
@@ -188,21 +192,6 @@ eco.Views.TaskStudent = Backbone.View.extend({
 
         var studentList = this.$el.find("#studentsList");
         var tasksList = this.$el.find("#tasksList");
-
-        // var viewAddNew = new eco.Views.GenericForm({
-        //     title: "Zadat úkol",
-        //     template: '#taskForm-template',
-        //     mapper: function ($element) {
-        //         return {
-        //             'name': $element.find('#task_name').val(),
-        //             'description': $element.find('#task_description').val(),
-        //             'etalon_file': $element.find('#task_etalon').val(),
-        //             'test_file': $element.find('#task_test').val(),
-        //         }
-        //     },
-        //     model: new eco.Models.Task(),
-        // });
-        // this.$el.insertBefore(viewAddNew.render().$el);
 
         var studentsView = new eco.Views.GenericList({
             title: "Úkoly",
@@ -240,9 +229,7 @@ eco.Views.TaskStudent = Backbone.View.extend({
 
         return this;
     }
-
 });
-
 
 eco.Views.HomeworkList = Backbone.View.extend({
     template: _.template($('#homeworkList-template').html()),
@@ -262,7 +249,6 @@ eco.Views.HomeworkList = Backbone.View.extend({
         this.collection.each(this.renderOne, this);
         return this;
     }
-
 });
 
 
@@ -303,5 +289,3 @@ eco.Views.HomeworkDetail = Backbone.View.extend({
     }
 
 });
-
-

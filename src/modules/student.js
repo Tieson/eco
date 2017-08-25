@@ -5,6 +5,12 @@ eco.Models.Student = Backbone.Model.extend({
 
 eco.Collections.Students = Backbone.Collection.extend({
     model: eco.Models.Student,
+    initialize: function (models, opts) {
+        this.urlString = opts.url;
+    },
+    url: function(){
+        return this.urlString;
+    }
 });
 
 

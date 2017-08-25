@@ -103,8 +103,9 @@ eco.Views.GroupDetail = Backbone.View.extend({
     initialize: function (opts) {
         this.listenTo(this.model, 'sync', this.render);
 
-        this.students = new eco.Collections.Students();
-        this.students.url = '/api/groups/' + this.model.get('id') + '/students';
+        this.students = new eco.Collections.Students(null, {
+            url: '/api/groups/' + this.model.get('id') + '/students',
+        });
         this.students.fetch();
 
         this.vent = _.extend({}, Backbone.Events);
@@ -155,23 +156,30 @@ eco.Views.GroupAddForm = eco.Views.GenericForm.extend({
         var data = this.model.clone();
         data.set(this.mapper(self.$el));
 
-        this.collection.add(schema);
-
         if (this.validator(data)) {
             schema.save(data.toJSON(), {
                 success: function (model, response) {
-                    schema.fetch();
-                    self.model = new eco.Models.Group();
-                    self.render();
+                    console.log("GroupAddForm formSubmit success", self.collection);
+                    if (self.collection) {
+                        schema.set(data);
+                        if(self.collection){
+                            self.collection.add(schema);
+                        }
+                        schema.fetch();
+                        self.model = new eco.Models.Group();
+                        self.render();
+                    }
                 },
                 error: function (model, response) {
-                    this.collection.remove(schema);
+                    if (self.collection) {
+                        self.collection.remove(schema);
+                    }
                     self.render();
                 },
                 wait: true
             });
 
-            // this.trigger("formSubmited", schema);
+            this.trigger("formSubmited", schema);
         }
         return false;
     }
@@ -181,6 +189,9 @@ eco.Views.GroupAddForm = eco.Views.GenericForm.extend({
 eco.Views.GroupsList = eco.Views.GenericList.extend({
     events: {
         'click .group-delete': 'groupDelete',
+    },
+    afterInitialization: function () {
+        this.listenTo(this.collection, 'add change', this.render);
     },
     groupDelete: function (event) {
         event.preventDefault();

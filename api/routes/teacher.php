@@ -146,6 +146,42 @@ function teacherTasks($id) {
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 }
+function showTasks() {
+	$app = \Slim\Slim::getInstance();
+
+	try {
+		$teacher = requestLoggedTeacher();
+
+	} catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit;
+	}
+	try
+	{
+
+		$db = getDB();
+		$sth = $db->prepare("SELECT id, teacher_id, name, description, created
+            FROM task WHERE teacher_id = :id");
+		$sth->bindParam(':id', $teacher['id'], PDO::PARAM_INT);
+		$sth->execute();
+		$items = $sth->fetchAll(PDO::FETCH_OBJ);
+
+		if($items) {
+			$app->response->setStatus(200);
+			$app->response()->headers->set('Content-Type', 'application/json');
+			echo json_encode($items);
+			$db = null;
+		} else {
+			throw new PDOException('No records found.');
+		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(404);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit;
+	}
+}
 
 function task($id) {
 	$app = \Slim\Slim::getInstance();

@@ -61,7 +61,6 @@ eco.Views.AddFileForm = Backbone.View.extend({
     },
     render: function () {
         var html = this.template({task:{id:this.task_id}});
-        console.log("AddFileForm ... DATA", html);
         this.$el.html(html);
 
         return this;

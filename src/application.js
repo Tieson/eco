@@ -48,7 +48,7 @@ window.eco = {
         /** Skupiny **/
         router.on('route:showGroups', showGroups);
         router.on('route:showGroupDetail', showGroupDetail);
-        router.on('route:addGroup', showAddGroup);
+        // router.on('route:addGroup', showAddGroup);
 
         /** Studenti **/
         // router.on('route:showStudents', showStudents);
@@ -314,21 +314,21 @@ window.eco = {
             main.append(view.$el);
 
 
-            // var viewAddNew = new eco.Views.GenericForm({
-            //     //TODo: předělat na úkoly!!!! --- celé to bude jinou formou D&D
-            //     title: "Zadat úkol",
-            //     template: '#taskForm-template',
-            //     mapper: function ($element) {
-            //         return {
-            //             'name': $element.find('#task_name').val(),
-            //             'description': $element.find('#task_description').val(),
-            //             'etalon_file': $element.find('#task_etalon').val(),
-            //             'test_file': $element.find('#task_test').val(),
-            //         }
-            //     },
-            //     model: new eco.Models.Task(),
-            // });
-            // main.append(viewAddNew.render().$el);
+            var viewAddNew = new eco.Views.GenericForm({
+                //TODo: předělat na úkoly!!!! --- celé to bude jinou formou D&D
+                title: "Zadat úkol",
+                template: '#taskForm-template',
+                mapper: function ($element) {
+                    return {
+                        'name': $element.find('#task_name').val(),
+                        'description': $element.find('#task_description').val(),
+                        'etalon_file': $element.find('#task_etalon').val(),
+                        'test_file': $element.find('#task_test').val(),
+                    }
+                },
+                model: new eco.Models.Task(),
+            });
+            main.append(viewAddNew.render().$el);
 
             collection.fetch();
         }
@@ -568,7 +568,7 @@ window.eco = {
             main.append(view.render().$el);
             hw.fetch();
         }
-        function showUserGroups(id) {
+        function showUserGroups() {
             setPageTitle('Skupiny');
             main_tab.show();
             schemas_tab.hide();
@@ -603,20 +603,7 @@ window.eco = {
             console.log("group url", groups);
             groups.fetch();
         }
-        function showAddGroup() {
-            setPageTitle('Vytvoření nové skupiny');
-            main_tab.show();
-            schemas_tab.hide();
-            var group = new eco.Model.Group({});
-            eco.ViewGarbageCollector.clear();
-            var groupsView = new eco.Views.GroupAdd({
-                template: '#addGroup-template',
-                model: group,
-                el: main
-            });
-            eco.ViewGarbageCollector.add(groupsView);
-            groups.fetch();
-        }
+
         function showUserGroupDetail(id) {
             setPageTitle('Detail skupiny');
             main_tab.show();
@@ -629,6 +616,7 @@ window.eco = {
             });
             group.fetch();
         }
+
         function showGroups() {
             setPageTitle('Skupiny');
             main.empty();

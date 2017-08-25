@@ -129,34 +129,25 @@ eco.Views.Tasks = eco.Views.GenericList.extend({
 });
 
 eco.Views.EditTask = eco.Views.GenericForm.extend({
-    initialize: function (opts) {
-        this.title = opts.title || "";
-        this.template = _.template($(opts.template).html());
-        this.formater = opts.formater || eco.Formaters.GenericFormater;
-        this.validator = opts.validator || eco.Validators.NoValidator;
-        this.mapper = opts.mapper;
-        if (!this.mapper) {
-            throw new Error("Mapper must be set!");
-        }
-        this.model = opts.model;
-        this.listenTo(this.model, 'sync', this.render);
+    afterInitialization: function () {
+        this.origTitle = this.title;
+        this.listenTo(this.model, 'sync', this.updateTitle);
+    },
+    updateTitle: function () {
+        console.log("updateTitle");
+        this.title = this.origTitle + ": " + this.model.get('name');
+        this.render();
+    },
+    onSuccess:function (schema, model) {
+        console.log("saved", schema, model);
+        this.model = model;
+        this.updateTitle();
     },
    events: {
-       'click .remove_file' : 'removeFile',
        'submit form': 'formSubmit',
    },
-    removeFile: function (event) {
-        console.log('click .remove_file', $(this), event);
-        event.preventDefault();
-
-        var target = $(event.currentTarget);
-        var name = target.attr('data-name');
-
-        this.model.set(name, null);
-
-        return false;
-    },
     render: function () {
+        console.log("render", this.title);
         var data = this.formater(this.model);
         console.log("DATA", data, this.model);
         var html = this.template({error: this.error, title: this.title, model: data});

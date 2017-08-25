@@ -1,98 +1,187 @@
+<script type="text/template" id="homeworkAssigment-template">
+    <h1>Přiřazení úkolů</h1>
+    <form action="#" id="homeworkAssigment-form" method="post">
+        <div class="row">
+            <div class="col-xs-12 col-sm-3">
+                <div class="form-group">
+                    <label>Student</label>
+                    <div id="hw_form-student">
+                        <p class="text-info">vyberte studenta ze seznamu</p>
+                        <!--<i class="glyphicon glyphicon-user"></i>-->
+                        <!--<span>Tomáš Václavík</span>-->
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <div class="form-group">
+                    <label>
+                        <span>úkol</span>
+                    </label>
+                    <div id="hw_form-task">
+                        <p class="text-info">vyberte zadání ze seznamu</p>
+                        <!--<a href="#" class="btn btn-block btn-default">zadání 12</a>-->
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <div class="form-group">
+                    <label for="hw_form-deadline">
+                        <span>Terním</span>
+                    </label>
+                    <div class="input-group date">
+                        <input type="text"
+                               id="hw_form-deadline"
+                               class="form-control datepicker"
+                               data-date-format="dd. mm. yyyy">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-block btn-success">Zadat úkol</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <div class="col-xs-6">
+            <div id="studentsList">
+                seznam studentů
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div id="tasksList">
+                seznam zadání
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="studentsList-template">
+    <h1><%=title%></h1>
+    <input class="search form-control" placeholder="Filtr"/>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <th>Jméno</th>
+            <th>E-mail</th>
+            </thead>
+            <tbody class="items-container">
+
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<script type="text/template" id="studentsListItem-template">
+    <td class="list-name"><%= name %></td>
+    <td class="list-mail"><%= mail %></td>
+</script>
+
 
 <script type="text/template" id="homeworkList-template">
-	<h1>Seznam úkolů</h1>
-	<div class="table-responsive">
-		<table class="table">
-			<thead>
-				<th>Název</th>
-				<th>Termín</th>
-				<th>Stav</th>
-				<th>Akce</th>
-			</thead>
-			<tbody class="items-container">
+    <h1>Seznam úkolů</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <th>Název</th>
+            <th>Termín</th>
+            <th>Stav</th>
+            <th>Akce</th>
+            </thead>
+            <tbody class="items-container">
 
-			</tbody>
-		</table>
-	</div>
+            </tbody>
+        </table>
+    </div>
 </script>
 
 
 <script type="text/template" id="homeworkListItem-template">
-	<td><a href="#homeworks/<%= id %>" class="btn btn-xs button--default" data-id="<%= id %>"><%= name %></a></td>
-	<td><%= deadline %></td>
-	<td><div class="badge badge-default"><%= status %></div></td>
-	<td>
-		<a href="#" class="btn btn-xs button--default hw-btn-add" data-hw-id="<%= id %>">Přidat řešení</a>
-		<a href="#" class="btn btn-xs button--primary hw-btn-test" data-hw-id="<%= id %>">Otestovat</a>
-		<a href="#" class="btn btn-xs button--success hw-btn-submit" data-hw-id="<%= id %>">Odevzdat</a>
-	</td>
+    <td><a href="#homeworks/<%= id %>" class="btn btn-xs button--default" data-id="<%= id %>"><%= name %></a></td>
+    <td><%= deadline %></td>
+    <td>
+        <div class="badge badge-default"><%= status %></div>
+    </td>
+    <td>
+        <a href="#" class="btn btn-xs button--default hw-btn-add" data-hw-id="<%= id %>">Přidat řešení</a>
+        <a href="#" class="btn btn-xs button--primary hw-btn-test" data-hw-id="<%= id %>">Otestovat</a>
+        <a href="#" class="btn btn-xs button--success hw-btn-submit" data-hw-id="<%= id %>">Odevzdat</a>
+    </td>
 </script>
 
 
 <script type="text/template" id="homeworkDetail-template">
 
-	<div class="row">
-		<div class="col-xs-12">
-			<h1><%= name %></h1>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-12 col-sm-4">
-			<dl>
-				<dt>Termín</dt>
-				<dd><%= deadline %></dd>
-			</dl>
-		</div>
-		<div class="col-xs-12 col-sm-4">
-			<dl>
-				<dt>Stav</dt>
-				<dd><%= status %></dd>
-			</dl>
-		</div>
-		<div class="col-xs-12 col-sm-4">
-			<dl>
-				<dt>Vytvořeno</dt>
-				<dd><%= created %></dd>
-			</dl>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-12">
-			<h2>Zadání</h2>
-			<p><%= description %></p>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-xs-12">
+            <h1><%= name %></h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-4">
+            <dl>
+                <dt>Termín</dt>
+                <dd><%= deadline %></dd>
+            </dl>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+            <dl>
+                <dt>Stav</dt>
+                <dd><%= status %></dd>
+            </dl>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+            <dl>
+                <dt>Vytvořeno</dt>
+                <dd><%= created %></dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <h2>Zadání</h2>
+            <p><%= description %></p>
+        </div>
+    </div>
 
 </script>
 
 
-
 <script type="text/template" id="hwList-template">
-	<h1>Seznam úkolů</h1>
-	<div class="table-responsive">
-		<table class="table table-striped">
-			<thead>
-			<th>Zadání</th>
-			<th>Student</th>
-			<th>Termín</th>
-			<th>Stav</th>
-			<th>Akce</th>
-			</thead>
-			<tbody class="items-container">
+    <h1><%=title%></h1>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <th>Zadání</th>
+            <th>Student</th>
+            <th>Termín</th>
+            <th>Stav</th>
+            <th>Akce</th>
+            </thead>
+            <tbody class="items-container">
 
-			</tbody>
-		</table>
-	</div>
+            </tbody>
+        </table>
+    </div>
 </script>
 
 
 <script type="text/template" id="hwListItem-template">
-	<td><a href="#homeworks/<%= id %>" class="btn btn-xs button--default" data-id="<%= id %>"><%= name %></a></td>
-	<td><a href="mailto:<%= student_mail %>"><%= student_name %> (<%= student_number %>)</a></td>
-	<td><%= deadline %></td>
-	<td><div class="badge badge-default"><%= status %></div></td>
-	<td>
-		<a href="#" class="btn btn-xs btn-danger hw-btn-delete" data-hw-id="<%= id %>"><i class="glyphicon glyphicon-trash"></i> Smazat</a>
-		<!--<a href="#" class="btn btn-xs button&#45;&#45;default hw-btn-open" data-hw-id="<%= id %>">Otevřít</a>-->
-	</td>
+    <td><a href="#homeworks/<%= id %>" class="btn btn-xs button--default" data-id="<%= id %>"><%= name %></a></td>
+    <td><a href="mailto:<%= student_mail %>"><%= student_name %> (<%= student_number %>)</a></td>
+    <td><%= deadline %></td>
+    <td>
+        <div class="badge badge-default"><%= status %></div>
+    </td>
+    <td>
+        <a href="#" class="btn btn-xs btn-danger hw-btn-delete" data-hw-id="<%= id %>"><i
+                class="glyphicon glyphicon-trash"></i> Smazat</a>
+        <!--<a href="#" class="btn btn-xs button&#45;&#45;default hw-btn-open" data-hw-id="<%= id %>">Otevřít</a>-->
+    </td>
 </script>

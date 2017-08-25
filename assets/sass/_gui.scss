@@ -1,0 +1,121 @@
+
+dl {
+  margin-top: 1em;
+}
+
+.m {
+  &t {
+    &0 {  margin-top: 0px;}
+    &10 {  margin-top: 10px;}
+    &20 {  margin-top: 20px;}
+    &30 {  margin-top: 30px;}
+    &40 {  margin-top: 40px;}
+    &50 {  margin-top: 50px;}
+  }
+  &b {
+    &0 {  margin-bottom: 0px;}
+    &10 {  margin-bottom: 10px;}
+    &20 {  margin-bottom: 20px;}
+    &30 {  margin-bottom: 30px;}
+    &40 {  margin-bottom: 40px;}
+    &50 {  margin-bottom: 50px;}
+  }
+  &l {
+    &0 {  margin-left: 0px;}
+    &10 {  margin-left: 10px;}
+    &20 {  margin-left: 20px;}
+    &30 {  margin-left: 30px;}
+    &40 {  margin-left: 40px;}
+    &50 {  margin-left: 50px;}
+  }
+  &r {
+    &0 {  margin-right: 0px;}
+    &10 {  margin-right: 10px;}
+    &20 {  margin-right: 20px;}
+    &30 {  margin-right: 30px;}
+    &40 {  margin-right: 40px;}
+    &50 {  margin-right: 50px;}
+  }
+}
+.p {
+  &t {
+    &0 {  padding-top: 0px;}
+    &10 {  padding-top: 10px;}
+    &20 {  padding-top: 20px;}
+    &30 {  padding-top: 30px;}
+    &40 {  padding-top: 40px;}
+    &50 {  padding-top: 50px;}
+  }
+  &b {
+    &0 {  padding-bottom: 0px;}
+    &10 {  padding-bottom: 10px;}
+    &20 {  padding-bottom: 20px;}
+    &30 {  padding-bottom: 30px;}
+    &40 {  padding-bottom: 40px;}
+    &50 {  padding-bottom: 50px;}
+  }
+  &l {
+    &0 {  padding-left: 0px;}
+    &10 {  padding-left: 10px;}
+    &20 {  padding-left: 20px;}
+    &30 {  padding-left: 30px;}
+    &40 {  padding-left: 40px;}
+    &50 {  padding-left: 50px;}
+  }
+  &r {
+    &0 {  padding-right: 0px;}
+    &10 {  padding-right: 10px;}
+    &20 {  padding-right: 20px;}
+    &30 {  padding-right: 30px;}
+    &40 {  padding-right: 40px;}
+    &50 {  padding-right: 50px;}
+  }
+}
+
+
+/* The snackbar - position it at the bottom and in the middle of the screen */
+#snackbar {
+  visibility: hidden; /* Hidden by default. Visible on click */
+  min-width: 250px; /* Set a default minimum width */
+  margin-left: -125px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 50%; /* Center the snackbar */
+  bottom: 30px; /* 30px from the bottom */
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+#snackbar.show {
+  visibility: visible; /* Show the snackbar */
+
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+  However, delay the fade out process for 2.5 seconds */
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}

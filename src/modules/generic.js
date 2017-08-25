@@ -15,6 +15,8 @@ eco.Views.GenericList = Backbone.View.extend({
         this.listenTo(this.collection, 'sync', this.render);
         this.afterInitialization();
         this.vent = opts.vent;
+        this.uniqueId = opts.uniqueId || '';
+
     },
     afterInitialization: function () {
 
@@ -29,14 +31,14 @@ eco.Views.GenericList = Backbone.View.extend({
         var html = this.template({title: this.title});
         var self = this;
         this.$el.html(html);
-        this.$el.attr('id', "genericList");
+        this.$el.attr('id', "genericList"+this.uniqueId);
         this.collection.each(this.renderOne, this);
 
         try {
             var options = {
                 valueNames: this.searchNames
             };
-            this.userList = new List('genericList', options);
+            this.userList = new List('genericList'+this.uniqueId, options);
         } catch (err) {
             ;
         }
@@ -99,8 +101,20 @@ eco.Views.GenericForm = Backbone.View.extend({
             throw new Error("Mapper must be set!");
         }
         this.model = opts.model;
+        this.afterInitialization();
         this.vent = opts.vent;
+        this.sanckbarMessage = opts.sanckbarMessage || 'Podařilo se uložit!';
+        this.sanckbarMessageError = opts.sanckbarMessageError || "Něco se pokazilo.";
         this.listenTo(this.model, 'sync change add', this.render);
+    },
+    afterInitialization: function () {
+
+    },
+    onSuccess:function (schema, model) {
+
+    },
+    onError:function () {
+
     },
     events: {
         'submit form': 'formSubmit',
@@ -118,33 +132,33 @@ eco.Views.GenericForm = Backbone.View.extend({
         console.log("formSubmit");
         var self = this;
         var schema = this.model;
-        console.log("__________", self, self.collection, self.model);
 
         var data = this.model.clone();
         data.set(this.mapper(self.$el));
-
-        console.log("DATA:      ", data, self.$el);
 
         if (this.validator(data)) {
             data.save(data.toJSON(), {
                 success: function (model, response) {
                     console.log("Generic formSubmit success");
+                    showSnackbar(self.sanckbarMessage);
                     if (self.collection) {
-                        //     schema.fetch();
-                        // self.model = new eco.Models.Group();
                         schema.set(data);
                         if(self.collection){
                             self.collection.add(schema);
                         }
                         schema.fetch();
-                        self.render();
+                        self.model = schema.clone().clear();
+                        // self.render();
                     }
+                    self.onSuccess(schema, model);
                 },
                 error: function (model, response) {
+                    showSnackbar(self.sanckbarMessageError);
                     if (self.collection) {
                         self.collection.remove(schema);
                     }
                     self.render();
+                    // self.onError();
                 },
                 wait: true
             });

@@ -26,6 +26,16 @@ function getDB()
 	return $dbConnection;
 }
 
+$authenticate = function ($app) {
+	return function () use ($app) {
+		if (!isset($_SESSION['user.id'])) {
+			$_SESSION['urlRedirect'] = $app->request()->getPathInfo();
+			$app->flash('error', 'Login required');
+			$app->redirect('/login');
+		}
+	};
+};
+
 
 $app = new \Slim\Slim(["settings" => $config]);
 
@@ -41,6 +51,7 @@ $_SESSION['teacher_id'] = 9;
 $_SESSION['student_id'] = 9;
 
 
+require_once 'routes/auth.php';
 require_once 'routes/schemas.php';
 require_once 'routes/users.php';
 require_once 'routes/files.php';
@@ -52,6 +63,10 @@ require_once 'routes/entities.php';
 require_once 'routes/homeworks.php';
 
 //$app->post('/file', 'uploadFile');
+
+$app->get("/private", $authenticate($app), function () use ($app) {
+	$app->render('privateAbout.php');
+});
 
 $app->get('/users', 'users');
 $app->get('/users/:id', 'user');
@@ -91,7 +106,7 @@ $app->get('/teachers/:id/groups', 'teacherGroups');
 $app->get('/teachers/:id/hw', 'teacherHomeworks');
 $app->get('/teachers/:id/tasks', 'teacherTasks');
 
-//$app->get('/tasks', 'tasks');
+$app->get('/tasks', 'showTasks');
 $app->post('/tasks', 'taskCreate');
 $app->get('/tasks/:id', 'task');
 $app->put('/tasks/:id', 'taskUpdate');

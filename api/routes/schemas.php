@@ -16,7 +16,10 @@ function schemas() {
 	{
 		$db = getDB();
 		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
-            FROM schema_base");
+            FROM schema_base WHERE user_id=:user_id");
+
+
+		$sth->bindParam(":user_id", $_SESSION['user_id'], PDO::PARAM_INT);
 
 		$sth->execute();
 		$schemas = $sth->fetchAll(PDO::FETCH_OBJ);
@@ -227,7 +230,7 @@ function schemaDataUpdate($schema_id) {
 	try
 	{
 		$db = getDB();
-		$request = $db->prepare("UPDATE schema_data SET data=:data, edited='".date('Y-m-d H:i:s')."' WHERE schema_id=:schema_id AND id=:id");
+		$request = $db->prepare("UPDATE schema_data SET data=:data, edited=NOW() WHERE schema_id=:schema_id AND id=:id");
 		$request->bindParam(":data", $values['data'], PDO::PARAM_STR);
 		$request->bindParam(":id", $values['id'], PDO::PARAM_INT);
 		$request->bindParam(":schema_id", $schema_id, PDO::PARAM_INT);

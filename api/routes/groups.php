@@ -16,12 +16,11 @@ function groups() {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created AS created, u.name AS name, u.mail, t.user_id, gt.teacher_id
-            FROM `group` AS g
-            JOIN group_teaching AS gt
+		$sth = $db->prepare("SELECT g.id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher AS teacher_id, u.name AS name, u.mail, t.user_id
+            FROM `groups` AS g
             JOIN teacher AS t
             JOIN `user` AS u
-            ON g.id = gt.group_id AND t.id = gt.teacher_id AND t.user_id = u.id");
+            ON t.id = g.teacher AND t.user_id = u.id");
 //		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
@@ -46,12 +45,11 @@ function group($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created AS created, u.name AS name, u.mail, t.user_id, gt.teacher_id
-            FROM `group` AS g
-            JOIN group_teaching AS gt
+		$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher AS teacher_id, u.name AS name, u.mail, t.user_id
+            FROM `groups` AS g
             JOIN teacher AS t
             JOIN `user` AS u
-            ON g.id = gt.group_id AND t.id = gt.teacher_id AND t.user_id = u.id
+            ON t.id = g.teacher AND t.user_id = u.id
             WHERE g.id=:id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
@@ -103,12 +101,21 @@ function groupStudents($id) {
 function groupCreate() {
 	$app = \Slim\Slim::getInstance();
 
+	try {
+		$teacher = requestLoggedTeacher();
+	}catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
 	$allPostVars = json_decode($app->request->getBody(), true);
 	$values = array(
 		"subject" => $allPostVars['subject'],
 		"day" => $allPostVars['day'],
 		"block" => $allPostVars['block'],
 		"weeks" => $allPostVars['weeks'],
+		"teacher" => $teacher['id'],
 	);
 
 	//TODO: kontrola oprávnění - může jen vyučující
@@ -116,33 +123,27 @@ function groupCreate() {
 	try
 	{
 		$db = getDB();
-		$result = $db->prepare("INSERT INTO `group` (subject, day, weeks, block) VALUES (:subject, :day, :weeks, :block)")->execute($values);
+		$result = $db->prepare("INSERT INTO `groups` (subject, day, weeks, block, teacher) VALUES (:subject, :day, :weeks, :block, :teacher)")
+			->execute($values);
 
 		if ($result){
 			$id = $db->lastInsertId();
-			$groupAssigmentResult = $db->prepare("INSERT INTO group_teaching (teacher_id, group_id) VALUES (:teacher_id, :group_id)")->execute(array(
-				'teacher_id' => $_SESSION['teacher_id'],
-				'group_id' => $id
-			));
 
-			if ($groupAssigmentResult){
-				$sth = $db->prepare("SELECT * FROM `group` WHERE id = :id");
-				$sth->bindParam(":id", $id, PDO::PARAM_INT);
-				$sth->execute();
-
-				$group = $sth->fetch(PDO::FETCH_OBJ);
-
-				if($group) {
-					$app->response()->setStatus(200);
-					$app->response()->headers->set('Content-Type', 'application/json');
-					echo json_encode($group);
-
-					$db = null;
-				} else {
-					throw new PDOException('Getting inserted values was unsuccessful');
-				}
+			$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher AS teacher_id, u.name AS name, u.mail, t.user_id
+            FROM `groups` AS g
+            JOIN teacher AS t
+            JOIN `user` AS u
+            ON t.id = g.teacher AND t.user_id = u.id
+            WHERE g.id=:id");
+			$sth->bindParam(":id", $id, PDO::PARAM_INT);
+			$sth->execute();
+			$group = $sth->fetch(PDO::FETCH_OBJ);
+			if ($group) {
+				$app->response()->setStatus(200);
+				$app->response()->headers->set('Content-Type', 'application/json');
+				echo json_encode($group);
 			} else {
-				throw new PDOException('No group teaching assigment was created.');
+				throw new PDOException('Getting inserted values was unsuccessful');
 			}
 		} else {
 			throw new PDOException('No group was created.');
@@ -151,6 +152,9 @@ function groupCreate() {
 	} catch(PDOException $e) {
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+	finally {
+		$db = null;
 	}
 }
 
@@ -225,7 +229,7 @@ function groupDelete($id) {
 	{
 		$db = getDB();
 //		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE group_id=:group_id");
-		$prepare = $db->prepare("DELETE FROM `group` WHERE id=:id");
+		$prepare = $db->prepare("DELETE FROM `groups` WHERE id=:id");
 		$prepare->bindParam(':id', $id, PDO::PARAM_INT);
 		$result = $prepare->execute();
 

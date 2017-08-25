@@ -51,7 +51,7 @@ eco.Formaters.TasksFormater = function (model) {
 eco.Formaters.HwTeacherFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
-        status: model.getStatus(),
+        status: model.status,
         created: moment(model.get('created')).format('LLL'),
         deadline: moment(model.get('deadline')).format('LLL'),
     });
