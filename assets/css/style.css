@@ -515,6 +515,13 @@ dl {
     bottom: 0;
     opacity: 0; } }
 
+.itemSelected {
+  background: #f58220;
+  color: #fff; }
+
+.schemasSimpleListItem {
+  cursor: pointer; }
+
 .clearfix {
   clear: both; }
 

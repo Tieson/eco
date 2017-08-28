@@ -81,6 +81,7 @@
 
 <script type="text/template" id="schemasOpenList-template">
     <h2>Otevřít schéma</h2>
+    <input class="search form-control" placeholder="Filtr" />
     <div class="table-responsive">
         <table class="table">
             <thead>
@@ -91,7 +92,7 @@
                 <th>Akce</th>
             </tr>
             </thead>
-            <tbody class="schemas-container">
+            <tbody class="items-container">
             </tbody>
         </table>
     </div>
@@ -100,9 +101,9 @@
 
 <script type="text/template" id="schemasOpenItem-template">
 
-    <td><strong><%= name %></strong></td>
-    <td><%= architecture %></td>
-    <td><%= created %></td>
+    <td class="list-name"><strong><%= name %></strong></td>
+    <td class="list-architecture"><%= architecture %></td>
+    <td class="list-created"><%= created %></td>
     <td>
         <% if(opened) { %>
         <% } else { %>
@@ -168,4 +169,31 @@
             </div>
         </div>
     </form>
+</script>
+
+
+<!--Simple schema List View-->
+<script type="text/template" id="schemasSimpleList-template">
+    <input class="search form-control" placeholder="Filtr"/>
+    <div class="table-responsive mt10" style="max-height: 300px; overflow: auto;">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Název</th>
+                <th>Architektura</th>
+                <th>Vytvořeno</th>
+            </tr>
+            </thead>
+            <tbody class="items-container">
+
+            </tbody>
+        </table>
+    </div>
+</script>
+
+
+<script type="text/template" id="schemasSimpleListItem-template">
+    <td class="list-name"><strong><%= name %></strong></td>
+    <td class="list-architecture"><%= architecture %></td>
+    <td class="list-created"><%= created %></td>
 </script>

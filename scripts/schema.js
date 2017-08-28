@@ -23,7 +23,9 @@ function recreateSchema(schemaInfo, json) {
  */
 function Schema(name, arch, id) {
 	this.schemaKeyPrefix = 'schemaContainer';
-	this.schemaInfo = {name: name, arch: arch, id: id, remoteId: undefined, title: '', lastUpdate: undefined, state: schemaState.NEW};
+	this.schemaInfo = {name: name,
+		arch: arch,
+		id: id, remoteId: undefined, title: '', lastUpdate: undefined, state: schemaState.NEW};
 	this.graph;
 	this.creator;
 	this.counter;

@@ -267,7 +267,7 @@ eco.Views.SchemasOpenList = Backbone.View.extend({
         this.trigger("schemaOpenClick", item, this);
     },
     schemaOpenClick: function (event) {
-        this.trigger("schemaOpenClick", this.collection.get($(event.currentTarget).attr("data-schema-id")));
+            this.trigger("schemaOpenClick", this.collection.get($(event.currentTarget).attr("data-schema-id")));
     }
 
 });

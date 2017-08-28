@@ -58,36 +58,6 @@ function createBorderedCounter(min, max, start) {
     return functions;
 }
 
-function Counter(start){
-    this.count = 0;
-    this.start = start || 0;
-}
-
-Counter.prototype = {
-    get: function () {
-        return this.count;
-    },
-    set: function (value) {
-        this.count = value;
-        return this.count;
-    },
-    add: function (value) {
-        this.count += value;
-        return this.count;
-    },
-    inc: function () {
-        this.count++;
-        return this.count;
-    },
-    dec: function () {
-        this.count--;
-        return this.count;
-    },
-    reset: function () {
-        this.count = this.start;
-    }
-};
-
 function createSimpleCounter(start) {
     var start = start || 0;
     var count = start;
@@ -240,6 +210,12 @@ function initializeSignal(paper, graph) {
 }
 
 
+function getTranslate(key, data){
+    if(data && data[key])
+        return data[key];
+    else
+        return key;
+}
 
 function getUtils() {
     var namespace = {
@@ -267,11 +243,19 @@ function getUtils() {
                 return x.val();
             },
         },
+        statuses: {
+            waiting: "Čeká na kontrolu",
+            done: "Zkontrolováno",
+            storno: "Zrušeno"
+        },
+        getSolutionStatus: function (key) {
+            return getTranslate(key, this.statuses);
+        },
         getDay: function(key){
-            return this.days[key];
+            return getTranslate(key, this.days);
         },
         getWeeks: function(key) {
-            return this.weeks[key];
+            return getTranslate(key, this.weeks);
         },
         mapValues: function (names, prefix, $element) {
             var result = {};
@@ -279,8 +263,9 @@ function getUtils() {
                 result[key] = item($element.find(prefix+ key));
             });
             return result;
-            // return _.ma
         }
+
+
     };
 
     return namespace;

@@ -44,12 +44,6 @@ $app->get('/', function() use($app) {
 	echo "Welcome to Slim 3.0 based API";
 });
 
-/**
- * TODO: přihlášení a identifikace uživatele
- */
-$_SESSION['teacher_id'] = 9;
-$_SESSION['student_id'] = 9;
-
 
 require_once 'routes/auth.php';
 require_once 'routes/schemas.php';
@@ -68,19 +62,27 @@ $app->get("/private", $authenticate($app), function () use ($app) {
 	$app->render('privateAbout.php');
 });
 
-$app->get('/users', 'users');
-$app->get('/users/:id', 'user');
 
-$app->get('/students', 'students'); //401, 403, 404
-$app->get('/students/:id', 'student'); //401, 403, 404
-$app->get('/students/:id/hw', 'studentHomeworkList'); //401, 403
+$app->get('/students', 'students'); //seznam všech studentů
+$app->get('/students/hw', 'studentsHomeworks'); //seznam úkolů pro studenta
+$app->get('/students/hw/id', 'studentHomeworkDetail'); //detail úkolu studenta
+$app->get('/students/:id', 'student'); //informace o konkrétním uživateli - asi není potřeba
+$app->get('/students/:id/hw', 'studentHomeworkList'); //seznam úkolů konkrétního studentas
 $app->get('/students/:id/hw/:hw_id', 'studentHomeworkDetail');
-$app->get('/students/:id/hw/:hw_id/solutions', 'studentHomeworkSolutionList');
 $app->get('/students/:id/groups', 'studentGroupList');
 $app->delete('/students/:id', 'student');
 
+
+//Pomocné - měli by být neveřejné
+$app->get('/users', 'users');
+$app->get('/users/:id', 'user');
+
+
+//pro studenta
+
 $app->get('/homework/:id', 'homework');
 $app->get('/homework/:id/solutions', 'homeworkSolutionList');
+$app->post('/homework/:id/solutions', 'homeworkSolutionCreate');
 
 $app->get('/schemas', 'schemas');
 $app->post('/schemas', 'schemaCreate');

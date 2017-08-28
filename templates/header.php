@@ -2,14 +2,13 @@
 <div class="main_bar" id="main_bar">
 	<div class="dropdown">
 		<a href="#" id="menuToggler" class="button button--primary main_bar__menu noselect dropdown-toggle" data-toggle="dropdown">
-			<i class=" glyphicon glyphicon-file"></i> Soubor
+			<i class=" glyphicon glyphicon-file"></i> Schéma
 		</a>
 		<ul class="dropdown-menu">
-			<li><a href="/#schemas/new" id="menu-file-new_schema">Nové schéma</a></li>
-			<li><a href="/#" id="menu-file-close_schema">Zavřít schéma</a></li>
-			<li><a href="/#schemas" id="menu-file-open_schema">Otevřít schéma</a></li>
+			<li><a href="/#schemas/new" id="menu-file-new_schema">Nové</a></li>
+			<li><a href="/#schemas" id="menu-file-open_schema">Otevřít</a></li>
 			<li><a href="/#" id="menu-file-save_schema_as">Uložit schéma jako &hellip;</a></li>
-			<li><a href="/#" id="menu-file-export_schema">Exportovat schéma do VHDL</a></li>
+			<li><a href="/#schema/vhdl" id="menu-file-export_schema">Exportovat do VHDL</a></li>
 			<li class="divider"></li>
 			<li><a href="/#" id="menu-file-download_lib">Stáhnout lib.vdl</a></li>
 		</ul>
@@ -21,8 +20,8 @@
                 <i class=" glyphicon glyphicon-education"></i> Student
             </a>
             <ul class="dropdown-menu">
-                <li><a href="/student#homeworks" id="menu-task-show">Úkoly</a></li>
-                <li><a href="/student#students/groups" id="menu-task-show">Skupiny</a></li>
+                <li><a href="/#homeworks" id="menu-task-show">Úkoly</a></li>
+                <li><a href="/#students/groups" id="menu-task-show">Skupiny</a></li>
             </ul>
         </div>
 	<?php endif; ?>

@@ -139,7 +139,7 @@ $app->post("/login", function () use ($app) {
 
 	$_SESSION['user_name'] = $email;
 	$_SESSION['user_id'] = 1;
-	$_SESSION['user_role'] = "teacher";
+	$_SESSION['user_role'] = "student";
 	$_SESSION['user_logged'] = TRUE;
 
 	if (isset($_SESSION['urlRedirect'])) {

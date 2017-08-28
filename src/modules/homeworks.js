@@ -24,7 +24,7 @@ eco.Models.Homework = Backbone.Model.extend({
         return this.statuses[this.get('status')];
     },
     urlRoot: function () {
-        return '/api/students/' + this.get('student_id') + '/hw';
+        return '/api/homework/';
     },
     haveSolution: function () {
         return false;
@@ -34,7 +34,7 @@ eco.Models.Homework = Backbone.Model.extend({
 
 eco.Collections.Homeworks = Backbone.Collection.extend({
     model: eco.Models.Homework,
-    initialize: function (options) {
+    initialize: function (models,options) {
         this._url = options.url;
     },
     url: function () {
@@ -85,37 +85,9 @@ eco.Collections.HomeworksTeacher = Backbone.Collection.extend({
 });
 
 
-eco.Views.Homework = Backbone.View.extend({
-    tagName: 'tr',
-
-    initialize: function (opts) {
-        //TODO: dodělat načítání učitele jako uživatele:
-        //this.teacher = new eco.User
-        if (opts.template) {
-            this.template = _.template($(opts.template).html());
-        } else {
-            this.template = _.template($('#homeworkListItem-template').html());
-        }
-    },
-    events: {
-        'click': 'itemClick'
-    },
-    itemClick: function () {
-        console.log('Homework click');
-        // Backbone.history.navigate('teacher/circles/'+this.model.get('id'), {trigger: true, replace: true});
-    },
-
-    render: function () {
-        var data = eco.Formaters.HomeworkFormater(this.model);
-        console.log(data);
-        var html = this.template(data);
-        this.$el.append(html);
-        // this.$el.attr('data-id', data.id);
-        // this.$el.attr('data-cid', data.cid);
-        return this;
-    }
-});
-
+/**
+ * Následující Modelay a pohley jsou pro zadávání úkolů studentům - pro učitele tedy
+ */
 eco.Models.TaskStudent = Backbone.Model.extend({
     defaults: {
         task_id: null,
@@ -136,7 +108,9 @@ eco.Views.TaskListItem = eco.Views.GenericItem.extend({
     className: 'taskForStudent'
 });
 
-
+/**
+ * Zadávání úkolů studentům - pro učitele pouze
+ */
 eco.Views.TaskStudent = Backbone.View.extend({
     template: _.template($('#homeworkAssigment-template').html()),
     initialize: function (opts) {
@@ -189,21 +163,6 @@ eco.Views.TaskStudent = Backbone.View.extend({
         var studentList = this.$el.find("#studentsList");
         var tasksList = this.$el.find("#tasksList");
 
-        // var viewAddNew = new eco.Views.GenericForm({
-        //     title: "Zadat úkol",
-        //     template: '#taskForm-template',
-        //     mapper: function ($element) {
-        //         return {
-        //             'name': $element.find('#task_name').val(),
-        //             'description': $element.find('#task_description').val(),
-        //             'etalon_file': $element.find('#task_etalon').val(),
-        //             'test_file': $element.find('#task_test').val(),
-        //         }
-        //     },
-        //     model: new eco.Models.Task(),
-        // });
-        // this.$el.insertBefore(viewAddNew.render().$el);
-
         var studentsView = new eco.Views.GenericList({
             title: "Úkoly",
             uniqueId: 'studentsList_genericList',
@@ -244,61 +203,143 @@ eco.Views.TaskStudent = Backbone.View.extend({
 });
 
 
-eco.Views.HomeworkList = Backbone.View.extend({
-    template: _.template($('#homeworkList-template').html()),
-    initialize: function (opts) {
-        this.listenTo(this.collection, 'sync', this.render);
-    },
-    events: {},
-    renderOne: function (item) {
-        var itemView = new eco.Views.Homework({model: item});
-        eco.ViewGarbageCollector.add(itemView);
-        this.$('.items-container').append(itemView.render().$el);
-    },
-    render: function () {
-        console.log('HomeworkList: render');
-        var html = this.template();
-        this.$el.html(html);
-        this.collection.each(this.renderOne, this);
-        return this;
-    }
 
+eco.Views.HomeworkDetailSolution = eco.Views.GenericItem.extend({
+    className: 'hwSchemaItem'
 });
 
 
-eco.Views.HomeworkDetail = Backbone.View.extend({
+/**
+ * Detail úkolu pro studenty
+ */
 
-    template: _.template($('#homeworkDetail-template').html()),
-    initialize: function (opts) {
-        //TODO: dodělat načítání učitele jako uživatele:
-        //this.teacher = new eco.User
-        this.listenTo(this.model, 'sync', this.render);
+eco.Models.HomeworkDetailSolution = Backbone.Model.extend({
+
+});
+
+eco.Models.Solution = Backbone.Model.extend({
+    defaults: {
+        architecture: '',
+        name:'',
+        homework_id: null,
+        schema_id: null,
+        schema_data_id: null,
+        vhdl: '',
+        created: null,
+        status: 'waiting',
+        test_result: null,
+        test_message: '',
+    }
+});
+eco.Collections.Solutions = Backbone.Collection.extend({
+    model: eco.Models.Solution,
+    initialize: function (models, opts) {
+        this._url = opts.url;
+    },
+    url: function () {
+        return this._url;
+    }
+});
+
+eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
+    afterInitialization: function () {
+        this.schemas = new eco.Collections.Schemas({});
+        this.solutions = new eco.Collections.Solutions(null,{
+            url: '/api/homework/'+this.model.get('id')+'/solutions',
+        });
+        this.renderInit();
+        this.selectedSchema = null;
     },
     events: {
-        'click': 'itemClick'
+        'click .schemasSimpleListItem': 'hwSchemaItemClick',
+        'click .showSubmitSolution': 'hwSolutionOpenClick',
+        'click #homeworkSchemaModalSubmit': 'hwSubmitClick',
+        'click .downloadVHDL': 'downloadVHDL'
     },
-    itemClick: function () {
-        console.log('Homework click');
-        // Backbone.history.navigate('teacher/circles/'+this.model.get('id'), {trigger: true, replace: true});
+    hwSchemaItemClick: function (e) {
+        $('.itemSelected').removeClass('itemSelected');
+        $(e.currentTarget).addClass('itemSelected');
+        var cid = $(e.currentTarget).attr('data-cid');
+        var item = this.schemas.get(cid);
+        this.selectedSchema = item;
+        console.log(item);
     },
+    hwSolutionOpenClick: function (e) {
+        this.schemas.fetch();
+        this.selectedSchema = null;
+        // eco.ViewGarbageCollector.clear();
+        var schemasView = new eco.Views.GenericList({
+            title: "Zvolte schéma pro odevzdání:",
+            template: '#schemasSimpleList-template',
+            itemTemplate: '#schemasSimpleListItem-template',
+            formater: eco.Formaters.SchemaSimpleFormater,
+            collection: this.schemas,
+            uniqueId: 'schemasSimpleList',
+            searchNames: [
+                'list-name',
+                'list-architecture',
+                'list-created',
+            ]
+        });
+        eco.ViewGarbageCollector.add(schemasView);
+        this.$el.find("#homeworkSchemaModalBody").html(schemasView.$el);
+        $('#homeworkSchemaModal').modal('show');
+        // $(e.currentTarget).hide();
+    },
+    hwSubmitClick: function () {
+        var self = this;
+        console.log("ODevzdávám");
+        if(this.selectedSchema != null){
+            this.solutions.create({
+                homework_id: self.model.get('id'),
+                schema_id: this.selectedSchema.get('id'),
+                // schema_data_id: null, // vytvoří se až v DB
+            });
+        }
+        console.log(this.solutions);
+    },
+    downloadVHDL:function (e) {
+      console.log("downloadVHDL",this.solutions);
+        var cid = $(e.currentTarget).attr('data-cid');
+        console.log(cid);
+        var item = this.solutions.get(cid);
+        console.log(item.get('vhdl'));
+    },
+    renderInit: function () {
+        var self = this;
+        this.$el.empty();
+        var detailView = new eco.Views.GenericDetail({
+            template: '#homeworkDetail-template',
+            formater: eco.Formaters.HomeworkFormater,
+            model: this.model,
+        });
 
+        var solutionFormView = new eco.Views.GenericForm({
+            mapper: eco.Mapper.SolutionHomeworkMapper
+        });
+
+        var solutionsView = new eco.Views.GenericList({
+            title: "Odevzdaná řešení k tomuto úkolu",
+            template: '#solutionsList-template',
+            itemTemplate: '#solutionsListItem-template',
+            formater: eco.Formaters.SolutionsFormater,
+            collection: this.solutions,
+            searchNames: [
+                'list-name',
+                'list-created',
+                'list-status',
+                'list-result',
+            ]
+        });
+        this.solutions.fetch();
+
+        this.$el.append(detailView.$el);
+        this.$el.append(solutionFormView.$el);
+        this.$el.append(solutionsView.$el);
+
+        return this;
+    },
     render: function () {
-        var data = {
-            cid: this.model.cid,
-            id: this.model.get('id'),
-            student_id: this.model.get('student_id'),
-            teacher_id: this.model.get('teacher_id'),
-            status: this.model.getStatus(),
-            name: this.model.get('name'),
-            description: this.model.get('description'),
-            created: moment(this.model.get('created')).format('LLL'),
-            deadline: moment(this.model.get('deadline')).format('LLL'),
-        };
-        console.log(data);
-        var html = this.template(data);
-        this.$el.html(html);
-        // this.$el.attr('data-id', data.id);
-        // this.$el.attr('data-cid', data.cid);
         return this;
     }
 

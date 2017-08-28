@@ -9,16 +9,19 @@ eco.Router = Backbone.Router.extend({
         /** Schémata **/
         'schemas': 'showSchemas', //seznam schémat, která lze otevřít (pouze vlastní schémata)
         'schemas/new': 'schemaCreateNew', //vytvoření nového schema - pro konkrétního uživatele
+        'schemas/:id/vhdl': 'schemaExportVhdl', //vytvoření nového schema - pro konkrétního uživatele
         'schemas/:id': 'openedSchema', //Pro editaci konkrétního schéma = otevření schéma (pouze jedno otevřené)
         'schemas/:id/edit': 'showSchemaEdit',
 
         'teacher/groups/:id/students/remove/:student_id': 'removeStudentFromGroup', //TODO: dodělat funkci pro odebrání studenta z kruhu
-        'teachers/:id/tasks': 'showTasks',
-        'teachers/:id/hw': 'showGroupHomeworks',
+        // 'teachers/:id/tasks': 'showTasks', //přesunuto do teacher
+        // 'teachers/:id/hw': 'showGroupHomeworks', /přesunuto do teacher
 
-        'tasks': 'showAllTasks',
-        'tasks/:id': 'showTaskDetail',
-        'tasks/:id/edit': 'editTask',
+
+        //zadání - pro učitele...
+        // 'tasks': 'showAllTasks',
+        // 'tasks/:id': 'showTaskDetail',
+        // 'tasks/:id/edit': 'editTask',
 
 
 

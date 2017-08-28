@@ -129,11 +129,12 @@ function addTaskFile($id) {
 function uploadFile () {
 	$app = \Slim\Slim::getInstance();
 
+	//TODO: oprávnění pouze pro vyučujícího
+
 	if (!isset($_FILES['uploads'])) {
 		echo "No files uploaded!!";
 		return;
 	}
-	$result = array();
 
 	$files = $_FILES['uploads'];
 	$data = $_POST;
@@ -145,8 +146,6 @@ function uploadFile () {
 	$type = $data['fileAddType'];
 	$task_id = $data['task_id'];
 
-//	echo $file_name, "<br>", $file_tempname, "<br>", $title, "<br>", $type;
-
 	$name = basename($file_name);
 
 	$uploads_dir = "../soubory/task_".$task_id."/".$type;
@@ -154,7 +153,7 @@ function uploadFile () {
 	if ( ! is_dir($uploads_dir)) {
 		mkdir($uploads_dir,0777, TRUE);
 	}
-	$result = move_uploaded_file($file_tempname, $destination);
+	$resultFile = move_uploaded_file($file_tempname, $destination);
 
 	try
 	{
@@ -180,9 +179,8 @@ function uploadFile () {
 
 			if($item) {
 				$app->response()->setStatus(200);
-//				$app->response()->headers->set('Content-Type', 'application/json');
-//				echo json_encode($item);
-
+				$app->response()->headers->set('Content-Type', 'application/json');
+				echo json_encode($item);
 				$db = null;
 			} else {
 				throw new PDOException('Getting inserted values was unsuccessful');
@@ -196,30 +194,6 @@ function uploadFile () {
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 
-	echo "result ", $result;
-
-//	for($i = 0 ; $i < $file_count ; $i++) {
-//		if ($files['error'][$i] === 0) {
-//			$name = uniqid('img-'.date('Ymd').'-');
-//			if (move_uploaded_file($files['tmp_name'][$i], 'uploads/' . $name) === true) {
-//				$result[] = array('url' => '/uploads/' . $name, 'name' => $files['name'][$i]);
-//			}
-//
-//		}
-//	}
-//
-//	$imageCount = count($result);
-//
-//	if ($imageCount == 0) {
-//		echo 'No files uploaded!!  <p><a href="/">Try again</a>';
-//		return;
-//	}
-//
-//	$plural = ($imageCount == 1) ? '' : 's';
-//
-//	foreach($result as $img) {
-//		printf('%s <img src="%s" width="50" height="50" /><br/>', $img['name'], $img['url']);
-//	}
 	$url = '/#tasks/'.$task_id.'/edit';
 	$app->redirect($url);
 }

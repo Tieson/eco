@@ -81,7 +81,23 @@ eco.Formaters.FileFormater = function (model) {
         // name: model.get('name'),
         // file: model.get('file'),
     });
-    console.log("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", result);
+    return result;
+};
+
+eco.Formaters.SchemaSimpleFormater = function (model) {
+    var result = _.extend({},model.toJSON(),{
+        cid: model.cid,
+        created: moment(model.get('created')).format('LLL'),
+    });
+    return result;
+};
+
+eco.Formaters.SolutionsFormater = function (model) {
+    var result = _.extend({},model.toJSON(),{
+        cid: model.cid,
+        created: moment(model.get('created')).format('LLL'),
+        status: eco.Utils.getSolutionStatus(model.get('status')),
+    });
     return result;
 };
 

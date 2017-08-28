@@ -10,7 +10,9 @@
  */
 
 
-
+/**
+ * Seznam všech studentů spojených s uživatelem
+ */
 function students() {
 	$app = \Slim\Slim::getInstance();
 
@@ -66,20 +68,48 @@ function student($id) {
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 }
+
+
+
+/**
+ * @param $idZobrazí seznam úkolů pro studenta a učitele podle jejich oprávnění pouze patřičné úkoly
+ */
 function studentHomeworkList($id) {
 	$app = \Slim\Slim::getInstance();
 
-	//TODO: student může zobrazit pouze svoje úkoly
+	$db = getDB();
+	try {
+		$teacher = requestLoggedTeacher();
 
-	try
-	{
-		$db = getDB();
 		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description
             FROM hw_assigment AS hw
         	JOIN task AS t
          	ON hw.task_id = t.id
-            WHERE student_id = :id");
+            WHERE student_id = :id AND t.teacher_id=:teacher_id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->bindParam(':teacher_id', $teacher['id'], PDO::PARAM_INT);
+	}catch (Exception $e){
+		try {
+			$student = requestLoggedStudent();
+			if ($student['id']==$id){
+				$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description
+	            FROM hw_assigment AS hw
+	            JOIN task AS t
+	            ON hw.task_id = t.id
+	            WHERE student_id = :id");
+				$sth->bindParam(':id', $id, PDO::PARAM_INT);
+			}else {
+				throw new Exception('Nemáte potřebné oprávnění.');
+			}
+		}catch (Exception $e){
+			$app->response()->setStatus(401);
+			echo '{"error":{"text":'. $e->getMessage() .'}}';
+			exit();
+		}
+	}
+
+	try
+	{
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
@@ -136,8 +166,11 @@ function studentGroupList($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT ga.group_id, student_id, entered, approved, subject, u.name, u.mail, day, weeks, block
-            FROM group_assigment AS ga JOIN `group` AS g JOIN teacher AS t JOIN user AS u JOIN group_teaching AS gt
+		$sth = $db->prepare("SELECT ga.group_id, student_id, entered, approved, subject, u.name, u.mail, `day`, weeks, block
+            FROM group_assigment AS ga JOIN `groups` AS g 
+            JOIN teacher AS t 
+            JOIN `user` AS u 
+            JOIN group_teaching AS gt
             ON ga.group_id=g.id AND t.id = gt.teacher_id AND g.id = gt.group_id AND t.user_id = u.id
             WHERE student_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);

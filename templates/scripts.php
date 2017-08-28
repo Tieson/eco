@@ -5,6 +5,9 @@
 <script src="src/helpers/formaters.js?<?php echo(filemtime('./src/helpers/formaters.js')) ?>"></script>
 <script src="src/helpers/validators.js?<?php echo(filemtime('./src/helpers/validators.js')) ?>"></script>
 <script src="src/helpers/snackbar.js?<?php echo(filemtime('./src/helpers/snackbar.js')) ?>"></script>
+<script src="src/helpers/mappers.js?<?php echo(filemtime('./src/helpers/mappers.js')) ?>"></script>
+
+<script src="src/modules/vhdlExporter.js?<?php echo(filemtime('./src/modules/vhdlExporter.js')) ?>"></script>
 
 <script src="src/modules/generic.js?<?php echo(filemtime('./src/modules/generic.js')) ?>"></script>
 <script src="src/modules/entities.js?<?php echo(filemtime('./src/modules/entities.js')) ?>"></script>

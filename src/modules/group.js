@@ -249,12 +249,7 @@ eco.Views.StudentAssignGroupsList = eco.Views.GenericList.extend({
             function () {
                 var cid = $(event.currentTarget).attr('data-cid'),
                     model = self.collection.get(cid);
-                console.log(cid, self.collection, model);
-
                 model.set({instanceUrl:'/api/groups/'+model.get('group_id')+'/students/'+model.get('student_id')});
-
-                console.log("_-_-_-_-_", model, cid);
-
                 model.destroy();
 
                 self.render();
@@ -264,38 +259,4 @@ eco.Views.StudentAssignGroupsList = eco.Views.GenericList.extend({
     },
     initSortable: function () {
     }
-});
-
-
-eco.Models.UserInGroup = Backbone.Model.extend({
-    urlRoot: '/api/groups',
-    defaults: {
-        id: null,
-        student_id: null,
-        entered: null,
-        approved: false,
-        subject: "",
-        name: "",
-        mail: "",
-        day: null,
-        weeks: null,
-        block: null,
-    },
-    parse: function (data) {
-        return {
-            id: data.group_id,
-            student_id: data.student_id,
-            entered: data.entered,
-            approved: data.approved,
-            subject: data.subject,
-            name: data.name,
-            mail: data.mail,
-            day: data.day,
-            weeks: data.weeks,
-            block: data.block,
-        };
-    },
-    initialize: function (opts) {
-
-    },
 });
