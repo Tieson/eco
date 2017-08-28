@@ -53,13 +53,12 @@ eco.Models.Simulation = Backbone.Model.extend({
 
         this.paper.on('cell:pointerclick', createCellDoubleclickHandler(function (cellView, evt, x, y) {
             console.log("dbclick", cellView);
-
         }));
+
         this.paper.on('cell:pointerclick', function (cellView) {
             console.log('click');
 
             var gate = cellView.model;
-            console.log("gatě ->>>>", gate);
 
             var ports = {};
             _.each(gate.ports, function(x) {

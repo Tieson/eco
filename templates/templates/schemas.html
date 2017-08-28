@@ -107,9 +107,12 @@
     <td>
         <% if(opened) { %>
         <% } else { %>
-        <a href="#schemas/<%= id %>" class="btn button button--success open-schema" data-schema-id="<%=id%>">Otevřít</a>
+        <a href="#schemas/<%= id %>" class="btn btn-xs btn-success open-schema" data-schema-id="<%=id%>">
+            <i class="glyphicon glyphicon-open"></i> Otevřít</a>
         <% } %>
-        <a href="#schemas/<%= id %>/edit" class="btn button button--default edit-schema" data-schema-id="<%=id%>">Upravit</a>
+        <a href="#schemas/<%= id %>/edit" class="btn btn-xs btn-default edit-schema" data-schema-id="<%=id%>">
+            <i class="glyphicon glyphicon-edit"></i> Upravit</a>
+        <a href="/#schemas/<%= id %>/vhdl" class="btn btn-default btn-xs edit-schema"><i class="glyphicon glyphicon-download"></i> VHDL</a>
     </td>
 
 </script>

@@ -7,8 +7,6 @@
 		<ul class="dropdown-menu">
 			<li><a href="/#schemas/new" id="menu-file-new_schema">Nové</a></li>
 			<li><a href="/#schemas" id="menu-file-open_schema">Otevřít</a></li>
-			<li><a href="/#" id="menu-file-save_schema_as">Uložit schéma jako &hellip;</a></li>
-			<li><a href="/#schema/vhdl" id="menu-file-export_schema">Exportovat do VHDL</a></li>
 			<li class="divider"></li>
 			<li><a href="/#" id="menu-file-download_lib">Stáhnout lib.vdl</a></li>
 		</ul>

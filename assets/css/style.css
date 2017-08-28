@@ -208,6 +208,22 @@ text {
 .joint-element.running .label {
   fill: #F58220; }
 
+.joint-element .element-tools {
+  display: none;
+  cursor: pointer;
+  z-index: 100000;
+  position: relative; }
+
+.joint-element.highlighted .element-tools {
+  display: inline; }
+
+.joint-element .element-tools {
+  display: none;
+  cursor: pointer; }
+
+.joint-element:hover .element-tools {
+  display: inline; }
+
 .ribbon {
   display: flex;
   width: 300px;

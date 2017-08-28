@@ -154,14 +154,22 @@ function logExecute(p, pick, executer){
 
 joint.shapes.mylib = {};
 
+
+
 //------------------ OBECNÁ DEFINICE HRADLA -------------------------------------------------//
 
 joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/><text class="jm"/></g><text class="label"/><circle class="input"/><path class="wire"/><circle class="output output1"/></g>',
-    
+    toolMarkup: ['<g class="element-tools">',
+        '<g class="element-tool-remove"><circle fill="red"/>',
+        '<path transform="scale(.8) translate(-16, -16)" d="M24.778,21.419 19.276,15.917 24.777,10.415 21.949,7.585 16.447,13.087 10.945,7.585 8.117,10.415 13.618,15.917 8.116,21.419 10.946,24.248 16.447,18.746 21.948,24.248z"/>',
+        '<title>Remove this element from the model</title>',
+        '</g>',
+        '</g>'].join(''),
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.Hradlo',
+        exportType: 'mylib.Gate',
         size: { width: 1, height: 1 },        
         attrs: {
             '.': { magnet: false },
@@ -176,6 +184,9 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
             '.output' : {
                 r: 10,
                 width: 20, height: 20
+            },
+            '.element-tool-remove circle': {
+              r:12
             },
             '.input' : {
                 r: 10,
@@ -198,6 +209,12 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
 
     operation: function() { return true; } 
 });
+
+// Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
+joint.shapes.mylib.Hradlo.prototype.onSignal = function (signal, handler) {
+//            console.log("joint.shapes.mylib.Hradlo.prototype.onSignal", this);
+    handler.call(this, 0, signal);
+};
 
 //---------------------- HRADLA IO --------------------------------------------//
 
@@ -223,6 +240,7 @@ joint.shapes.mylib.INPUT = joint.shapes.mylib.HradloIO.extend({
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.INPUT',
+        exportType: 'mylib.INPUT',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
 
@@ -249,6 +267,7 @@ joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
     tickOn: true,
     defaults: joint.util.deepSupplement({
         type: 'mylib.CLK',
+        exportType: 'mylib.CLK',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
             '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
@@ -284,6 +303,7 @@ joint.shapes.mylib.OUTPUT = joint.shapes.mylib.HradloIO.extend({
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.OUTPUT',
+        exportType: 'mylib.OUTPUT',
         attrs: {
             '.wire': { 'ref-x': -25, d: 'M 0 0 L 25 0' },
             '.input1': { ref: 'rect', 'ref-x': -30, 'ref-y': .5, magnet: 'passive', port: 'a' },
@@ -301,6 +321,7 @@ joint.shapes.mylib.VCC = joint.shapes.mylib.HradloIO.extend({
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.VCC',
+        exportType: 'mylib.VCC',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
             '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
@@ -319,6 +340,7 @@ joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.GND',
+        exportType: 'mylib.GND',
         attrs: {
             '.wire': { 'ref-dx': 0, d: 'M 0 0 L 25 0' },
             '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
@@ -2669,3 +2691,97 @@ if (typeof exports === 'object') {
 
     module.exports = joint.shapes.devs;
 }
+
+
+
+
+joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
+    initialize: function() {
+        joint.dia.ElementView.prototype.initialize.apply(this, arguments);
+    },
+    render: function () {
+        joint.dia.ElementView.prototype.render.apply(this, arguments);
+        this.renderTools();
+        this.update();
+        return this;
+    },
+    renderTools: function () {
+        var toolMarkup = this.model.toolMarkup || this.model.get('toolMarkup');
+        if (toolMarkup) {
+            var nodes = V(toolMarkup);
+            V(this.el).append(nodes);
+        }
+        return this;
+    },
+    pointerclick: function (evt, x, y) {
+        console.log("remove click");
+        this._dx = x;
+        this._dy = y;
+        this._action = '';
+        var className = evt.target.parentNode.getAttribute('class');
+        switch (className) {
+            case 'element-tool-remove':
+                this.model.remove();
+                return;
+                break;
+            default:
+        }
+        joint.dia.CellView.prototype.pointerclick.apply(this, arguments);
+    },
+});
+
+joint.shapes.mylib.HradloView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.INPUTView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.OUTPUTView = joint.shapes.mylib.ToolElementView;
+
+joint.shapes.mylib.CLKView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.VCCView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.GNDView = joint.shapes.mylib.ToolElementView;
+
+joint.shapes.mylib.TUL_ORView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.TUL_ANDView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.TUL_INVView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.TUL_NANDView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.TUL_XORView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.TUL_BUFView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.NAND3View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.AND3View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.OR3View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.NOR3View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.NAND4View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.AND4View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.OR4View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.NOR4View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.MUX2View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.MUX4View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.MUX8View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.DEC14View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.DEC18View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.PRIOCOD42View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.PRIOCOD83View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.RSView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.RSTView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.DL1View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.DL1ARView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.JKFFView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.JKFFARView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.JKFFSRView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.DFFView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.DFFARView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.DFFSRView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.HALFADDERView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.FULLADDERView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.ADD4View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.MUL8View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.COMPARATORLEQView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.UPDOWNCOUNTERView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.ARAM1x16View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.RAM1x16View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.ARAM4x16View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.RAM4x16View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.ARAM4x256View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.RAM4x256View = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.DPRAM4x256View = joint.shapes.mylib.ToolElementView;
+
+
+
