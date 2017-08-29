@@ -58,34 +58,6 @@ function createBorderedCounter(min, max, start) {
     return functions;
 }
 
-function createSimpleCounter(start) {
-    var start = start || 0;
-    var count = start;
-    var functions = {
-        get: function () {
-            return count;
-        },
-        set: function (value) {
-            count = value;
-        },
-        add: function (value) {
-            count += value;
-            return count;
-        },
-        inc: function () {
-            count++;
-            return count;
-        },
-        dec: function () {
-            count--;
-            return count;
-        },
-        reset: function () {
-            count = start;
-        }
-    };
-    return functions;
-}
 function createMapCounter(start) {
     var start = start || 0;
     var counts = {};
@@ -365,11 +337,7 @@ function getUtils() {
         },
 
         getElementLabel: function (type) {
-            if (this.hradla[type] !== undefined){
-                return this.hradla[type];
-            }else{
-                return type;
-            }
+            return this.hradla[type];
         },
 
         mapValues: function (names, prefix, $element) {

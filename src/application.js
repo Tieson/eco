@@ -2,13 +2,6 @@
  * Created by Tomáš Václavík on 13.04.2017.
  */
 
-// Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
-joint.shapes.mylib.Hradlo.prototype.onSignal = function (signal, handler) {
-//            console.log("joint.shapes.mylib.Hradlo.prototype.onSignal", this);
-    handler.call(this, 0, signal);
-};
-
-
 
 window.eco = {
     Models: {},
@@ -173,8 +166,8 @@ window.eco = {
 
             var paper = eco.createPaper(schema);
 
-            // schema.fetch({
-            //     success: function () {
+            var counter = createSetCounter(0);
+
                     console.log('schema success', schema);
                     schema.loadGraph(function () {
                         console.log('%c schema loaded graph!! ', 'background: yellow; color: red', schema.get('graph'));
@@ -198,9 +191,7 @@ window.eco = {
                                 console.log("categories", entities);
                                 console.log("catId", entityId);
 
-                                var foundEntity = (entities.find(function (x) {
-                                    return x.get('id') == entityId;
-                                }));
+                                var foundEntity = entities.get(entityId);
 
                                 var entityName = foundEntity.get('name');
                                 console.log(entityName);
@@ -208,9 +199,22 @@ window.eco = {
                                     var newCell = new joint.shapes.mylib[entityName]({ position: {
                                         x: ui.offset.left - schemaContainer.offset().left,
                                         y: ui.offset.top - schemaContainer.offset().top
-                                    },
-
-                                        // x.attr('custom', {type: types.IN, name: 'X', number: count, uniqueName: label, label: 'vstup'});
+                                    }});
+                                    // x.attr('custom', );
+                                    var number = counter.inc(entityName);
+                                    var elemLabel = eco.Utils.getElementLabel(entityName);
+                                    if (elemLabel!==undefined){
+                                        var uniqueName = elemLabel + number;
+                                        newCell.attr('.label/text', uniqueName);
+                                    }else{
+                                        var uniqueName = entityName+'_'+number;
+                                    }
+                                    newCell.attr('custom', {
+                                        type: entityName,
+                                        name: elemLabel,
+                                        number: number,
+                                        uniqueName: uniqueName,
+                                        label: foundEntity.get('label'),
                                     });
                                     schema.get('graph').addCell(newCell);
                                     //TODO: Přidat label hlavně u vstupů a výstupů s ID od counteru
@@ -221,8 +225,6 @@ window.eco = {
                             }
                         });
                      });
-            //     }
-            // });
 
         }
 
@@ -432,7 +434,7 @@ window.eco = {
                     },
                     error: function () {
                         setPageTitle('Otevřít schéma');
-                        main.html("<div class='alert alert-danger'>Požadované schéma nebylo nalezeno!</div>");
+                        main.html("<div class='alert alert-danger mt20'>Požadované schéma nebylo nalezeno!</div>");
                         showNewSchemaForm();
                         showSchemas();
                     }
@@ -447,22 +449,10 @@ window.eco = {
          * @param id
          */
         function schemaExportVhdl(id) {
-            console.log('schemaExportVhdl', id);
-
-
             setPageTitle('Domácí úkoly');
             main.empty();
             main_tab.show();
             schemas_tab.hide();
-
-            // var sch = new eco.Models.Schema({
-            //     id:30
-            // });
-            // var paper = eco.createPaper(sch);
-            // sch.loadGraph(function(){
-            //     console.log('graph loaded');
-            //     console.log(paper);
-            // });
 
             var nSchema = new eco.Models.Schema({id: id});
             var vhdlExporter = new eco.Models.VhdlExporter({
@@ -470,8 +460,14 @@ window.eco = {
             });
             nSchema.fetch({
                 success: function () {
+
+                    nSchema.loadGraph(function () {
+                        var $button = $("<a href='#' class='btn btn-success'>Stáhnout schéma <strong>"+ nSchema.get('name') +"</strong> ve VHDL</a>");
+                        main.append($('<div class="alert alert-info mt20">Pokud stahování nezačne automaticky, použijte následující tlačítko</div>'));
+                        main.append($button);
+                        vhdlExporter.saveVhdlToFile($button);
+                    });
                     // showSchema(nSchema);
-                    vhdlExporter.saveVhdlToFile();
                 },
                 error: function () {
                     main.html("<div class='alert alert-danger'>Požadované schéma nebylo nalezeno!</div>");
@@ -784,6 +780,11 @@ window.eco = {
                 }
             }
         });
+
+        // paper.on('cell:pointerdblclick', function (cellView, evt, x, y) {
+        //     var element = cellView.model;
+        //     element.remove();
+        // });
 
         return paper;
     }
