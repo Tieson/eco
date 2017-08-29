@@ -669,21 +669,25 @@ window.eco = {
                 }
             });
         }
+
         function showSchemas() {
             main_tab.show();
             schemas_tab.hide();
 
-            var view = new eco.Views.GenericList({
+            var view = new eco.Views.SchemasOpenList({
                 template: "#schemasOpenList-template",
                 itemTemplate: "#schemasOpenItem-template",
-                itemView: eco.Views.SchemasOpenItem,
                 collection: schemas,
                 searchNames: [
                     'list-name',
                     'list-architecture',
-                    'list-created',
+                    'list-created'
                 ]
             });
+            // view.listenTo(vent, 'schemaDelete', function (schema) {
+            //     console.log('schemaDelete vent', schema);
+            //     // schemas.remove(schema);
+            // });
             main.append(view.render().$el);
         }
 
