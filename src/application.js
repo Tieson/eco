@@ -412,6 +412,12 @@ window.eco = {
         function showOpenSchema(id) {
             console.log('openedSchema', id);
 
+
+            $(document).on('keydown', null, 'ctrl+s', function () {
+                saveSchema(activeSchemaView);
+                return false;
+            });
+
             // var sch = new eco.Models.Schema({
             //     id:30
             // });

@@ -247,36 +247,33 @@ eco.Views.SchemasOpenList = eco.Views.GenericList.extend({
     },
     deleteSchema: function (e) {
         var self = this;
-        if(this.vent !== undefined){
-            swal({
-                    title: "Opravdu chtete schéma odstranit?",
-                    text: "Akci nelze vzít zpět!",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Ano, smazat!",
-                    cancelButtonText: "Ne",
-                    closeOnConfirm: true
-                },
-                function () {
-                    var cid = $(e.currentTarget).attr('data-cid');
-                    var model = self.collection.get(cid);
-                    model.destroy({
-                        success: function () {
-                            self.collection.remove(model);
-                            self.render();
-                            showSnackbar('Schéma bylo navždy ztaceno.');
-                            // swal("Smazáno!", "Schéma bylo navždy odstraněno.", "success");
-                        },
-                        error: function () {
-                            showSnackbar('Schéma nešlo smazat z neznámého důvodu.');
-                            // swal("Neúspěch!", "Schéma nelze smazat z neznámého důvodu.", "error");
-                        }
-                    });
-
+        swal({
+                title: "Opravdu chtete schéma odstranit?",
+                text: "Akci nelze vzít zpět!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ano, smazat!",
+                cancelButtonText: "Ne",
+                closeOnConfirm: true
+            },
+            function () {
+                var cid = $(e.currentTarget).attr('data-cid');
+                var model = self.collection.get(cid);
+                model.destroy({
+                    success: function () {
+                        self.collection.remove(model);
+                        self.render();
+                        showSnackbar('Schéma bylo navždy ztaceno.');
+                        // swal("Smazáno!", "Schéma bylo navždy odstraněno.", "success");
+                    },
+                    error: function () {
+                        showSnackbar('Schéma nešlo smazat z neznámého důvodu.');
+                        // swal("Neúspěch!", "Schéma nelze smazat z neznámého důvodu.", "error");
+                    }
                 });
 
-        }
+            });
     }
 
 });

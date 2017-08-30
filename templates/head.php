@@ -21,6 +21,7 @@
 
 	<script src="assets/js/libs/jquery/dist/jquery.min.js"></script>
 	<script src="assets/js/libs/jquery-ui/jquery-ui.min.js"></script>
+	<script src="scripts/jquery.hotkeys.js"></script>
 	<script src="assets/js/libs/lodash/lodash.min.js"></script>
 	<script src="assets/js/libs/backbone/backbone-min.js"></script>
 	<!--	<script src="assets/js/libs/backbone-relational/backbone-relational.js"></script>-->

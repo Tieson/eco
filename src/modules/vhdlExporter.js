@@ -244,6 +244,7 @@ eco.Models.VhdlExporter = Backbone.Model.extend({
                 a.attr('href', uriContent);
                 a.attr('download', name);
                 a.attr('target', "_blank");
+                a[0].click(); // automatické stažení
                 return true;
             };
         } else {
@@ -264,7 +265,7 @@ eco.Models.VhdlExporter = Backbone.Model.extend({
                             window.navigator.msSaveOrOpenBlob(blobObject, (name));
                     }
                     else {
-                        pushNotification('Uložení do souboru není ve vašem prohlížeči podporováno.', messageType.ERROR);
+                        showSnackbar('Uložení do souboru není podporováno ve vašem prohlížeči.');
                         return false;
                     }
                 }

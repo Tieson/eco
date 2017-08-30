@@ -24,7 +24,6 @@ eco.Router = Backbone.Router.extend({
         // 'tasks/:id/edit': 'editTask',
 
 
-
         /** Skupiny **/
         'groups': 'showGroups', // seznam všech skupin
         'groups/:id': 'showGroupDetail', // detail skupiny se seznamem studentů
@@ -40,16 +39,20 @@ eco.Router = Backbone.Router.extend({
         'homeworks/:id': 'showHwDetail', //zobrazí detail úkolů se zadáním a dalšími informacemi
 
         '*path':  'defaultRoute',
+    },
+    route: function(route, name, callback) {
+        var router = this;
+        if (!callback) callback = this[name];
+
+        var f = function () {
+            $(document).off('keydown');
+            callback && callback.apply(router, arguments);
+        };
+        return Backbone.Router.prototype.route.call(this, route, name, f);
     }
 });
 
 
 $(document).ready(function() {
-
-
-    // eco.templates = new eco.Models.TemplatesHolderContainer();
-
-    // eco.appView = new eco.AppView();
-
     eco.start();
 });
