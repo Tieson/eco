@@ -551,6 +551,7 @@ window.eco = {
             console.log("group url", groups);
             groups.fetch();
         }
+
         function showUserAddGroups() {
             setPageTitle('Přidání do skupiny');
             main_tab.show();

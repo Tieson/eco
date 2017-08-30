@@ -6,6 +6,7 @@ eco.Views.GenericList = Backbone.View.extend({
     views: [],
     initialize: function (opts) {
         this.title = opts.title || "";
+        this.noRecordsMessage = opts.noRecordsMessage || 'Zatím zde nejsou žádné záznamy.';
         this.template = _.template($(opts.template).html());
         this.itemTemplate = opts.itemTemplate;
         this.itemView = opts.itemView || eco.Views.GenericItem;
@@ -16,7 +17,7 @@ eco.Views.GenericList = Backbone.View.extend({
         this.afterInitialization();
         this.vent = opts.vent;
         this.uniqueId = opts.uniqueId || '';
-
+        this.render();
     },
     afterInitialization: function () {
 
@@ -33,13 +34,15 @@ eco.Views.GenericList = Backbone.View.extend({
         this.$('.items-container').append(itemView.render().$el);
     },
     render: function () {
-        var html = this.template({title: this.title});
+        var html = this.template({title: this.title, recordsLength: this.collection.length, noRecordsMessage: this.noRecordsMessage});
         var self = this;
         this.$el.html(html);
         this.$el.attr('id', "genericList"+this.uniqueId);
-        console.log(this.collection);
-        this.collection.each(this.renderOne, this);
-
+        if(this.collection.length > 0){
+            this.collection.each(this.renderOne, this);
+        }else {
+            this.$el.html('<h1>'+this.noRecordsMessage+'</h1>');
+        }
         try {
             var options = {
                 valueNames: this.searchNames

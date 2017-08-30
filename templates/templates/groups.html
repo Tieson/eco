@@ -35,6 +35,7 @@
                 <th>Týden</th>
                 <th>Vyučující</th>
                 <th>Datum vstoupení</th>
+                <!--<th>Akce</th>-->
             </tr>
             </thead>
             <tbody class="items-container">
@@ -42,6 +43,16 @@
             </tbody>
         </table>
     </div>
+</script>
+
+<script type="text/template" id="userGroupsListItem-template">
+    <td><%=subject%></td>
+    <td><%=day%></td>
+    <td><%=block%>.</td>
+    <td><%=weeks%></td>
+    <td><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
+    <td><%=entered%></td>
+    <!--<td><a href="#groups/<%=id%>/students/<%=student_id%>/remove" class="leaveGroup btn btn-danger btn-xs" data-cid="<%=cid%>" data-student="<%=student_id%>">opustit skupinu</a></td>-->
 </script>
 
 <script type="text/template" id="groupsListItem-template">
@@ -57,16 +68,6 @@
     </td>
 </script>
 
-<script type="text/template" id="userGroupsListItem-template">
-    <td><%=subject%></td>
-    <td><%=day%></td>
-    <td><%=block%>.</td>
-    <td><%=weeks%></td>
-    <td><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
-    <td><%=entered%></td>
-    <td><a href="#groups/<%=id%>/students/<%=student_id%>/remove" class="leaveGroup btn btn-danger btn-xs" data-cid="<%=cid%>" data-student="<%=student_id%>">opustit skupinu</a></td>
-</script>
-
 
 <script type="text/template" id="groupsDetail-template">
 
@@ -77,28 +78,31 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-xs-12 col-sm-3">
-                    <dt>Den
-                        <!--<small class="translates">Day</small>-->
-                    </dt>
+                    <dt>Den</dt>
                     <dd><%=day%></dd>
                 </div>
                 <div class="col-xs-12 col-sm-3">
-                    <dt>Blok
-                        <!--<small class="translates">Block</small>-->
-                    </dt>
+                    <dt>Blok</dt>
                     <dd><%=block%>.</dd>
                 </div>
                 <div class="col-xs-12 col-sm-3">
-                    <dt>Týden
-                        <!--<small class="translates">week</small>-->
-                    </dt>
+                    <dt>Týden</dt>
                     <dd><%=weeks%></dd>
                 </div>
                 <div class="col-xs-12 col-sm-3">
-                    <dt>Vytvořeno
-                        <!--<small class="translates">created</small>-->
-                    </dt>
+                    <dt>Vytvořeno</dt>
                     <dd><%=created%></dd>
+                </div>
+            </div>
+            <div class="row mt20">
+                <div class="col-xs-12 col-sm-3">
+                    <div class="btn btn-block btn-default">Přidat studenty</div>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                </div>
+                <div class="col-xs-12 col-sm-3">
                 </div>
             </div>
         </div>

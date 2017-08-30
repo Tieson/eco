@@ -97,10 +97,10 @@ eco.Collections.UserGroupCollection = Backbone.Collection.extend({
 });
 
 
-eco.Views.GroupDetail = Backbone.View.extend({
+eco.Views.GroupDetail = eco.Views.GenericDetail.extend({
     tagName: 'div',
     template: _.template($('#groupsDetail-template').html()),
-    initialize: function (opts) {
+    afterInitialization: function () {
         this.listenTo(this.model, 'sync', this.render);
 
         this.students = new eco.Collections.Students(null, {
@@ -242,8 +242,8 @@ eco.Views.StudentAssignGroupsList = eco.Views.GenericList.extend({
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Ano, odejít! (Yes)",
-                cancelButtonText: "Ne, zůstat. (No)",
+                confirmButtonText: "Ano, odejít!",
+                cancelButtonText: "Ne, zůstat.",
                 closeOnConfirm: true
             },
             function () {

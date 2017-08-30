@@ -218,7 +218,9 @@ eco.Models.HomeworkDetailSolution = Backbone.Model.extend({
 });
 
 eco.Models.Solution = Backbone.Model.extend({
+    // urlRoot: '/api/solutions/',
     defaults: {
+        id: null,
         architecture: '',
         name:'',
         homework_id: null,
@@ -228,7 +230,7 @@ eco.Models.Solution = Backbone.Model.extend({
         created: null,
         status: 'waiting',
         test_result: null,
-        test_message: '',
+        test_message: null,
     }
 });
 eco.Collections.Solutions = Backbone.Collection.extend({
@@ -247,6 +249,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         this.solutions = new eco.Collections.Solutions(null,{
             url: '/api/homework/'+this.model.get('id')+'/solutions',
         });
+        this.solutionsView;
         this.renderInit();
         this.selectedSchema = null;
     },
@@ -254,7 +257,8 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         'click .schemasSimpleListItem': 'hwSchemaItemClick',
         'click .showSubmitSolution': 'hwSolutionOpenClick',
         'click #homeworkSchemaModalSubmit': 'hwSubmitClick',
-        'click .downloadVHDL': 'downloadVHDL'
+        'click .downloadVHDL': 'downloadVHDL',
+        'click .delete-solution': 'deleteSolution'
     },
     hwSchemaItemClick: function (e) {
         $('.itemSelected').removeClass('itemSelected');
@@ -286,24 +290,74 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         $('#homeworkSchemaModal').modal('show');
         // $(e.currentTarget).hide();
     },
-    hwSubmitClick: function () {
+    hwSubmitClick: function (e) {
         var self = this;
-        console.log("ODevzdávám");
-        if(this.selectedSchema != null){
-            this.solutions.create({
-                homework_id: self.model.get('id'),
-                schema_id: this.selectedSchema.get('id'),
-                // schema_data_id: null, // vytvoří se až v DB
+        var vhdlEdporter = new VhdExporter();
+
+        if (self.selectedSchema !== null) {
+            this.selectedSchema.loadGraph(function () {
+                var vhdl = vhdlEdporter.exportSchema(
+                    self.selectedSchema.get('name'),
+                    self.selectedSchema.get('architecture'),
+                    self.selectedSchema.get('graph')
+                );
+
+                console.log("Odevzdávám", self.selectedSchema, vhdl);
+                self.solutions.create({
+                    homework_id: self.model.get('id'),
+                    schema_id: self.selectedSchema.get('id'),
+                    vhdl: vhdl,
+                }, {
+                    success: function () {
+                        showSnackbar('Hotovo, úkol byl odevzdán.');
+                    },
+                    error: function () {
+                        showSnackbar('Něco se pokazilo. Úkol nebyl odevzdán.');
+                    }
+                });
             });
+        } else {
+            showSnackbar('Jejda, nevybrali jste žádné schéma. Zkuste to znovu.');
+            e.preventDefault();
+            return false;
         }
-        console.log(this.solutions);
+
     },
     downloadVHDL:function (e) {
-      console.log("downloadVHDL",this.solutions);
+      console.log("downloadVHDL", this.solutions);
         var cid = $(e.currentTarget).attr('data-cid');
         console.log(cid);
         var item = this.solutions.get(cid);
         console.log(item.get('vhdl'));
+    },
+    deleteSolution: function (e) {
+        var self = this;
+        swal({
+                title: "Opravdu chtete odevzdané řešení odstranit?",
+                text: "Akci nelze vzít zpět!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ano, smazat!",
+                cancelButtonText: "Ne",
+                closeOnConfirm: true
+            },
+            function () {
+                var cid = $(e.currentTarget).attr('data-cid');
+                var model = self.solutions.get(cid);
+                model.destroy({
+                    success: function () {
+                        self.solutions.remove(model);
+                        (self.solutionsView && self.solutionsView.render());
+                        console.log(self.solutions);
+                        showSnackbar('Řešenbí bylo navždy ztaceno.');
+                    },
+                    error: function () {
+                        showSnackbar('Řešení nešlo smazat z neznámého důvodu.');
+                    }
+                });
+
+            });
     },
     renderInit: function () {
         var self = this;
@@ -318,8 +372,9 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
             mapper: eco.Mapper.SolutionHomeworkMapper
         });
 
-        var solutionsView = new eco.Views.GenericList({
+        this.solutionsView = new eco.Views.GenericList({
             title: "Odevzdaná řešení k tomuto úkolu",
+            noRecordsMessage: 'Zatím jste neodevzdaly žádné řešení.',
             template: '#solutionsList-template',
             itemTemplate: '#solutionsListItem-template',
             formater: eco.Formaters.SolutionsFormater,
@@ -335,7 +390,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
 
         this.$el.append(detailView.$el);
         this.$el.append(solutionFormView.$el);
-        this.$el.append(solutionsView.$el);
+        this.$el.append(this.solutionsView.$el);
 
         return this;
     },

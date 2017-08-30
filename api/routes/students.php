@@ -166,12 +166,13 @@ function studentGroupList($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT ga.group_id, student_id, entered, approved, subject, u.name, u.mail, `day`, weeks, block
-            FROM group_assigment AS ga JOIN `groups` AS g 
+		$sth = $db->prepare("SELECT ga.group_id, ga.student_id, ga.entered, ga.approved, 
+			g.subject, g.`day`, g.weeks, g.block, u.name, u.mail 
+            FROM group_assigment AS ga 
+            JOIN `groups` AS g 
             JOIN teacher AS t 
             JOIN `user` AS u 
-            JOIN group_teaching AS gt
-            ON ga.group_id=g.id AND t.id = gt.teacher_id AND g.id = gt.group_id AND t.user_id = u.id
+            ON ga.group_id = g.id AND t.id = g.teacher AND t.user_id = u.id
             WHERE student_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();

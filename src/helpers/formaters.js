@@ -96,6 +96,17 @@ eco.Formaters.SolutionsFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
         created: moment(model.get('created')).format('LLL'),
+        statusTechnical: model.get('status'),
+        status: eco.Utils.getSolutionStatus(model.get('status')),
+    });
+    return result;
+};
+
+eco.Formaters.GroupDetailFormater = function (model) {
+    var result = _.extend({},model.toJSON(),{
+        cid: model.cid,
+        created: moment(model.get('created')).format('LLL'),
+        statusTechnical: model.get('status'),
         status: eco.Utils.getSolutionStatus(model.get('status')),
     });
     return result;

@@ -104,7 +104,7 @@ function homeworkSolutionList($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT s.homework_id, s.created, s.status, s.test_result, s.test_message,
+		$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message,
 			sch.name, sch.architecture
             FROM solution AS s
         	JOIN hw_assigment AS hw
@@ -168,8 +168,6 @@ function homeworkSolutionDetail($id, $hw_id) {
 /**
  * Přidá řešení (odevzdá úkol) k úkolu
  * Korky:   1) zjistit jestli je úkol studenta a získat schéma
- *          2) načíst data ze schéma
- *          3) naklonovat data schéma
  *          4) vytvořit řešení
  *          5) vrátit komplet řešení
  * @param $id
@@ -189,58 +187,39 @@ function homeworkSolutionCreate($id) {
 	$values = array(
 		'homework_id' => $allPostVars['homework_id'],
 		'schema_id' => $allPostVars['schema_id'],
-		'status' => $allPostVars['status'],
-		'vhdl' => $allPostVars['vhdl'],
 		'name' => $allPostVars['name'],
 		'architecture' => $allPostVars['architecture'],
+		'vhdl' => $allPostVars['vhdl'],
 	);
 
 	try
 	{
 		$db = getDB();
+
+		// Kontrola jestli schéma patří studentovi!
 		$homework = $db->prepare("SELECT id 
 			FROM hw_assigment WHERE id=:hw_id AND student_id=:student_id");
 		$homework->bindParam(":hw_id", $id, PDO::PARAM_INT);
 		$homework->bindParam(":student_id", $student['id'], PDO::PARAM_INT);
 
 		if($homework->execute()){
-			//načtení dat
+			//OK úkol existuje a je studenta
 
-			$sth = $db->prepare("SELECT * 
-            FROM schema_data
-            WHERE schema_id = :id
-            ORDER BY edited DESC
-			LIMIT 1");
-
-			$sth->bindParam(':id', $allPostVars['schema_id'], PDO::PARAM_INT);
-			$sth->execute();
-
-			$schema_data = $sth->fetch(PDO::FETCH_OBJ);
-
-			//Zkopírování dat
-			$request = $db->prepare("INSERT INTO schema_data (data, schema_id) VALUES (:data,:schema_id)");
-			$request->bindParam(":schema_id", $allPostVars['schema_id'], PDO::PARAM_INT);
-			$request->bindParam(":data", $schema_data[data], PDO::PARAM_INT);
-
-			//TODO:  rozpracováno
-
-
-			//OK úkol existuje a studenta
 			$sth = $db->prepare("INSERT INTO solution 
-			(homework_id,schema_id,created,status)
-			VALUES(:homework_id,:schema_id,NOW(),:status)");
+			(homework_id,schema_id,created, `name`, architecture, vhdl)
+			VALUES(:homework_id, :schema_id, NOW(), :name, :architecture, :vhdl)");
 			$result = $sth->execute($values);
 
 			if ($result){
 				$id = $db->lastInsertId();
 
-				$sth = $db->prepare("SELECT s.homework_id, s.schema_data_id, s.created, s.status, s.test_result, s.test_message,
+				$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message,
 			sch.name, sch.architecture
             FROM solution AS s
         	JOIN hw_assigment AS hw
         	JOIN schema_base AS sch
          	ON s.homework_id = hw.id AND s.schema_id=sch.id
-            WHERE hw.id = :id AND hw.student_id = :student_id");
+            WHERE s.id = :id AND hw.student_id = :student_id");
 				$sth->bindParam(":id", $id, PDO::PARAM_INT);
 				$sth->bindParam(":student_id", $student['id'], PDO::PARAM_INT);
 				$sth->execute();
@@ -267,4 +246,49 @@ function homeworkSolutionCreate($id) {
 		$db = null;
 	}
 
+}
+
+function homeworkSolutionDelete($hw_id,$id) {
+	$app = \Slim\Slim::getInstance();
+
+	try {
+		$student = requestLoggedStudent();
+	}catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
+	try
+	{
+		$db = getDB();
+
+		// Kontrola jestli schéma patří studentovi!
+		$homework = $db->prepare("SELECT id 
+			FROM hw_assigment WHERE id=(SELECT homework_id FROM solution WHERE homework_id=:id) AND student_id=:student_id");
+		$homework->bindParam(":id", $id, PDO::PARAM_INT);
+		$homework->bindParam(":student_id", $student['id'], PDO::PARAM_INT);
+
+		if($homework->execute()) {
+			$prepare = $db->prepare("DELETE FROM `solution` WHERE id=:id AND status='waiting'");
+			$prepare->bindParam(':id', $id, PDO::PARAM_INT);
+			$result = $prepare->execute();
+
+			if ($result) {
+				$app->response()->setStatus(200);
+				$app->response()->headers->set('Content-Type', 'application/json');
+				echo json_encode(array('response' => 'success'));
+
+				$db = null;
+			} else {
+				throw new PDOException('No group was deleted.');
+			}
+		}else {
+
+		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(400);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
 }

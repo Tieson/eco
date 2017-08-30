@@ -321,13 +321,17 @@ function getUtils() {
                 return x.val();
             },
         },
-        statuses: {
-            waiting: "Čeká na kontrolu",
-            done: "Zkontrolováno",
-            storno: "Zrušeno"
+        solutionStatuses: {
+            waiting: '<span class="label label-warning">Čeká na kontrolu</span>',
+            done: '<span class="label label-success">Zkontrolováno</span>',
+            storno: '<span class="label label-default">Zrušeno</span>'
+        },
+        solutionResults: {
+            ok: '<span class="label label-success">V pořádku</span>',
+            nok: '<span class="label label-danger">Chybné řešení</span>',
         },
         getSolutionStatus: function (key) {
-            return getTranslate(key, this.statuses);
+            return getTranslate(key, this.solutionStatuses);
         },
         getDay: function(key){
             return getTranslate(key, this.days);

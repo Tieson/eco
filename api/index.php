@@ -84,6 +84,8 @@ $app->get('/homework/:id', 'homework');
 $app->get('/homework/:id/solutions', 'homeworkSolutionList');
 $app->post('/homework/:id/solutions', 'homeworkSolutionCreate');
 
+$app->delete('/homework/:hw_id/solutions/:id', 'homeworkSolutionDelete');
+
 $app->get('/schemas', 'schemas');
 $app->post('/schemas', 'schemaCreate');
 $app->put('/schemas/:id', 'schemaUpdate');
