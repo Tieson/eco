@@ -271,17 +271,18 @@ window.eco = {
             // });
         }
 
+        // TODO deprecated
         function homeworksAssigment() {
             setPageTitle('Seznam zadání');
             main.html('');
             eco.ViewGarbageCollector.clear();
 
-            //TODO: load teachers tasks
+            //load teachers tasks
             var tasks_collection = new eco.Collections.Tasks(null, {
                 url: "/api/tasks",
             });
 
-            //TODO: load students in teachers groups
+            //load students in teachers groups
             var students_collection = new eco.Collections.Students(null, {
                 url: "/api/students",
             });
@@ -467,6 +468,7 @@ window.eco = {
                 el: main
             });
 
+
             model.fetch();
         }
 
@@ -519,6 +521,7 @@ window.eco = {
 
         /**
          * Zobrazí detail skupiny se seznamem studentů
+         * route:showGroupDetail/:id
          * @param id
          */
         function showGroupDetail(id) {
@@ -526,11 +529,11 @@ window.eco = {
             main.empty();
             // eco.ViewGarbageCollector.clear();
             // var students = new eco.Collections.Students();
-            console.log('route:circleDetail', id);
             var group = new eco.Models.Group({id:id});
             // students.url = 'api/groups/'+id+'/students';
             // console.log('route:circleDetail', id, students);
             var groupsDetailView = new eco.Views.GroupDetail({
+                template: '#groupsDetail-template',
                 model: group,
             });
             group.fetch();

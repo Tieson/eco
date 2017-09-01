@@ -531,11 +531,11 @@ dl {
     bottom: 0;
     opacity: 0; } }
 
-.itemSelected {
-  background: #f58220;
-  color: #fff; }
+.itemSelected, .studentSelected, .taskSelected {
+  background: #f58220 !important;
+  color: #fff !important; }
 
-.schemasSimpleListItem {
+.schemasSimpleListItem, .groupStudentsListItem, .groupUsersListItem, .tasksListItem {
   cursor: pointer; }
 
 .clearfix {

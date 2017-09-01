@@ -506,7 +506,14 @@ window.eco = {
                 ]
             });
             main.append(hwView.render().$el);
-            hws.fetch();
+            hws.fetch({
+                success: function () {
+                    showSnackbar('Načítání dokončeno.');
+                },
+                error: function () {
+                    showSnackbar('Nepodařilo se načíst domácí úkoly.');
+                }
+            });
         }
 
         /**

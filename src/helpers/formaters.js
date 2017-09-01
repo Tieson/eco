@@ -112,6 +112,13 @@ eco.Formaters.GroupDetailFormater = function (model) {
     return result;
 };
 
+eco.Formaters.StudentFormater = function (model) {
+    var result = _.extend({},model.toJSON(),{
+        cid: model.cid,
+    });
+    return result;
+};
+
 eco.Formaters.GenericFormater = function (x) {
     var result = _.extend({}, x.attributes, {cid: x.cid});
     console.log("_.......................................", x, result);

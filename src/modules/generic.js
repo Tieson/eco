@@ -89,9 +89,9 @@ eco.Views.GenericDetail = Backbone.View.extend({
         this.template = _.template($(opts.template).html());
         this.formater = opts.formater || eco.Formaters.GenericFormater;
         this.model = opts.model;
+        this.afterRender = opts.afterRender;
         this.listenTo(this.model, 'sync change', this.render);
         this.afterInitialization();
-
     },
     afterInitialization: function () {
 
@@ -104,8 +104,11 @@ eco.Views.GenericDetail = Backbone.View.extend({
         this.$el.html(html);
         this.$el.attr('data-id', data.id);
         this.$el.attr('data-cid', data.cid);
+        if (this.afterRender){
+            this.afterRender();
+        }
         return this;
-    },
+    }
 });
 
 eco.Views.GenericForm = Backbone.View.extend({

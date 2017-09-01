@@ -38,6 +38,8 @@
     <script src="src/modules/group.js?<?php echo(filemtime('./src/modules/group.js')) ?>"></script>
     <script src="src/modules/student.js?<?php echo(filemtime('./src/modules/student.js')) ?>"></script>
     <script src="src/modules/teacher/homeworks.js?<?php echo(filemtime('./src/modules/homeworks.js')) ?>"></script>
+    <script src="src/modules/users.js?<?php echo(filemtime('./src/modules/users.js')) ?>"></script>
+
     <script src="src/modules/simmulator.js?<?php echo(filemtime('./src/modules/simmulator.js')) ?>"></script>
 
     <!--	--><?php //require 'scripts.php'; ?>

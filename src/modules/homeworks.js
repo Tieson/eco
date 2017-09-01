@@ -374,7 +374,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
 
         this.solutionsView = new eco.Views.GenericList({
             title: "Odevzdaná řešení k tomuto úkolu",
-            noRecordsMessage: 'Zatím jste neodevzdaly žádné řešení.',
+            noRecordsMessage: 'Zatím jste neodevzdali žádné řešení.',
             template: '#solutionsList-template',
             itemTemplate: '#solutionsListItem-template',
             formater: eco.Formaters.SolutionsFormater,

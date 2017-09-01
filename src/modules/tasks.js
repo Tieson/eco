@@ -37,7 +37,7 @@ eco.Models.Task = Backbone.Model.extend({
 eco.Collections.Tasks = Backbone.Collection.extend({
     model: eco.Models.Task,
     initialize: function (models, opts) {
-        this.urlString = opts.url;
+        this.urlString = (opts && opts.url);
     },
     url: function(){
         return this.urlString;

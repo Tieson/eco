@@ -7,19 +7,27 @@ require '../vendor/autoload.php';
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
 
-$config['db']['host']   = "127.0.0.1";
-$config['db']['user']   = "root";
-$config['db']['pass']   = "";
-$config['db']['dbname'] = "editorobvodu";
+//$config['db']['host']   = "127.0.0.1";
+//$config['db']['user']   = "root";
+//$config['db']['pass']   = "";
+//$config['db']['dbname'] = "editorobvodu";
 
+$db_select = 'db_tul';
 
 function getDB()
 {
-	$dbhost = "127.0.0.1";
-	$dbuser = "root";
-	$dbpass = "";
-	$dbname = "editorobvodu";
-
+	$local = true;
+	if (!$local) {
+		$dbhost = "localhost";
+		$dbuser = "eco_u";
+		$dbpass = "Rep0wooCoo";
+		$dbname = "eco";
+	} else {
+		$dbhost = "127.0.0.1";
+		$dbuser = "root";
+		$dbpass = "";
+		$dbname = "editorobvodu";
+	}
 	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
 	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
 	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -80,10 +88,10 @@ $app->get('/users/:id', 'user');
 
 //pro studenta
 
+$app->post('/homework', 'assignHomework'); //seznam úkolů konkrétního studentas
 $app->get('/homework/:id', 'homework');
 $app->get('/homework/:id/solutions', 'homeworkSolutionList');
 $app->post('/homework/:id/solutions', 'homeworkSolutionCreate');
-
 $app->delete('/homework/:hw_id/solutions/:id', 'homeworkSolutionDelete');
 
 $app->get('/schemas', 'schemas');
@@ -97,10 +105,11 @@ $app->put('/schemas/:schema_id/vhdls', 'schemaDataUpdate');
 $app->get('/schemas/:id/vhdls/last', 'schemaDataLast');
 
 $app->get('/groups', 'groups'); //seznam skupin
+$app->post('/groups', 'groupCreate'); //vytvoření skupiny
 $app->get('/groups/:id', 'group'); //detail skupiny
 $app->get('/groups/:id/students', 'groupStudents'); //studenti skupiny
-$app->post('/groups', 'groupCreate'); //vytvoření skupiny
-$app->post('/groups/:id/students/:student_id', 'groupAddStudent'); // přidání studenta do skupiny
+$app->post('/groups/:id/students', 'groupAddStudent'); // přidání studenta do skupiny
+//$app->post('/groups/:id/students/:student_id', 'groupAddStudent'); // přidání studenta do skupiny
 $app->delete('/groups/:id', 'groupDelete'); // odebrání skupiny
 $app->delete('/groups/:group_id/students/:student_id', 'groupRemoveStudent'); // odebrání studenta ze skupiny
 

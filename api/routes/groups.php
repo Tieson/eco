@@ -161,7 +161,22 @@ function groupCreate() {
 function groupAddStudent($id) {
 	$app = \Slim\Slim::getInstance();
 
+	try {
+		$teacher = requestLoggedTeacher();
+	}catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
 	$allPostVars = json_decode($app->request->getBody(), true);
+//	$values = array(
+//		"student_id" => $allPostVars['student_id'],
+//		"day" => $allPostVars['day'],
+//		"block" => $allPostVars['block'],
+//		"weeks" => $allPostVars['weeks'],
+//		"teacher" => $teacher['id'],
+//	);
 
 	//TODO: kontrola oprávnění
 
@@ -174,11 +189,26 @@ function groupAddStudent($id) {
 		$result = $prepare->execute();
 
 		if ($result) {
-			$app->response()->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo '{"status": "ok"}';
+//			$insert_id = $db->lastInsertId();
+			$sth = $db->prepare("SELECT student.id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
+            FROM `student` 
+            JOIN `user` 
+            ON user.id = student.user_id 
+            WHERE student.id = :id LIMIT 1");
+			$sth->bindParam(":id", $allPostVars['student_id'], PDO::PARAM_INT);
+			$sth->execute();
 
-			$db = null;
+			$item = $sth->fetch(PDO::FETCH_OBJ);
+
+			if($item) {
+				$app->response()->setStatus(200);
+				$app->response()->headers->set('Content-Type', 'application/json');
+				echo json_encode($item);
+
+				$db = null;
+			} else {
+				throw new PDOException('Getting inserted values was unsuccessful');
+			}
 		} else {
 			throw new PDOException('No student was added to group.');
 		}
@@ -186,6 +216,9 @@ function groupAddStudent($id) {
 	} catch(PDOException $e) {
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+	finally {
+		$db = null;
 	}
 }
 

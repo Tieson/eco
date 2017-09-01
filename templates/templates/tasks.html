@@ -31,6 +31,27 @@
     </td>
 </script>
 
+<script type="text/template" id="tasksSimple-template">
+    <h1><%=title%></h1>
+    <input class="search form-control" placeholder="Filtr" />
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Název</th>
+                <th>Vytvořeno</th>
+            </tr>
+            </thead>
+            <tbody class="items-container">
+            </tbody>
+        </table>
+    </div>
+</script>
+<script type="text/template" id="tasksSimpleItem-template">
+    <td class="list-name"><%=name%></td>
+    <td class="list-created"><%=created%></td>
+</script>
+
 
 <script type="text/template" id="tasksFilesList-template">
     <div class="row mt10">

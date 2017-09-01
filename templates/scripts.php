@@ -17,7 +17,9 @@
 <script src="src/modules/modal.js?<?php echo(filemtime('./src/modules/modal.js')) ?>"></script>
 <script src="src/modules/settings.js?<?php echo(filemtime('./src/modules/settings.js')) ?>"></script>
 <script src="src/modules/tasks.js?<?php echo(filemtime('./src/modules/tasks.js')) ?>"></script>
-<script src="src/modules/group.js?<?php echo(filemtime('./src/modules/group.js')) ?>"></script>
 <script src="src/modules/student.js?<?php echo(filemtime('./src/modules/student.js')) ?>"></script>
 <script src="src/modules/homeworks.js?<?php echo(filemtime('./src/modules/homeworks.js')) ?>"></script>
+<script src="src/modules/users.js?<?php echo(filemtime('./src/modules/users.js')) ?>"></script>
+<script src="src/modules/group.js?<?php echo(filemtime('./src/modules/group.js')) ?>"></script>
+
 <script src="src/modules/simmulator.js?<?php echo(filemtime('./src/modules/simmulator.js')) ?>"></script>

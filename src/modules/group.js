@@ -28,6 +28,9 @@ eco.Models.Group = Backbone.Model.extend({
     }
 });
 
+/**
+ * repre studenta a jeho skupiny
+ */
 eco.Models.UserGroup = Backbone.Model.extend({
     url:function(){
         return this.instanceUrl;
@@ -97,48 +100,261 @@ eco.Collections.UserGroupCollection = Backbone.Collection.extend({
 });
 
 
-eco.Views.GroupDetail = eco.Views.GenericDetail.extend({
+// eco.Models.StudentGroup = Backbone.Model.extend({
+//     defaults: {
+//         group_id: null,
+//         student_id: null,
+//         entered: null,
+//     }
+// });
+//
+// eco.Collections.StudentGroup = Backbone.Collection.extend({
+//     model: eco.Models.StudentGroup,
+//     initialize: function (opts) {
+//         this.urlString = opts.url;
+//     },
+//     url: function () {
+//         return this.urlString;
+//     }
+// });
+
+eco.Views.GroupDetail = Backbone.View.extend({
     tagName: 'div',
-    template: _.template($('#groupsDetail-template').html()),
-    afterInitialization: function () {
-        this.listenTo(this.model, 'sync', this.render);
+    initialize: function (opts) {
+        this.model = opts.model;
 
         this.students = new eco.Collections.Students(null, {
-            url: '/api/groups/' + this.model.get('id') + '/students',
+            url: '/api/groups/' + this.model.get('id') + '/students'
         });
+        this.allStudents = new eco.Collections.Students(null, {
+            url: '/api/students'
+        });
+        this.tasks = new eco.Collections.Tasks(null, {
+            url: '/api/tasks'
+        });
+
         this.students.fetch();
+
+        this.selectedStudents = {};
+        this.selectedTasks = {};
 
         this.vent = _.extend({}, Backbone.Events);
 
         this.listenTo(this.vent, 'student:remove', this.removeStudent);
         // this.listenTo(this.students, 'sync', this.render);
         // this.listenTo(this.students, 'remove', this.removeStudent);
-    },
-    renderOne: function (student) {
-        var itemView = new eco.Views.StudentGroupItem({model: student, vent: this.vent});
-        eco.ViewGarbageCollector.add(itemView);
-        this.$('.students-container').append(itemView.render().$el);
-    },
-    render: function () {
-        var self = this;
-        var data = _.extend({}, this.model.toJSON(), {
-            day: eco.Utils.getDay(this.model.get('day')),
-            weeks: eco.Utils.getWeeks(this.model.get('weeks')),
-            teacher: {name: this.model.get('name'), mail: this.model.get('mail')},
-            created: moment(this.model.get('created')).format('LLL')
+
+        this.studentsView = new eco.Views.GenericList({
+            title: "Studenti ve skupině",
+            noRecordsMessage: 'Zatím zde nejsou žádní studenti.',
+            template: '#groupDetailStudents-template',
+            itemTemplate: '#groupsDetailStudent-template',
+            formater: eco.Formaters.StudentFormater,
+            collection: this.students,
+            searchNames: [
+                'list-name',
+                'list-mail',
+            ],
+            vent: this.vent,
+            uniqueId: 'groupStudentsList',
         });
-        var html = this.template(data);
-        this.$el.html(html);
+        this.allStudentsView = new eco.Views.GenericList({
+            noRecordsMessage: 'Zatím nejsou načteni žádní uživatelé.',
+            template: '#groupsDetailUsers-template',
+            itemTemplate: '#groupsDetailUsersItem-template',
+            formater: eco.Formaters.StudentFormater,
+            collection: this.allStudents,
+            searchNames: [
+                'list-name',
+                'list-mail',
+            ],
+            uniqueId: 'groupUsersList',
+        });
+        this.tasksView = new eco.Views.GenericList({
+            noRecordsMessage: 'Zatím nejsou načtena žádná zadání.',
+            template: '#tasksSimple-template',
+            itemTemplate: '#tasksSimpleItem-template',
+            formater: eco.Formaters.TasksFormater,
+            collection: this.tasks,
+            searchNames: [
+                'list-name',
+                'list-created',
+            ],
+            uniqueId: 'tasksList',
+        });
 
-        if (self.students.length > 0) {
-            self.students.each(self.renderOne, self);
+        this.renderInit();
+        this.render();
+    },
+    events: {
+        'click #addStudentsToGroupBtn':'addStudentModal',
+        'click #addTasksBtn':'addTasksForStudentsModal',
+        'click .groupStudentsListItem':'groupStudentClick',
+        'click .tasksListItem':'groupTaskClick',
+        'click .add-student':'addStudentToGroup',
+        'click .remove-student':'removeStudent',
+        'click #taskToStudentSubmit':'createHomeworks',
+    },
+    addStudentModal: function () {
+        this.allStudents.fetch();
+        $("#studentsAddToGroupModal .modal-body").html(this.allStudentsView.$el);
+        $("#studentsAddToGroupModal").modal('show');
+    },
+    addTasksForStudentsModal: function () {
+        this.tasks.fetch();
+        this.selectedTasks = {};
+        $("#taskToStudentModal .modal-body").html(this.tasksView.$el);
+        $("#taskToStudentModal").modal('show');
+    },
+    groupStudentClick: function (e) {
+        var target = $(e.currentTarget);
+        var cid = target.attr('data-cid');
+        var item = this.students.get(cid);
+
+        if(this.selectedStudents[cid]){
+            delete (this.selectedStudents[cid]);
+            target.removeClass('studentSelected');
+        }else{
+            target.addClass('studentSelected');
+            this.selectedStudents[cid] = item;
         }
+        console.log(this.selectedStudents);
+    },
+    groupTaskClick: function (e) {
+        var target = $(e.currentTarget);
+        var cid = target.attr('data-cid');
+        var item = this.tasks.get(cid);
 
+        if(this.selectedTasks[cid]){
+            delete (this.selectedTasks[cid]);
+            target.removeClass('taskSelected');
+        }else{
+            target.addClass('taskSelected');
+            this.selectedTasks[cid] = item;
+        }
+    },
+    addStudentToGroup: function (e) {
+        var self = this;
+        var target = $(e.currentTarget);
+        var cid = target.attr('data-cid');
+        var item = this.allStudents.get(cid);
+        console.log('addStudentToGroup', cid, item);
+        // item.set('url', '/api/groups/' + this.model.get('id') + '/students');
+        this.students.create({
+            student_id: item.get('id')
+        }, {
+            success: function () {
+                self.selectedStudents = {};
+                showSnackbar('hotovo, student byl přidán.');
+                self.studentsView.render();
+            }, error: function () {
+                showSnackbar('Studenta se nepodařilo přidat. Už tam nejspíš je.');
+            }
+        });
+    },
+    removeStudent: function (e) {
+        var self = this;
+        swal({
+                title: "Opravdu chtete odebrat studenta ze skupiny?",
+                text: "Odebrání nelze vzít zpět, ale lze ho znovu přidat.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ano, odebrat!",
+                cancelButtonText: "Ne",
+                closeOnConfirm: true
+            },
+            function () {
+                var target = $(e.currentTarget);
+                var cid = target.attr('data-cid');
+                var item = self.students.get(cid);
+                // delete (self.selectedStudents[cid]);
+                self.selectedStudents = {};
+
+                item.destroy({
+                    success: function (model) {
+                        showSnackbar('Student '+model.get('name')+' byl odebrán');
+                        self.students.remove(item);
+                        self.studentsView.render();
+                    }
+                });
+
+                self.render();
+            });
+        return false;
+
+    },
+    renderInit: function () {
+        var self = this;
+        this.$el.empty();
+
+        this.groupDetailView = new eco.Views.GenericDetail({
+            template: '#groupsDetail-template',
+            formater: eco.Formaters.GroupDetailFormater,
+            model: this.model,
+            afterRender : function () {
+                self.$el.find('.datepicker').datepicker({
+                    language: 'cs',
+                    format: 'yyyy-mm-dd',
+                    todayHighlight: true
+                });
+                try {
+                    self.$el.find('.clockpicker').clockpicker({
+                        donetext: 'Vybrat'
+                    });
+                }catch (e){
+                }
+            }
+        });
+
+        this.$el.append(this.groupDetailView.render().$el);
+        this.$el.append(this.studentsView.render().$el);
+
+        console.log("this.$el.find('.datepicker')", this.$el.find('.datepicker'));
         return this;
     },
-    removeStudent: function (model) {
-        model.url = '/api/groups/' + this.model.get('id') + '/students/' + model.get('id');
-        model.destroy();
+    render: function () {
+        return this;
+    },
+    groupStudentDoubleClick:function () {
+        console.log('groupStudentDoubleClick');
+    },
+    /**
+     * Vytvoří pro vybrané studenty úkoly s vybranými zadáními.
+     */
+    createHomeworks: function () {
+        var self = this;
+        var tasks = Object.values(this.selectedTasks);
+        var students = Object.values(this.selectedStudents);
+
+        var student_task = [];
+
+        var createdHw = 0;
+
+        if (tasks.length > 0 && students.length >0) {
+            var date = $('#hw_form-deadline').val();
+            if (date) {
+                var time = $('#hw_form-deadline-time').val();
+                var i;
+                for (i = 0; i < students.length; i++) {
+                    var homework_for_student = new eco.Models.StudentHomework({
+                        student_id: students[i].get('id'),
+                        task_id: tasks[i % (tasks.length)].get('id'),
+                        deadline: date + ' ' + time,
+                    }, {
+                        url: '/api/homework',
+                    });
+                    // console.log('student', student);
+                    homework_for_student.save();
+                    // console.log(i,students[i].get('id'),i%(tasks.length),tasks[i%(tasks.length)].get('id'));
+                }
+            }else {
+                showSnackbar('Musíte nastavit datum termínu.');
+            }
+        }else{
+            showSnackbar('Vyberte studenty a alespoň jedno zadání.');
+        }
+        console.log(student_task);
     }
 });
 

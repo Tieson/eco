@@ -15,6 +15,7 @@
 	<link rel="stylesheet" href="assets/js/libs/jointjs/dist/joint.min.css">
 	<link rel="stylesheet" href="assets/js/libs/sweetalert/dist/sweetalert.css" type="text/css">
 	<link rel="stylesheet" href="assets/js/libs/bootstrap-datepicker/dist/css/bootstrap-datepicker.css" type="text/css">
+	<link rel="stylesheet" href="assets/js/libs/clockpicker/dist/bootstrap-clockpicker.min.css" type="text/css">
 	<link rel="stylesheet" href="assets/css/style.css">
 
 	<!--TODO: stahnout jquery.hotkeys jako bower plugin	<script src="../scripts/jquery.hotkeys.js"></script>-->
@@ -31,6 +32,7 @@
 	<script src="assets/js/libs/moment/locale/cs.js"></script>
 	<script src="assets/js/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
 	<script src="assets/js/libs/bootstrap-datepicker/dist/locales/bootstrap-datepicker.cs.min.js"></script>
+	<script src="assets/js/libs/clockpicker/dist/bootstrap-clockpicker.min.js"></script>
 
 	<script src="assets/js/libs/jointjs/dist/joint.js"></script>
 	<script src="assets/js/libs/bootstrap/dist/js/bootstrap.min.js"></script>

@@ -45,6 +45,46 @@ function homework($id) {
 }
 
 
+//function homeworkList(){
+//	$app = \Slim\Slim::getInstance();
+//
+////	$id = 9;
+//	$db = getDB();
+//	try {
+//		$student = requestLoggedStudent();
+//		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description
+//            FROM hw_assigment AS hw
+//            JOIN task AS t
+//            ON hw.task_id = t.id
+//            WHERE student_id = :id");
+//		$sth->bindParam(':id', $student['id'], PDO::PARAM_INT);
+//	} catch (Exception $e) {
+//		$app->response()->setStatus(401);
+//		echo '{"error":{"text!!":' . $e->getMessage() . '}}';
+//		exit();
+//	}
+//
+//	try
+//	{
+//		$sth->execute();
+//		$items = $sth->fetchAll(PDO::FETCH_OBJ);
+//
+//		if($items) {
+//			$app->response->setStatus(200);
+//			$app->response()->headers->set('Content-Type', 'application/json');
+//			echo json_encode($items);
+//			$db = null;
+//		} else {
+//			throw new PDOException('No records found.');
+//		}
+//
+//	} catch(PDOException $e) {
+//		$app->response()->setStatus(404);
+////		echo '{"error":{"text":'. $e->getMessage() .'}}';
+//		echo '[]';
+//	}
+//}
+
 function studentsHomeworks(){
 	$app = \Slim\Slim::getInstance();
 
@@ -237,6 +277,53 @@ function homeworkSolutionCreate($id) {
 		} else {
 			throw new PDOException('Adding solution was unsuccessful. You do not own requested homework.');
 		}
+
+	} catch(PDOException $e) {
+		$app->response()->setStatus(400);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+	finally {
+		$db = null;
+	}
+
+}
+
+function assignHomework() {
+	$app = \Slim\Slim::getInstance();
+
+	try {
+		$teacher = requestLoggedTeacher();
+	}catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
+	$allPostVars = json_decode($app->request->getBody(), true);
+	$values = array(
+		'task_id' => $allPostVars['task_id'],
+		'student_id' => $allPostVars['student_id'],
+		'deadline' => $allPostVars['deadline'],
+		'status' => $allPostVars['status'],
+	);
+
+	try
+	{
+		$db = getDB();
+
+			$sth = $db->prepare("INSERT INTO `hw_assigment` 
+			(`task_id`,`student_id`,`created`,`deadline`,`status`)
+			VALUES(:task_id, :student_id, NOW(), :deadline, :status )");
+
+			$result = $sth->execute($values);
+
+			if ($result){
+					$app->response()->setStatus(200);
+					$app->response()->headers->set('Content-Type', 'application/json');
+					echo json_encode(array('result'=>'OK'));
+			} else {
+				throw new PDOException('Creating homework was unsuccessful');
+			}
 
 	} catch(PDOException $e) {
 		$app->response()->setStatus(400);
