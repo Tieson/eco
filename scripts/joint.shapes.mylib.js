@@ -467,8 +467,8 @@ joint.shapes.mylib.Hradlo21N = joint.shapes.mylib.Hradlo.extend({
         type: 'mylib.Hradlo21N',
         size: { width: 50, height: 70 },
         attrs: {
-            '.input1': { ref: 'rect', 'ref-x': -10, 'ref-y': 0.2, magnet: 'passive', port: 'a' },
-            '.input2': { ref: 'rect', 'ref-x': -10, 'ref-y': 0.8, magnet: 'passive', port: 'b' },
+            '.input1': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.333, magnet: 'passive', port: 'a' },
+            '.input2': { ref: 'rect', 'ref-x': -6, 'ref-y': 0.666, magnet: 'passive', port: 'b' },
             '.not_gate': { ref: 'rect', 'ref-dx': 8, 'ref-y': 0.5, stroke: 'black'},
             '.output1': { ref: 'rect', 'ref-dx': 40, 'ref-y': 0.5, magnet: true, port: 'q' }
         },
@@ -1510,9 +1510,9 @@ joint.shapes.mylib.TUL_NAND = joint.shapes.mylib.Hradlo21N.extend({
         attrs: {
             '.wire': { 'ref-dx': 15, d: 'M 0 0 L 30 0' },
            '.label': { text: '&', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
-              '.jm': { text: 'a', ref: 'rect', 'ref-dx': -80, 'ref-y': 0, 'y-alignment': 'middle' },
-             '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
-             '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -60 },             
+            '.jm': { text: 'a', ref: 'rect', 'ref-dx': -75, 'ref-dy': -70 },
+            '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -75, 'ref-dy': -40 },
+            '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
         },
         inPorts: ['a', 'b'],
         outPorts: ['q'],
@@ -1530,9 +1530,9 @@ joint.shapes.mylib.TUL_NOR = joint.shapes.mylib.Hradlo21N.extend({
         attrs: {
              '.wire': { 'ref-dx': 15, d: 'M 0 0 L 30 0' },
             '.label': { text: '≥1', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
-               '.jm': { text: 'a', ref: 'rect', 'ref-dx': -70, 'ref-y': -70, 'y-alignment': 'middle' },
-              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
-              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -60 },            
+            '.jm': { text: 'a', ref: 'rect', 'ref-dx': -75, 'ref-dy': -70 },
+            '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -75, 'ref-dy': -40 },
+            '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
         }
     }, joint.shapes.mylib.Hradlo21N.prototype.defaults),
     operation: function (p) {
@@ -1548,9 +1548,9 @@ joint.shapes.mylib.TUL_XOR = joint.shapes.mylib.Hradlo21.extend({
         attrs: {
              '.wire': { 'ref-dx': 8, d: 'M 0 0 L 25 0' },
             '.label': { text: '=1', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
-               '.jm': { text: 'a', ref: 'rect', 'ref-dx': -70, 'ref-dy': -70 },
-              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },            
-              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },              
+               '.jm': { text: 'a', ref: 'rect', 'ref-dx': -75, 'ref-dy': -70 },
+              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -75, 'ref-dy': -40 },
+              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
         }
     }, joint.shapes.mylib.Hradlo21.prototype.defaults),
     operation: function (p) {
@@ -2714,6 +2714,7 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
         return this;
     },
     pointerup: function (evt, x, y) {
+        joint.dia.ElementView.prototype.pointerup.call(this,evt,x,y);
         console.log("remove click");
         this._dx = x;
         this._dy = y;
@@ -2747,6 +2748,8 @@ joint.shapes.mylib.TUL_INVView = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.TUL_NANDView = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.TUL_XORView = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.TUL_BUFView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.TUL_NORView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.TUL_NXORView = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.NAND3View = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.AND3View = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.OR3View = joint.shapes.mylib.ToolElementView;

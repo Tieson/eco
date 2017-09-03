@@ -92,7 +92,8 @@ function schemaUpdate($id) {
 
 		if ($request->execute($values)){
 			$app->response()->setStatus(200);
-			echo '{"result":"Update ok"}}';
+//			echo '{"result":"Update ok"}}';
+			echo '[]';
 		}
 
 	} catch(PDOException $e) {
@@ -210,7 +211,8 @@ function schemaDataCreate($id) {
 
 		if ($request->execute()){
 			$app->response()->setStatus(200);
-			echo '{"result":"Update ok"}}';
+//			echo '{"result":"Creating ok"}}';
+			echo '[]';
 		}
 
 	} catch(PDOException $e) {
@@ -237,7 +239,8 @@ function schemaDataUpdate($schema_id) {
 
 		if ($request->execute()){
 			$app->response()->setStatus(200);
-			echo '{"result":"Update ok"}}';
+//			echo '{"result":"Update ok"}}';
+			echo '[]';
 		}
 
 	} catch(PDOException $e) {

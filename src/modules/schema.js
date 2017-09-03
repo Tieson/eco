@@ -96,6 +96,7 @@ eco.Models.Schema = Backbone.Model.extend({
                 },
                 error: function () {
                     console.log('loadGraph fetch error');
+                    if(callback) {callback.apply(self);}
                 }
             });
         } else {
@@ -268,7 +269,9 @@ eco.Views.SchemasOpenList = eco.Views.GenericList.extend({
                         // swal("Smazáno!", "Schéma bylo navždy odstraněno.", "success");
                     },
                     error: function () {
-                        showSnackbar('Schéma nešlo smazat z neznámého důvodu.');
+                        self.collection.add(model);
+                        self.render();
+                        showSnackbar('Nejde to, schéma je asi již odevzdané.');
                         // swal("Neúspěch!", "Schéma nelze smazat z neznámého důvodu.", "error");
                     }
                 });
@@ -290,7 +293,13 @@ eco.Views.SchemasNew = Backbone.View.extend({
     },
     initialize: function (opts) {
         this.collection = opts.collection;
-        this.model = new eco.Models.Schema();
+        if(!opts.model){
+            this.editing = true;
+            this.model = new eco.Models.Schema();
+        }else{
+            this.editing = false;
+            this.model = opts.model;
+        }
         this.listenTo(this.collection, 'sync', this.render);
         if (opts.submitText) {
             this.submitText = opts.submitText;
@@ -317,7 +326,9 @@ eco.Views.SchemasNew = Backbone.View.extend({
         if (isVhdlName(schema.get('name')) && isVhdlName(schema.get('architecture'))) {
             schema.save(null, {
                 success: function () {
-                    self.model = new eco.Models.Schema();
+                    if(!this.editing){
+                        self.model = new eco.Models.Schema();
+                    }
                     showSnackbar('Hotovo, schéma vytvořeno.');
                     self.render();
                 },
@@ -326,6 +337,63 @@ eco.Views.SchemasNew = Backbone.View.extend({
                 }
             });
             this.collection.add(schema);
+        }else{
+            this.error.invalidName = !isVhdlName(schema.get('name'));
+            this.error.invalidArchitecture = !isVhdlName(schema.get('architecture'));
+
+            this.render();
+        }
+    }
+
+});
+
+eco.Views.SchemasEdit = Backbone.View.extend({
+    className: "schema_new",
+    tagName: 'div',
+    template: _.template($('#schemasNew-template').html()),
+    submitText: 'Uložit',
+    titleText: 'Editace schéma',
+    error: {
+        invalidName: false,
+        invalidArchitecture: false
+    },
+    initialize: function (opts) {
+        this.collection = opts.collection;
+        this.model = opts.model;
+
+        this.listenTo(this.collection, 'sync', this.render);
+        if (opts.submitText) {
+            this.submitText = opts.submitText;
+        }
+        if (opts.titleText) {
+            this.titleText = opts.titleText;
+        }
+    },
+    events: {
+        'submit form': 'schemaNewSubmit',
+    },
+    render: function () {
+        var html = this.template({error: this.error, submitText: this.submitText,  titleText: this.titleText,  schema: this.model.toJSON()});
+        this.$el.html(html);
+
+        return this;
+    },
+    schemaNewSubmit: function (e) {
+        e.preventDefault();
+        var self = this;
+        var schema = this.model;
+        schema.set('name', self.$el.find('#schemasNew_name').val());
+        schema.set('architecture', self.$el.find('#schemasNew_arch').val());
+        if (isVhdlName(schema.get('name')) && isVhdlName(schema.get('architecture'))) {
+            schema.save(null, {
+                success: function () {
+                    showSnackbar('Hotovo, schéma upraveno.');
+                    self.render();
+                },
+                error: function () {
+                    showSnackbar('Jejda, nejde to upravitt!');
+                }
+            });
         }else{
             this.error.invalidName = !isVhdlName(schema.get('name'));
             this.error.invalidArchitecture = !isVhdlName(schema.get('architecture'));

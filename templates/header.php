@@ -5,8 +5,7 @@
 			<i class=" glyphicon glyphicon-file"></i> Schéma
 		</a>
 		<ul class="dropdown-menu">
-			<li><a href="/#schemas/new" id="menu-file-new_schema">Nové</a></li>
-			<li><a href="/#schemas" id="menu-file-open_schema">Otevřít</a></li>
+			<li><a href="/#schemas" id="menu-file-open_new_schema">Nové / Otevřít</a></li>
 			<li class="divider"></li>
 			<li><a href="/#" id="menu-file-download_lib">Stáhnout lib.vdl</a></li>
 		</ul>

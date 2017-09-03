@@ -44,19 +44,15 @@ eco.Models.Simulation = Backbone.Model.extend({
         };
         this.paper.model.addCells(_.toArray(gates));
 
-
         var self = this;
-        console.log(this.paper);
         initializeSignal(self.paper, self.paper.model);
-
-        console.log('eco.Models.Simulation - initialize - paper + graph', this.paper, this.paper.model);
 
         this.paper.on('cell:pointerclick', createCellDoubleclickHandler(function (cellView, evt, x, y) {
             console.log("dbclick", cellView);
         }));
 
         this.paper.on('cell:pointerclick', function (cellView) {
-            console.log('click');
+            console.log('pointerclick');
 
             var gate = cellView.model;
 
@@ -75,16 +71,11 @@ eco.Models.Simulation = Backbone.Model.extend({
                         return wire.get('target').port;
                     })
                     .map(function (wires) {
-                        console.log("wires", wires);
                         var inSignal = Math.max.apply(this, _.invoke(wires, 'get', 'signal'));
                         ports[_.first(wires).get('target').port] = inSignal;
-                        console.log("ppprts", ports);
                         return inSignal;
                     })
                     .value();
-
-
-                console.log("inpts______xxx->", inputs);
 
                 var ops = gate.operation.apply(gate, _.map(ports, function (x) {
                     return x;
@@ -97,8 +88,6 @@ eco.Models.Simulation = Backbone.Model.extend({
                 } else {
                     ports["q"] = ops;
                 }
-
-                console.log("portss->>>", ports);
 
                 // console.log(cellView.model.get('outPorts') );
 

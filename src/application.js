@@ -665,8 +665,9 @@ window.eco = {
                     setPageTitle('Editace schéma '+ schema.get('name'));
                     main.html("");
 
-                    var view = new eco.Views.SchemasNew({
+                    var view = new eco.Views.SchemasEdit({
                         model: schema,
+                        collection: schemas,
                         submitText: 'Uložit',
                         titleText: 'Editace schéma'
                     });
@@ -680,6 +681,7 @@ window.eco = {
                     });
 
                     main.append(view.render().$el);
+                    showSchemas();
                 }
             });
         }

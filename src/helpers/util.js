@@ -365,7 +365,6 @@ function getUtils() {
             var self = this;
             var elements = graph.getElements();
             _.forEach(elements, function (item) {
-                item.attr('custom').counter = counter;
                 var type = item.attr('custom').type;
                 var number = item.attr('custom').number;
                 if (type !== self.types.VODIC) {

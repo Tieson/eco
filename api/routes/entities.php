@@ -43,7 +43,7 @@ $app->get('/entities', function () {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT id_entity AS id, id_cat AS id_category, name, label, architecture, vhdl, inputs_count FROM entities");
+		$sth = $db->prepare("SELECT id_entity AS id, id_cat AS id_category, name, label, architecture, vhdl, inputs_count FROM entities WHERE active=1");
 		$sth->execute();
 		$schemas = $sth->fetchAll(PDO::FETCH_OBJ);
 
