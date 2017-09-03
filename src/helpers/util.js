@@ -292,6 +292,13 @@ function getTranslate(key, data){
 
 function getUtils() {
     var namespace = {
+        types: {
+            IN: 'mylib.INPUT',
+            OUT: 'mylib.OUTPUT',
+            GATE: 'mylib.Gate',
+            CLK: 'mylib.CLK',
+            VODIC: 'mylib.Vodic',
+        },
         hradla: {
             INPUT: 'X',
             OUTPUT: 'Z',
@@ -339,6 +346,9 @@ function getUtils() {
         getWeeks: function(key) {
             return getTranslate(key, this.weeks);
         },
+        getType: function(key) {
+            return getTranslate(key, this.types);
+        },
 
         getElementLabel: function (type) {
             return this.hradla[type];
@@ -350,9 +360,19 @@ function getUtils() {
                 result[key] = item($element.find(prefix+ key));
             });
             return result;
-        }
-
-
+        },
+        inicilizeCounterbyGraph: function (counter, graph) {
+            var self = this;
+            var elements = graph.getElements();
+            _.forEach(elements, function (item) {
+                item.attr('custom').counter = counter;
+                var type = item.attr('custom').type;
+                var number = item.attr('custom').number;
+                if (type !== self.types.VODIC) {
+                    counter.set(type, number);
+                }
+            });
+        },
     };
 
     return namespace;

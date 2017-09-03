@@ -2713,7 +2713,7 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
         }
         return this;
     },
-    pointerclick: function (evt, x, y) {
+    pointerup: function (evt, x, y) {
         console.log("remove click");
         this._dx = x;
         this._dy = y;
@@ -2721,12 +2721,15 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
         var className = evt.target.parentNode.getAttribute('class');
         switch (className) {
             case 'element-tool-remove':
+                var graph = this.model.graph;
+                var counter = graph.get('counter');
+                counter.removeOne(this.model.attr('custom').type, this.model.attr('custom').number);
                 this.model.remove();
                 return;
                 break;
             default:
         }
-        joint.dia.CellView.prototype.pointerclick.apply(this, arguments);
+        joint.dia.CellView.prototype.pointerup.apply(this, arguments);
     },
 });
 

@@ -161,70 +161,70 @@ window.eco = {
             setPageTitle(schema.get('name'));
         }
 
-        function openSchema(schema){
+        function openSchema(schema) {
             console.log('%c openSchema ', 'background: yellow; color: red', schema.get('id'), schema, activeSchemaView);
 
             var paper = eco.createPaper(schema);
 
             var counter = createSetCounter(0);
 
-                    console.log('schema success', schema);
-                    schema.loadGraph(function () {
-                        console.log('%c schema loaded graph!! ', 'background: yellow; color: red', schema.get('graph'));
+            console.log('schema success', schema);
+            schema.loadGraph(function () {
+                console.log('%c schema loaded graph!! ', 'background: yellow; color: red', schema.get('graph'));
 
-                        var graph = schema.get('graph');
+                var graph = schema.get('graph');
+                graph.set('counter',counter);
 
-                        schema.set('opened', true); // nastavení indikátoru, že je otevřeno
-                        openedSchemas.add(schema); //přidáme schéma do kolekce otevřených
-                        addOpenedPaper(schema, paper);
+                schema.set('opened', true); // nastavení indikátoru, že je otevřeno
+                openedSchemas.add(schema); //přidáme schéma do kolekce otevřených
+                addOpenedPaper(schema, paper);
 
-                        showSchemaPaper(schema);
-                        setSchemaActive(schema);
+                showSchemaPaper(schema);
+                setSchemaActive(schema);
 
-                        var sim = new eco.Models.Simulation({paper: paper});
-                        sim.startSimulation();
+                var sim = new eco.Models.Simulation({paper: paper});
+                sim.startSimulation();
 
-                        paper.$el.droppable({
-                            drop: function( event, ui ) {
-                                console.log("paper DROP", ui, $(ui.helper), $(ui.draggable));
-                                var entityId = parseInt($(ui.helper).attr('data-entityid'));
-                                console.log("categories", entities);
-                                console.log("catId", entityId);
+                eco.Utils.inicilizeCounterbyGraph(counter, graph);
 
-                                var foundEntity = entities.get(entityId);
-
-                                var entityName = foundEntity.get('name');
-                                console.log(entityName);
-                                if (joint.shapes.mylib[entityName]){
-                                    var newCell = new joint.shapes.mylib[entityName]({ position: {
-                                        x: ui.offset.left - schemaContainer.offset().left,
-                                        y: ui.offset.top - schemaContainer.offset().top
-                                    }});
-                                    // x.attr('custom', );
-                                    var number = counter.inc(entityName);
-                                    var elemLabel = eco.Utils.getElementLabel(entityName);
-                                    if (elemLabel!==undefined){
-                                        var uniqueName = elemLabel + number;
-                                        newCell.attr('.label/text', uniqueName);
-                                    }else{
-                                        var uniqueName = entityName+'_'+number;
-                                    }
-                                    newCell.attr('custom', {
-                                        type: entityName,
-                                        name: elemLabel,
-                                        number: number,
-                                        uniqueName: uniqueName,
-                                        label: foundEntity.get('label'),
-                                    });
-                                    schema.get('graph').addCell(newCell);
-                                    //TODO: Přidat label hlavně u vstupů a výstupů s ID od counteru
+                paper.$el.droppable({
+                    drop: function (event, ui) {
+                        var entityId = parseInt($(ui.helper).attr('data-entityid'));
+                        var foundEntity = entities.get(entityId);
+                        var entityName = foundEntity.get('name');
+                        console.log(entityName);
+                        if (joint.shapes.mylib[entityName]) {
+                            var newCell = new joint.shapes.mylib[entityName]({
+                                position: {
+                                    x: ui.offset.left - schemaContainer.offset().left,
+                                    y: ui.offset.top - schemaContainer.offset().top
                                 }
-                                else {
-                                    foundEntity.set('disabled', true);
-                                }
+                            });
+                            // x.attr('custom', );
+                            var number = counter.inc(entityName);
+                            var elemLabel = eco.Utils.getElementLabel(entityName);
+                            if (elemLabel !== undefined) {
+                                var uniqueName = elemLabel + number;
+                                newCell.attr('.label/text', uniqueName);
+                            } else {
+                                var uniqueName = entityName + '_' + number;
                             }
-                        });
-                     });
+                            newCell.attr('custom', {
+                                type: entityName,
+                                name: elemLabel,
+                                number: number,
+                                uniqueName: uniqueName,
+                                label: foundEntity.get('label'),
+                            });
+                            schema.get('graph').addCell(newCell);
+                            //TODO: Přidat label hlavně u vstupů a výstupů s ID od counteru
+                        }
+                        else {
+                            foundEntity.set('disabled', true);
+                        }
+                    }
+                });
+            });
 
         }
 
@@ -691,6 +691,7 @@ window.eco = {
             var view = new eco.Views.SchemasOpenList({
                 template: "#schemasOpenList-template",
                 itemTemplate: "#schemasOpenItem-template",
+                formater: eco.Formaters.SchemaSimpleFormater,
                 collection: schemas,
                 searchNames: [
                     'list-name',
@@ -698,10 +699,7 @@ window.eco = {
                     'list-created'
                 ]
             });
-            // view.listenTo(vent, 'schemaDelete', function (schema) {
-            //     console.log('schemaDelete vent', schema);
-            //     // schemas.remove(schema);
-            // });
+
             main.append(view.render().$el);
         }
 
