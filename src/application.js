@@ -82,7 +82,7 @@ window.eco = {
 
         var schemas = new eco.Collections.Schemas();
         schemas.fetch();
-        var groups = new eco.Collections.GroupCollection({
+        var groups = new eco.Collections.GroupCollection(null, {
             url: "/api/groups"
         });
 
@@ -563,7 +563,7 @@ window.eco = {
             setPageTitle('Přidání do skupiny');
             main_tab.show();
             schemas_tab.hide();
-            var groups = new eco.Collections.GroupCollection({
+            var groups = new eco.Collections.GroupCollection(null, {
                 url: "/api/students/"+user.get('student_id')+"/groups",
             });
             eco.ViewGarbageCollector.clear();

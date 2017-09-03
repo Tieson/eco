@@ -83,7 +83,7 @@ window.eco = {
 
         var schemas = new eco.Collections.Schemas();
         schemas.fetch();
-        var groups = new eco.Collections.GroupCollection({
+        var groups = new eco.Collections.GroupCollection(null,{
             url: "/api/groups"
         });
 

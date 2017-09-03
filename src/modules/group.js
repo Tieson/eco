@@ -81,7 +81,7 @@ eco.Models.UserGroup = Backbone.Model.extend({
 
 eco.Collections.GroupCollection = Backbone.Collection.extend({
     model: eco.Models.Group,
-    initialize: function (opts) {
+    initialize: function (models, opts) {
         this.urlString = opts.url;
     },
     url: function () {

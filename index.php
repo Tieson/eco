@@ -68,12 +68,14 @@ function setNullDataToViewAndUnset($app, $collection){
 }
 
 $app->hook('slim.before.dispatch', function() use ($app) {
+	global $basedir;
 	setSessionDataToView($app, array(
 		'user_id',
 		'user_name',
 		'user_role',
 		'user_logged',
 	));
+	$app->view()->setData('basepath', $basedir);
 });
 
 $app->get('/', function() use($app) {
@@ -130,7 +132,7 @@ $app->post("/login", function () use ($app) {
 	}
 
 	$_SESSION['user_name'] = $email;
-	$_SESSION['user_id'] = 1;
+	$_SESSION['user_id'] = 2;
 	$_SESSION['user_role'] = "teacher";
 	$_SESSION['user_logged'] = TRUE;
 
