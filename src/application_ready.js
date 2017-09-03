@@ -9,7 +9,7 @@ eco.Router = Backbone.Router.extend({
         /** Schémata **/
         'schemas': 'showSchemas', //seznam schémat, která lze otevřít (pouze vlastní schémata)
         'schemas/new': 'schemaCreateNew', //vytvoření nového schema - pro konkrétního uživatele
-        'schemas/:id/vhdl': 'schemaExportVhdl', //vytvoření nového schema - pro konkrétního uživatele
+        'schemas/:id/vhdl': 'schemaExportVhdl',
         'schemas/:id': 'openedSchema', //Pro editaci konkrétního schéma = otevření schéma (pouze jedno otevřené)
         'schemas/:id/edit': 'showSchemaEdit',
 

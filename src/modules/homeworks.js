@@ -47,6 +47,7 @@ eco.Models.HomeworkTeacher = Backbone.Model.extend({
     defaults: {
         id: null,
         task_id: null,
+        schema_id: null,
         student_id: null,
         teacher_id: null,
         created: null,

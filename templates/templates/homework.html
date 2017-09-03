@@ -317,12 +317,12 @@
 
 
 <script type="text/template" id="solutionsListItem-template">
-    <td class="list-name"><strong><%=name%> (<%=architecture%>)</strong></td>
+    <td class="list-name"><a href="/#schemas/<%=schema_id%>" class="btn btn-xs button button--default"><%=name%> (<%=architecture%>)</a></td>
     <td class="list-created"><%=created%></td>
     <td class="list-status"><%=status%></td>
     <td class="list-result"><%=test_message%></td>
     <td>
-        <span class="btn btn-default btn-xs downloadVHDL" data-cid="<%=cid%>"><i class="glyphicon glyphicon-download"></i> VHDL</span>
+        <!--<span class="btn btn-default btn-xs downloadVHDL" data-cid="<%=cid%>"><i class="glyphicon glyphicon-download"></i> VHDL</span>-->
         <% if(statusTechnical=='waiting') { %>
             <span class="btn btn-danger btn-xs delete-solution" data-cid="<%=cid%>"><i class="glyphicon glyphicon-trash"></i> smazat</span>
         <% } %>

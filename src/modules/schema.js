@@ -41,13 +41,19 @@ eco.Models.Schema = Backbone.Model.extend({
             });
         }
 
-        this.lastVHDL.set("data",graphstring);
+        this.lastVHDL.set("data", graphstring);
         this.lastVHDL.data = graphstring;
         this.lastVHDL.url = '/api/schemas/' + this.id + '/vhdls';
-        showSnackbar('Schéma uloženo.');
 
         // console.log(this.lastVHDL.data, this.lastVHDL.url);
-        this.lastVHDL.save();
+        this.lastVHDL.save(null, {
+            success: function (model) {
+                showSnackbar('Schéma uloženo.');
+            },
+            error: function () {
+                showSnackbar('Chyba, nelze uložit.');
+            }
+        });
     },
 
     /**

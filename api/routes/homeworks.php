@@ -27,7 +27,7 @@ function homework($id) {
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':student_id', $user['id'], PDO::PARAM_INT);
 	}else if(isTeacher($user)){
-		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, u.name AS student_name
+		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, u.name AS student_name 
             FROM hw_assigment AS hw
         	JOIN task AS t
         	JOIN student AS s
@@ -118,7 +118,7 @@ function homeworkSolutionList($id) {
 	try
 	{
 		if (isStudent($user)) {
-			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message,
+			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, s.schema_id,
 			sch.name, sch.architecture
             FROM solution AS s
         	JOIN hw_assigment AS hw
@@ -128,7 +128,7 @@ function homeworkSolutionList($id) {
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
 			$sth->bindParam(':student_id', $user['id'], PDO::PARAM_INT);
 		} else if (isTeacher($user)) {
-			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message,
+			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, s.schema_id,
 			sch.name, sch.architecture
             FROM solution AS s
         	JOIN hw_assigment AS hw

@@ -12,14 +12,21 @@
 function schemas() {
 	$app = \Slim\Slim::getInstance();
 
+	$db = getDB();
+	try {
+		$user = requestLoggedAny();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
 	try
 	{
-		$db = getDB();
 		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
             FROM schema_base WHERE user_id=:user_id");
-
-
-		$sth->bindParam(":user_id", $_SESSION['user_id'], PDO::PARAM_INT);
+		$sth->bindParam(":user_id", $user['user_id'], PDO::PARAM_INT);
 
 		$sth->execute();
 		$schemas = $sth->fetchAll(PDO::FETCH_OBJ);
@@ -41,17 +48,26 @@ function schemas() {
 function schemaCreate() {
 	$app = \Slim\Slim::getInstance();
 
+	$db = getDB();
+	try {
+		$user = requestLoggedAny();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
 	$allPostVars = json_decode($app->request->getBody(), true);
 	$values = array(
 		"name" => $allPostVars['name'],
 		"architecture" => $allPostVars['architecture'],
-		"user_id" => 1
+		"user_id" => $user['user_id'],
 	);
 
 	try
 	{
-		$db = getDB();
-		$result = $db->prepare("INSERT INTO schema_base (user_id, name, architecture) VALUES (:user_id,:name,:architecture)")->execute($values);
+		$result = $db->prepare("INSERT INTO schema_base (user_id, name, architecture, created) VALUES (:user_id,:name,:architecture, NOW())")->execute($values);
 
 		if ($result){
 			$id = $db->lastInsertId();
@@ -77,6 +93,7 @@ function schemaCreate() {
 	}
 }
 function schemaUpdate($id) {
+	//TODO: dodělat oprávnění
 	$app = \Slim\Slim::getInstance();
 
 	$allPostVars = json_decode($app->request->getBody(), true);
@@ -104,44 +121,95 @@ function schemaUpdate($id) {
 function schemaDelete($id) {
 	$app = \Slim\Slim::getInstance();
 
+	$db = getDB();
 	try {
-		$db = getDB();
-		$exists = $db->prepare("SELECT count(*) AS count FROM schema_base WHERE id = :id");
-		$exists->bindParam(":id", $id, PDO::PARAM_INT);
-		if ($exists->execute()) {
-			$count = $exists->fetch(PDO::FETCH_OBJ);
-			if ($count->count == 0) {
-				$app->response()->setStatus(404);
-				$app->response()->header('X-Status-Reason', "Item was not found.");
-			} else {
-				$prepared = $db->prepare("DELETE FROM schema_base WHERE id = :id");
-				$prepared->bindParam(":id", $id, PDO::PARAM_INT);
-				if ($prepared->execute()) {
-					echo '{"result":{"text":"Item was deleted"}}';
-				}
-			}
-		} else {
-			echo '{"result":{"text":"Something went wrong.", "type": "error"}}';
-		}
+		$user = requestLoggedAny();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
 
-	} catch (PDOException $e) {
-		$app->response()->setStatus(404);
-		$app->response()->header('X-Status-Reason', $e->getMessage());
-		echo '{"error":{"text":' . $e->getMessage() . '}}';
+	if (isStudent($user)){
+		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
+            FROM schema_base 
+            WHERE id = :id AND user_id = :user_id");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+
+	}else if(isTeacher($user)){
+		//Učitel může vidět schémata všech studentů
+		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
+            FROM schema_base
+            WHERE id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM student))");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+	}
+
+	$schema = $sth->execute();
+	if ($schema) {
+		try {
+			$exists = $db->prepare("SELECT count(*) AS count FROM schema_base WHERE id = :id");
+			$exists->bindParam(":id", $id, PDO::PARAM_INT);
+
+			if ($exists->execute()) {
+				$count = $exists->fetch(PDO::FETCH_OBJ);
+				if ($count->count == 0) {
+					$app->response()->setStatus(404);
+					$app->response()->header('X-Status-Reason', "Item was not found.");
+				} else {
+					$prepared = $db->prepare("DELETE FROM schema_base WHERE id = :id");
+					$prepared->bindParam(":id", $id, PDO::PARAM_INT);
+					if ($prepared->execute()) {
+						echo '{"result":{"text":"Item was deleted"}}';
+					}
+				}
+			} else {
+				echo '{"result":{"text":"Something went wrong.", "type": "error"}}';
+			}
+
+		} catch (PDOException $e) {
+			$app->response()->setStatus(404);
+			$app->response()->header('X-Status-Reason', $e->getMessage());
+			echo '{"error":{"text":' . $e->getMessage() . '}}';
+		}
+	} else {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":"Nemáte potřebná oprávnění."}}';
 	}
 }
 function schemaDetail($id) {
 	$app = \Slim\Slim::getInstance();
 
-	try
-	{
-		$db = getDB();
+	$db = getDB();
+	try {
+		$user = requestLoggedAny();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
 
+	if (isStudent($user)){
 		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
             FROM schema_base
-            WHERE id = :id");
-
+            WHERE id = :id AND user_id = :user_id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+
+	}else if(isTeacher($user)){
+		//Učitel může vidět schémata všech studentů
+		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
+            FROM schema_base
+            WHERE id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM student))");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+	}
+
+	try
+	{
 		$sth->execute();
 
 		$schema = $sth->fetch(PDO::FETCH_OBJ);
@@ -164,16 +232,43 @@ function schemaDetail($id) {
 function schemaData($id) {
 	$app = \Slim\Slim::getInstance();
 
+
+	$db = getDB();
+	try {
+		$user = requestLoggedAny();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
+	if (isStudent($user)){
+
+		$sth = $db->prepare("SELECT schema_data.id data, schema_data.created, edited, schema_id, typ, name, user_id, architecture, base.created AS schema_created
+            FROM schema_data
+            JOIN schema_base AS base 
+            ON  schema_id = base.id
+            WHERE schema_id = :id AND user_id = :user_id
+            ORDER BY schema_data.id DESC");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+
+	}else if(isTeacher($user)){
+		//Učitel může vidět schémata všech studentů
+
+		$sth = $db->prepare("SELECT schema_data.id data, schema_data.created, edited, schema_id, typ, name, user_id, architecture, base.created AS schema_created
+            FROM schema_data
+            JOIN schema_base AS base 
+            ON  schema_id = base.id
+            WHERE schema_id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM student))
+            ORDER BY schema_data.id DESC");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+	}
+
 	try
 	{
-		$db = getDB();
-
-		$sth = $db->prepare("SELECT * 
-            FROM schema_data
-            WHERE schema_id = :id
-            ORDER BY id DESC");
-
-		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 
 		$schema = $sth->fetchAll(PDO::FETCH_OBJ);
@@ -202,26 +297,65 @@ function schemaDataCreate($id) {
 //		"schema_id" => $allPostVars['schema_id'],
 	);
 
-	try
-	{
-		$db = getDB();
-		$request = $db->prepare("INSERT INTO schema_data (data, schema_id) VALUES (:data,:schema_id)");
-		$request->bindParam(":schema_id", $id, PDO::PARAM_INT);
-		$request->bindParam(":data", $values['data'], PDO::PARAM_STR);
-
-		if ($request->execute()){
-			$app->response()->setStatus(200);
-//			echo '{"result":"Creating ok"}}';
-			echo '[]';
-		}
-
-	} catch(PDOException $e) {
-		$app->response()->setStatus(400);
+	$db = getDB();
+	try {
+		$user = requestLoggedAny();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
+//	if (isStudent($user)){
+	$schema = $db->prepare("SELECT sb.id
+            FROM schema_base AS sb
+            JOIN schema_data AS sd
+            ON  sd.schema_id = sb.id
+            WHERE schema_id = :schema_id AND user_id = :user_id 
+            LIMIT 1");
+	$schema->bindParam(":schema_id", $id, PDO::PARAM_INT);
+	$schema->bindParam(":user_id", $user['user_id'], PDO::PARAM_INT);
+
+	if ($schema->execute()) {
+
+		$sch = $schema->fetch(PDO::FETCH_ASSOC);
+		if ($sch['id']){
+			try {
+				$request = $db->prepare("INSERT INTO schema_data (data, schema_id, created) VALUES (:data,:schema_id, NOW())");
+				$request->bindParam(":schema_id", $id, PDO::PARAM_INT);
+				$request->bindParam(":data", $values['data'], PDO::PARAM_STR);
+
+				if ($request->execute()) {
+					$app->response()->setStatus(200);
+					echo '[]';
+				}
+
+			} catch (PDOException $e) {
+				$app->response()->setStatus(400);
+				echo '{"error":{"text":' . $e->getMessage() . '}}';
+			}
+		}else{
+			$app->response()->setStatus(401);
+			echo '{"error":{"text": "Nemáte oprávnění k uložení schéma"}}';
+		}
+	}else{
+		$app->response()->setStatus(401);
+		echo '{"error":{"text": "Nemáte oprávnění k uložení schéma"}}';
 	}
 }
 function schemaDataUpdate($schema_id) {
 	$app = \Slim\Slim::getInstance();
+
+	$db = getDB();
+	try {
+		$user = requestLoggedAny();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
 
 	$allPostVars = json_decode($app->request->getBody(), true);
 	$values = array(
@@ -229,39 +363,93 @@ function schemaDataUpdate($schema_id) {
 		"id" => $allPostVars['id'],
 	);
 
-	try
-	{
-		$db = getDB();
-		$request = $db->prepare("UPDATE schema_data SET data=:data, edited=NOW() WHERE schema_id=:schema_id AND id=:id");
-		$request->bindParam(":data", $values['data'], PDO::PARAM_STR);
-		$request->bindParam(":id", $values['id'], PDO::PARAM_INT);
-		$request->bindParam(":schema_id", $schema_id, PDO::PARAM_INT);
+//	if (isStudent($user)){
+		$schema = $db->prepare("SELECT sb.id
+            FROM schema_base AS sb
+            JOIN schema_data AS sd
+            ON  sd.schema_id = sb.id
+            WHERE schema_id = :schema_id AND user_id = :user_id");
+		$schema->bindParam(":schema_id", $schema_id, PDO::PARAM_INT);
+		$schema->bindParam(":user_id", $user['user_id'], PDO::PARAM_INT);
+//	} else if (isTeacher($user)) {
+//		$schema = $db->prepare("SELECT id
+//            FROM schema_base AS sb
+//            JOIN schema_data AS sd
+//            ON  sd.schema_id = sb.id
+//            WHERE schema_id = :schema_id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM student))");
+//		$schema->bindParam(":schema_id", $schema_id, PDO::PARAM_INT);
+//		$schema->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+//	}
 
-		if ($request->execute()){
-			$app->response()->setStatus(200);
-//			echo '{"result":"Update ok"}}';
-			echo '[]';
+	if ($schema->execute()) {
+		$sch = $schema->fetch(PDO::FETCH_ASSOC);
+		if ($sch['id']) {
+			try {
+				$request = $db->prepare("UPDATE schema_data SET data=:data, edited=NOW() WHERE schema_id=:schema_id AND id=:id");
+				$request->bindParam(":data", $values['data'], PDO::PARAM_STR);
+				$request->bindParam(":id", $values['id'], PDO::PARAM_INT);
+				$request->bindParam(":schema_id", $schema_id, PDO::PARAM_INT);
+
+				if ($request->execute()) {
+					$app->response()->setStatus(200);
+					//			echo '{"result":"Update ok"}}';
+					echo '[]';
+				}
+
+			} catch (PDOException $e) {
+				$app->response()->setStatus(400);
+				echo '{"error":{"text":' . $e->getMessage() . '}}';
+			}
+		} else {
+			$app->response()->setStatus(401);
+			echo '{"error":{"text": "Nemáte oprávnění k uložení schéma"}}';
 		}
-
-	} catch(PDOException $e) {
-		$app->response()->setStatus(400);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	} else {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text": "Nemáte oprávnění k uložení schéma"}}';
 	}
 }
 function schemaDataLast($id) {
 	$app = \Slim\Slim::getInstance();
 
+	$db = getDB();
+	try {
+		$user = requestLoggedAny();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
+	if (isStudent($user)){
+
+		$sth = $db->prepare("SELECT sd.id, sd.data, sd.created, sd.edited, sd.schema_id, sd.typ
+            FROM schema_data AS sd
+            JOIN schema_base AS base 
+            ON  schema_id = base.id
+            WHERE schema_id = :id AND user_id = :user_id
+            ORDER BY sd.id DESC
+			LIMIT 1");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+
+	}else if(isTeacher($user)){
+		//Učitel může vidět schémata všech studentů
+
+		$sth = $db->prepare("SELECT sd.id, sd.data, sd.created, sd.edited, sd.schema_id, sd.typ
+            FROM schema_data AS sd
+            JOIN schema_base AS base 
+            ON  schema_id = base.id
+            WHERE schema_id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM student))
+            ORDER BY sd.id DESC
+			LIMIT 1");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+	}
+
 	try
 	{
-		$db = getDB();
-
-		$sth = $db->prepare("SELECT * 
-            FROM schema_data
-            WHERE schema_id = :id
-            ORDER BY edited DESC
-			LIMIT 1");
-
-		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 
 		$schema = $sth->fetch(PDO::FETCH_OBJ);
