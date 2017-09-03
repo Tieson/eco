@@ -26,6 +26,7 @@
     <script src="src/helpers/formaters.js?<?php echo(filemtime('./src/helpers/formaters.js')) ?>"></script>
     <script src="src/helpers/validators.js?<?php echo(filemtime('./src/helpers/validators.js')) ?>"></script>
     <script src="src/helpers/snackbar.js?<?php echo(filemtime('./src/helpers/snackbar.js')) ?>"></script>
+    <script src="src/helpers/mappers.js?<?php echo(filemtime('./src/helpers/mappers.js')) ?>"></script>
 
     <script src="src/modules/generic.js?<?php echo(filemtime('./src/modules/generic.js')) ?>"></script>
     <script src="src/modules/entities.js?<?php echo(filemtime('./src/modules/entities.js')) ?>"></script>
@@ -37,7 +38,7 @@
     <script src="src/modules/tasks.js?<?php echo(filemtime('./src/modules/tasks.js')) ?>"></script>
     <script src="src/modules/group.js?<?php echo(filemtime('./src/modules/group.js')) ?>"></script>
     <script src="src/modules/student.js?<?php echo(filemtime('./src/modules/student.js')) ?>"></script>
-    <script src="src/modules/teacher/homeworks.js?<?php echo(filemtime('./src/modules/homeworks.js')) ?>"></script>
+    <script src="src/modules/homeworks.js?<?php echo(filemtime('./src/modules/homeworks.js')) ?>"></script>
     <script src="src/modules/users.js?<?php echo(filemtime('./src/modules/users.js')) ?>"></script>
 
     <script src="src/modules/simmulator.js?<?php echo(filemtime('./src/modules/simmulator.js')) ?>"></script>
@@ -52,15 +53,16 @@
 
                 'groups': 'showGroups', //zobrazení seznamu skupin, které vyučuící vlastní
                 'groups/:id': 'showGroupDetail', //zobrazení detailu skupiny
-                //TODO: přidání studenta do skupiny
+                'groups/:id/homeworks': 'showGroupHomeworks', //TODO: zobrazení úkolů skupiny - pro učitele
 
-                'students': 'showStudents', //TODO: zobrazení studentů
+                'students': 'showStudents', //zobrazení studentů
 
                 'tasks': 'showOwnTasks',
                 'tasks/:id': 'showTaskDetail',
                 'tasks/:id/edit': 'editTask',
 
                 'homeworks' : 'homeworksAssigment',
+                'homeworks/:id': 'showHwDetail', //zobrazí detail úkolů se zadáním a dalšími informacemi
 
 
                 /** Schémata **/
@@ -70,7 +72,7 @@
                 'schemas/:id/edit': 'showSchemaEdit',
 
                 'teachers/:id/tasks': 'showTasks',
-                'teachers/:id/hw': 'showGroupHomeworks',
+//                'teachers/:id/hw': 'showGroupHomeworks',
 
 
 

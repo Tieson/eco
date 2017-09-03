@@ -31,15 +31,14 @@ function requestLoggedTeacher(){
 		);
 	}else {
 		throw new Exception('Nemáte potřebné oprávnění vyučujícího.');
-		//TODO:zapnout ověřování
 	}
 	return $teacher;
 }
 function requestLoggedStudent(){
 //	$app = \Slim\Slim::getInstance();
-	$teacher = null;
+	$student = null;
 	if (isset($_SESSION['user_role']) && $_SESSION['user_role']=='student'){
-		$teacher = array(
+		$student = array(
 			"user_id" => $_SESSION['user_id'],
 			"name" => $_SESSION['user_name'],
 			"role" => $_SESSION['user_role'],
@@ -47,7 +46,28 @@ function requestLoggedStudent(){
 		);
 	}else {
 		throw new Exception('Nemáte potřebné oprávnění studenta.');
-		//TODO:zapnout ověřování
 	}
-	return $teacher;
+	return $student;
+}
+function requestLoggedAny(){
+//	$app = \Slim\Slim::getInstance();
+	$user = null;
+	if (isset($_SESSION['user_role']) && isset($_SESSION['user_id'])){
+		$user = array(
+			"user_id" => $_SESSION['user_id'],
+			"name" => $_SESSION['user_name'],
+			"role" => $_SESSION['user_role'],
+			"id" => 9
+		);
+	}else {
+		throw new Exception('Nemáte potřebné oprávnění.');
+	}
+	return $user;
+}
+
+function isStudent($user){
+	return $user['role']==='student';
+}
+function isTeacher($user){
+	return $user['role']==='teacher';
 }

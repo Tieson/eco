@@ -118,6 +118,42 @@
 </script>
 
 
+<script type="text/template" id="homeworkTeacherList-template">
+    <h1><%=title%></h1>
+    <input class="search form-control" placeholder="Filtr"/>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <th>Název</th>
+            <th>Student</th>
+            <th>Termín</th>
+            <th>Stav</th>
+            <!--<th>Stav</th>-->
+            <th>Akce</th>
+            </thead>
+            <tbody class="items-container">
+
+            </tbody>
+        </table>
+    </div>
+</script>
+
+
+<script type="text/template" id="homeworkTeacherListItem-template">
+    <td class="list-name"><a href="#homeworks/<%= id %>" class="btn btn-xs button--default" data-id="<%= id %>"><%= name %></a></td>
+    <td class="list-user"><strong><%= u_name %></strong> (<%=mail%>)</td>
+    <td class="list-termin"><%= deadline %></td>
+    <td class="list-status"><%= status %></td>
+    <!--<td class="list-stav">-->
+        <!--<div class="badge badge-default"><%= status %></div>-->
+    <!--</td>-->
+    <td>
+        <span class="btn btn-xs btn-danger homework-delete" data-cid="<%=cid%>"> <i class="glyphicon glyphicon-trash"></i> Zrušit</span>
+    </td>
+</script>
+
+
 <script type="text/template" id="homeworkDetail-template">
 
     <div class="row">
@@ -171,6 +207,53 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" data-dismiss="modal" id="homeworkSchemaModalSubmit">Odevzdat</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Zrušit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</script>
+
+<script type="text/template" id="homeworkTeacherDetail-template">
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h1><%=title%><%= name %></h1>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-3">
+                    <dl>
+                        <dt>Student</dt>
+                        <dd><%= student_name %></dd>
+                    </dl>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <dl>
+                        <dt>Termín</dt>
+                        <dd><%= deadline %></dd>
+                    </dl>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <dl>
+                        <dt>Stav</dt>
+                        <dd><%= status %></dd>
+                    </dl>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <dl>
+                        <dt>Vytvořeno</dt>
+                        <dd><%= created %></dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <h2>Zadání</h2>
+                    <p><%= description %></p>
                 </div>
             </div>
         </div>

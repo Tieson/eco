@@ -51,7 +51,7 @@ eco.Formaters.TasksFormater = function (model) {
 eco.Formaters.HwTeacherFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
-        status: model.status,
+        status: model.get('status'),
         created: moment(model.get('created')).format('LLL'),
         deadline: moment(model.get('deadline')).format('LLL'),
     });
@@ -59,18 +59,15 @@ eco.Formaters.HwTeacherFormater = function (model) {
 };
 
 eco.Formaters.HomeworkFormater = function (model) {
-    var result = {
+    var result = _.extend({},model.toJSON(),{
         cid: model.cid,
-        id: model.get('id'),
-        task_id: model.get('task_id'),
-        student_id: model.get('student_id'),
-        teacher_id: model.get('teacher_id'),
+        type: eco.Utils.fileTypes[model.get('type')],
+        // name: model.get('name'),
+        // file: model.get('file'),
         status: model.getStatus(),
-        name: model.get('name'),
-        description: model.get('description'),
         created: moment(model.get('created')).format('LLL'),
         deadline: moment(model.get('deadline')).format('LLL'),
-    };
+    });
     return result;
 };
 
@@ -106,8 +103,10 @@ eco.Formaters.GroupDetailFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
         created: moment(model.get('created')).format('LLL'),
-        statusTechnical: model.get('status'),
-        status: eco.Utils.getSolutionStatus(model.get('status')),
+        dayKey: model.get('day'),
+        day: eco.Utils.getDay(model.get('day')),
+        weeks: eco.Utils.getWeeks(model.get('weeks')),
+        block: model.get('block')
     });
     return result;
 };

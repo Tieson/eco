@@ -100,7 +100,7 @@ eco.Views.GenericDetail = Backbone.View.extend({
         console.log(this.model);
         var self = this;
         var data = this.formater(this.model);
-        var html = this.template(data);
+        var html = this.template(_.extend({}, {title: this.title}, data));
         this.$el.html(html);
         this.$el.attr('data-id', data.id);
         this.$el.attr('data-cid', data.cid);

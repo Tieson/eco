@@ -705,30 +705,25 @@ window.eco = {
             main.append(view.render().$el);
         }
 
+        /**
+         * Zobrazí form pro nové schéma
+         * route:showSchemas
+         */
         function showNewSchemaForm() {
             main_tab.show();
             schemas_tab.hide();
             console.log('route:showSchemas');
 
-
             var view = new eco.Views.SchemasNew({
-                model: new eco.Models.Schema()
-            });
-
-            view.on('schemaNewSubmit', function (schema) {
-                schema.save();
-                schemas.add(schema);
-
-                showSchema(schema);
+                collection: schemas
             });
 
             main.append(view.render().$el);
-
         }
         function showSchemaListAndNew() {
             setPageTitle('Vaše schémata');
             main.empty();
-            // showNewSchemaForm();
+            showNewSchemaForm();
             showSchemas();
         }
 
@@ -736,6 +731,7 @@ window.eco = {
             setPageTitle('Vaše schémata');
             main.empty();
             showNewSchemaForm();
+            showSchemas();
         }
 
         Backbone.history.start();

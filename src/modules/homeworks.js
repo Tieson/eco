@@ -34,7 +34,7 @@ eco.Models.Homework = Backbone.Model.extend({
 
 eco.Collections.Homeworks = Backbone.Collection.extend({
     model: eco.Models.Homework,
-    initialize: function (models,options) {
+    initialize: function (models, options) {
         this._url = options.url;
     },
     url: function () {
@@ -67,7 +67,7 @@ eco.Models.HomeworkTeacher = Backbone.Model.extend({
         return this.statuses[this.get('status')];
     },
     urlRoot: function () {
-        return '/api/students/' + this.get('student_id') + '/hw';
+        return '/api/homework/';
     },
     haveSolution: function () {
         return false;
@@ -203,7 +203,6 @@ eco.Views.TaskStudent = Backbone.View.extend({
 });
 
 
-
 eco.Views.HomeworkDetailSolution = eco.Views.GenericItem.extend({
     className: 'hwSchemaItem'
 });
@@ -212,7 +211,6 @@ eco.Views.HomeworkDetailSolution = eco.Views.GenericItem.extend({
 /**
  * Detail úkolu pro studenty
  */
-
 eco.Models.HomeworkDetailSolution = Backbone.Model.extend({
 
 });
@@ -242,6 +240,7 @@ eco.Collections.Solutions = Backbone.Collection.extend({
         return this._url;
     }
 });
+
 
 eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
     afterInitialization: function () {
@@ -326,9 +325,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
     downloadVHDL:function (e) {
       console.log("downloadVHDL", this.solutions);
         var cid = $(e.currentTarget).attr('data-cid');
-        console.log(cid);
         var item = this.solutions.get(cid);
-        console.log(item.get('vhdl'));
     },
     deleteSolution: function (e) {
         var self = this;
@@ -400,4 +397,72 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
 
 });
 
+eco.Views.HomeworkTeacherDetail = eco.Views.HomeworkDetail.extend({
 
+    renderInit: function () {
+        var self = this;
+        this.$el.empty();
+        var detailView = new eco.Views.GenericDetail({
+            title: 'Úkol: ',
+            template: '#homeworkTeacherDetail-template',
+            formater: eco.Formaters.HomeworkFormater,
+            model: this.model,
+        });
+
+        this.solutionsView = new eco.Views.GenericList({
+            title: "Odevzdaná řešení k tomuto úkolu",
+            noRecordsMessage: 'Zatím nic nebylo odevzdáno.',
+            template: '#solutionsList-template',
+            itemTemplate: '#solutionsListItem-template',
+            formater: eco.Formaters.SolutionsFormater,
+            collection: this.solutions,
+            searchNames: [
+                'list-name',
+                'list-created',
+                'list-status',
+                'list-result',
+            ]
+        });
+        this.solutions.fetch();
+
+        this.$el.append(detailView.render().$el);
+        this.$el.append(this.solutionsView.$el);
+
+        return this;
+    },
+});
+
+eco.Views.GroupHomeworkList = eco.Views.GenericList.extend({
+    events: {
+        'click .homework-delete': 'deleteHomework'
+    },
+    deleteHomework: function (e) {
+
+        var self = this;
+        swal({
+                title: "Opravdu chtete zrušit úkol?",
+                text: "Odebrání nelze vzít zpět.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ano, odebrat!",
+                cancelButtonText: "Ne",
+                closeOnConfirm: true
+            },
+            function () {
+                var target = $(e.currentTarget);
+                var cid = target.attr('data-cid');
+                var item = self.collection.get(cid);
+
+                item.destroy({
+                    success: function (model) {
+                        showSnackbar('Úkol byl odebrán');
+                        // self.collection.remove(item);
+                        self.render();
+                    }
+                });
+
+                self.render();
+            });
+    }
+});

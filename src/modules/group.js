@@ -345,7 +345,12 @@ eco.Views.GroupDetail = Backbone.View.extend({
                         url: '/api/homework',
                     });
                     // console.log('student', student);
-                    homework_for_student.save();
+                    homework_for_student.save(null, {
+                        success: function (model, response, options) {
+                            createdHw++;
+                            showSnackbar('Bylo přidáno '+createdHw+ ' úkolů');
+                        }
+                    });
                     // console.log(i,students[i].get('id'),i%(tasks.length),tasks[i%(tasks.length)].get('id'));
                 }
             }else {

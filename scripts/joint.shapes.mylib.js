@@ -1518,7 +1518,7 @@ joint.shapes.mylib.TUL_NAND = joint.shapes.mylib.Hradlo21N.extend({
         outPorts: ['q'],
     }, joint.shapes.mylib.Hradlo21N.prototype.defaults),
     operation: function (p) {
-        console.log("IN", this.get('inPorts'), "OUT", this.get('outPorts'));
+        // console.log("IN", this.get('inPorts'), "OUT", this.get('outPorts'));
         if (inputsAreInvalid(p, this.get('inPorts'))) return -1;
         return !logExecute(p, this.get('inPorts'), executerAnd);
     }

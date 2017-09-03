@@ -2,32 +2,22 @@
 session_cache_limiter(false);
 session_start();
 
-require '../vendor/autoload.php';
+$config = require('./config/config.php');
+$basedir = $config['basedir']; //$_SERVER['DOCUMENT_ROOT']
 
-$config['displayErrorDetails'] = true;
-$config['addContentLengthHeader'] = false;
+require $config['vendor'].'/autoload.php';
 
-//$config['db']['host']   = "127.0.0.1";
-//$config['db']['user']   = "root";
-//$config['db']['pass']   = "";
-//$config['db']['dbname'] = "editorobvodu";
-
-$db_select = 'db_tul';
+$slim_config['displayErrorDetails'] = true;
+$slim_config['addContentLengthHeader'] = false;
 
 function getDB()
 {
-	$local = true;
-	if (!$local) {
-		$dbhost = "localhost";
-		$dbuser = "eco_u";
-		$dbpass = "Rep0wooCoo";
-		$dbname = "eco";
-	} else {
-		$dbhost = "127.0.0.1";
-		$dbuser = "root";
-		$dbpass = "";
-		$dbname = "editorobvodu";
-	}
+	global $config;
+	$dbhost = $config['db']['host'];
+	$dbuser = $config['db']['user'];
+	$dbpass = $config['db']['password'];
+	$dbname = $config['db']['database'];
+
 	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
 	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
 	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -45,7 +35,7 @@ $authenticate = function ($app) {
 };
 
 
-$app = new \Slim\Slim(["settings" => $config]);
+$app = new \Slim\Slim(["settings" => $slim_config]);
 
 $app->get('/', function() use($app) {
 	$app->response->setStatus(200);
@@ -53,16 +43,16 @@ $app->get('/', function() use($app) {
 });
 
 
-require_once 'routes/auth.php';
-require_once 'routes/schemas.php';
-require_once 'routes/users.php';
-require_once 'routes/files.php';
-require_once 'routes/students.php';
-require_once 'routes/groups.php';
-require_once 'routes/teacher.php';
-require_once 'routes/users.php';
-require_once 'routes/entities.php';
-require_once 'routes/homeworks.php';
+require_once './routes/auth.php';
+require_once './routes/schemas.php';
+require_once './routes/users.php';
+require_once './routes/files.php';
+require_once './routes/students.php';
+require_once './routes/groups.php';
+require_once './routes/teacher.php';
+require_once './routes/users.php';
+require_once './routes/entities.php';
+require_once './routes/homeworks.php';
 
 //$app->post('/file', 'uploadFile');
 
@@ -90,6 +80,7 @@ $app->get('/users/:id', 'user');
 
 $app->post('/homework', 'assignHomework'); //seznam úkolů konkrétního studentas
 $app->get('/homework/:id', 'homework');
+$app->delete('/homework/:id', 'homeworkDelete');
 $app->get('/homework/:id/solutions', 'homeworkSolutionList');
 $app->post('/homework/:id/solutions', 'homeworkSolutionCreate');
 $app->delete('/homework/:hw_id/solutions/:id', 'homeworkSolutionDelete');
@@ -108,6 +99,7 @@ $app->get('/groups', 'groups'); //seznam skupin
 $app->post('/groups', 'groupCreate'); //vytvoření skupiny
 $app->get('/groups/:id', 'group'); //detail skupiny
 $app->get('/groups/:id/students', 'groupStudents'); //studenti skupiny
+$app->get('/groups/:id/homeworks', 'groupHomeworks'); //studenti skupiny
 $app->post('/groups/:id/students', 'groupAddStudent'); // přidání studenta do skupiny
 //$app->post('/groups/:id/students/:student_id', 'groupAddStudent'); // přidání studenta do skupiny
 $app->delete('/groups/:id', 'groupDelete'); // odebrání skupiny

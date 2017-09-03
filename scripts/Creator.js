@@ -35,7 +35,8 @@ Creator.prototype.resumeInput = function (x, number) {
     this.counter1.initCounterMax(types.IN, number);
     var label = 'X' + number;
     x.attr('.label/text', label);
-    x.attr('custom', {type: types.IN, name: 'X', number: number, uniqueName: label, label: 'vstup'});
+    x.attr('custom', {type: types.IN, name: 'X',
+        number: number, uniqueName: label, label: 'vstup'});
     this.graph.addCell(x);
 };
 Creator.prototype.addOutput = function (x) {

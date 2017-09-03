@@ -31,7 +31,7 @@
             <ul class="dropdown-menu">
                 <li><a href="/teacher#groups">Skupiny</a></li>
                 <li><a href="/teacher#tasks">Zadání</a></li>
-                <li><a href="/teacher#homeworks">Úkoly</a></li>
+<!--                <li><a href="/teacher#homeworks">Úkoly</a></li>-->
             </ul>
         </div>
 	<?php endif; ?>

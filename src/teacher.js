@@ -44,7 +44,7 @@ window.eco = {
         router.on('route:showGroupDetail', showGroupDetail);
 
 
-        router.on('route:homeworksAssigment', homeworksAssigment);
+        // router.on('route:homeworksAssigment', homeworksAssigment); eco.Views.TaskStudent
 
         /** Studenti **/
         // router.on('route:showStudents', showStudents);
@@ -62,6 +62,8 @@ window.eco = {
         router.on('route:showOwnTasks', showOwnTasks);
         router.on('route:showTaskDetail', showTaskDetail);
         router.on('route:editTask', editTask);
+
+        router.on('route:showHwDetail', showHwDetail);
 
         router.on('route:defaultRoute', defaultRoute);
 
@@ -272,6 +274,10 @@ window.eco = {
         }
 
         // TODO deprecated
+        /**
+         * Stránka pro zadánání úkolů (nezávisle na skupině)
+         * Možnost hromadného zadávání
+         */
         function homeworksAssigment() {
             setPageTitle('Seznam zadání');
             main.html('');
@@ -292,54 +298,74 @@ window.eco = {
                 students_collection: students_collection
             });
 
-            console.log("homeworksAssigment", tasks_collection, students_collection);
-
             main.append(task_student_view.$el);
 
             $('.datepicker').datepicker({
                 language: 'cs'
             });
 
-
             tasks_collection.fetch();
         }
+        /**
+         * Zobrazí detail zadání pro studenta
+         * s možnosti přidání řešení a odevzdáním
+         * route:showHwDetail
+         * @param id
+         */
+        function showHwDetail(id) {
+            setPageTitle('Úkol');
+            main.empty();
+            main_tab.show();
+            schemas_tab.hide();
+            eco.ViewGarbageCollector.clear();
 
-        function showGroupHomeworks(id_teacher) {
+            var hw = new eco.Models.HomeworkTeacher({
+                id: id,
+            });
+            var detailView = new eco.Views.HomeworkTeacherDetail({
+                model: hw,
+            });
+
+            main.append(detailView.render().$el);
+            hw.fetch();
+        }
+
+        function showGroupHomeworks(id) {
             //TODO: omezit práva pouze pro vyučující (i na serrveru)
-            setPageTitle('Seznam zadání');
+            setPageTitle('Seznam úkolů');
             main.html('');
             main_tab.show();
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
 
-            var collection = new eco.Collections.HomeworksTeacher({
-                url: "/api/teachers/"+id_teacher+"/hw",
+            var $title = $("<h1></h1>");
+            var group = new eco.Models.Group({id:id});
+            group.fetch({
+                success: function (model) {
+                    $title.text('Úkoly studentů skupiny: '+model.get('subject'));
+                }
             });
 
-            var view = new eco.Views.GenericList({
-                template: '#hwList-template', //TODO: změnit šablony -- bude to D&D
-                itemTemplate: '#hwListItem-template',
+            var collection = new eco.Collections.Homeworks(null,{
+                url: "/api/groups/"+id+"/homeworks",
+            });
+
+            var view = new eco.Views.GroupHomeworkList({
+                template: '#homeworkTeacherList-template',
+                itemTemplate: '#homeworkTeacherListItem-template',
                 formater: eco.Formaters.HwTeacherFormater,
                 collection: collection,
+                uniqueId: 'groupsHwList',
+                searchNames: [
+                    "list-name",
+                    "list-user",
+                    "list-termin",
+                    "list-status",
+                ]
             });
+
+            main.append($title);
             main.append(view.$el);
-
-
-            var viewAddNew = new eco.Views.GenericForm({
-                //TODo: předělat na úkoly!!!! --- celé to bude jinou formou D&D
-                title: "Zadat úkol",
-                template: '#taskForm-template',
-                mapper: function ($element) {
-                    return {
-                        'name': $element.find('#task_name').val(),
-                        'description': $element.find('#task_description').val(),
-                        'etalon_file': $element.find('#task_etalon').val(),
-                        'test_file': $element.find('#task_test').val(),
-                    }
-                },
-                model: new eco.Models.Task(),
-            });
-            main.append(viewAddNew.render().$el);
 
             collection.fetch();
         }

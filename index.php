@@ -3,37 +3,29 @@
 session_cache_limiter(false);
 session_start();
 
-require 'vendor/autoload.php';
+$config = require('./config/config.php');
+
+$basedir = $config['basepath'];
+
+require $basedir.$config['vendor'].'autoload.php';
 
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
-$config['cookies.encrypt'] = true;
-
-$config['db']['host']   = "127.0.0.1";
-$config['db']['user']   = "root";
-$config['db']['pass']   = "";
-$config['db']['dbname'] = "editorobvodu";
-
-
-//$_SESSION['teacher_id'] = 9;
-//$_SESSION['student_id'] = 9;
-//$_SESSION['user_id'] = 1;
-//$_SESSION['user_name'] = "Tomáš Václavík";
-//$_SESSION['user_role'] = 'student';
+//$config['cookies.encrypt'] = true;
 
 function getDB()
 {
-	$dbhost = "127.0.0.1";
-	$dbuser = "root";
-	$dbpass = "";
-	$dbname = "editorobvodu";
+	global $config;
+	$dbhost = $config['db']['host'];
+	$dbuser = $config['db']['user'];
+	$dbpass = $config['db']['password'];
+	$dbname = $config['db']['database'];
 
 	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
 	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
 	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	return $dbConnection;
 }
-
 $app = new \Slim\Slim(["settings" => $config]);
 
 $authenticate = function ($app) {

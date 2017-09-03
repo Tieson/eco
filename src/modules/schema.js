@@ -289,6 +289,8 @@ eco.Views.SchemasNew = Backbone.View.extend({
         invalidArchitecture: false
     },
     initialize: function (opts) {
+        this.collection = opts.collection;
+        this.model = new eco.Models.Schema();
         this.listenTo(this.collection, 'sync', this.render);
         if (opts.submitText) {
             this.submitText = opts.submitText;
@@ -313,7 +315,17 @@ eco.Views.SchemasNew = Backbone.View.extend({
         schema.set('name', self.$el.find('#schemasNew_name').val());
         schema.set('architecture', self.$el.find('#schemasNew_arch').val());
         if (isVhdlName(schema.get('name')) && isVhdlName(schema.get('architecture'))) {
-            this.trigger("schemaNewSubmit", schema);
+            schema.save(null, {
+                success: function () {
+                    self.model = new eco.Models.Schema();
+                    showSnackbar('Hotovo, schéma vytvořeno.');
+                    self.render();
+                },
+                error: function () {
+                    showSnackbar('Nepodařilo se vytvořit!');
+                }
+            });
+            this.collection.add(schema);
         }else{
             this.error.invalidName = !isVhdlName(schema.get('name'));
             this.error.invalidArchitecture = !isVhdlName(schema.get('architecture'));
