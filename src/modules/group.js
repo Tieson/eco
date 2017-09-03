@@ -307,8 +307,8 @@ eco.Views.GroupDetail = Backbone.View.extend({
             }
         });
 
-        this.$el.append(this.groupDetailView.render().$el);
-        this.$el.append(this.studentsView.render().$el);
+        this.$el.append(this.groupDetailView.$el);
+        this.$el.append(this.studentsView.$el);
 
         console.log("this.$el.find('.datepicker')", this.$el.find('.datepicker'));
         return this;

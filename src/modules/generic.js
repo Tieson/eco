@@ -13,11 +13,14 @@ eco.Views.GenericList = Backbone.View.extend({
         this.formater = opts.formater || eco.Formaters.GenericFormater;
         this.collection = opts.collection;
         this.searchNames = opts.searchNames || ['list-one'];
+        this.renderLoading();
         this.listenTo(this.collection, 'sync', this.render);
         this.afterInitialization();
         this.vent = opts.vent;
         this.uniqueId = opts.uniqueId || '';
-        this.render();
+    },
+    renderLoading: function () {
+        this.$el.html('<div class="loader">Načítám</div>');
     },
     afterInitialization: function () {
 
@@ -90,11 +93,14 @@ eco.Views.GenericDetail = Backbone.View.extend({
         this.formater = opts.formater || eco.Formaters.GenericFormater;
         this.model = opts.model;
         this.afterRender = opts.afterRender;
+        this.renderLoading();
         this.listenTo(this.model, 'sync change', this.render);
         this.afterInitialization();
     },
+    renderLoading: function () {
+        this.$el.html('<div class="loader">Načítám</div>');
+    },
     afterInitialization: function () {
-
     },
     render: function () {
         console.log(this.model);
@@ -123,11 +129,15 @@ eco.Views.GenericForm = Backbone.View.extend({
             throw new Error("Mapper must be set!");
         }
         this.model = opts.model;
+        this.renderLoading();
         this.afterInitialization();
         this.vent = opts.vent;
         this.sanckbarMessage = opts.sanckbarMessage || 'Podařilo se uložit!';
         this.sanckbarMessageError = opts.sanckbarMessageError || "Něco se pokazilo.";
         this.listenTo(this.model, 'sync change add', this.render);
+    },
+    renderLoading: function () {
+        // this.$el.html('<div class="loader">Načítám</div>');
     },
     afterInitialization: function () {
 

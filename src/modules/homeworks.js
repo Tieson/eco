@@ -426,7 +426,7 @@ eco.Views.HomeworkTeacherDetail = eco.Views.HomeworkDetail.extend({
         });
         this.solutions.fetch();
 
-        this.$el.append(detailView.render().$el);
+        this.$el.append(detailView.$el);
         this.$el.append(this.solutionsView.$el);
 
         return this;

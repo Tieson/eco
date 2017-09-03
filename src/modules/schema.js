@@ -79,10 +79,13 @@ eco.Models.Schema = Backbone.Model.extend({
      * Načte data Grafu z DB
      */
     loadGraph: function (callback) {
+        var self = this;
         console.log("loadGraph");
         // pokud data grafu nebyla načtena, tak vytvoří nový graf
         if (this.lastVHDL == null) {
-            this.lastVHDL = new eco.Models.VHDL();
+            this.lastVHDL = new eco.Models.VHDL({
+                schema_id: self.id
+            });
         }
         var vhdl = this.lastVHDL;
         var self = this;

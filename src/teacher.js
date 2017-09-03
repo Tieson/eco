@@ -326,7 +326,7 @@ window.eco = {
                 model: hw,
             });
 
-            main.append(detailView.render().$el);
+            main.append(detailView.$el);
             hw.fetch();
         }
 

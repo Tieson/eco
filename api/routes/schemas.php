@@ -310,9 +310,7 @@ function schemaDataCreate($id) {
 //	if (isStudent($user)){
 	$schema = $db->prepare("SELECT sb.id
             FROM schema_base AS sb
-            JOIN schema_data AS sd
-            ON  sd.schema_id = sb.id
-            WHERE schema_id = :schema_id AND user_id = :user_id 
+            WHERE id = :schema_id AND user_id = :user_id 
             LIMIT 1");
 	$schema->bindParam(":schema_id", $id, PDO::PARAM_INT);
 	$schema->bindParam(":user_id", $user['user_id'], PDO::PARAM_INT);
@@ -320,7 +318,7 @@ function schemaDataCreate($id) {
 	if ($schema->execute()) {
 
 		$sch = $schema->fetch(PDO::FETCH_ASSOC);
-		if ($sch['id']){
+		if ($sch){
 			try {
 				$request = $db->prepare("INSERT INTO schema_data (data, schema_id, created) VALUES (:data,:schema_id, NOW())");
 				$request->bindParam(":schema_id", $id, PDO::PARAM_INT);
@@ -336,14 +334,15 @@ function schemaDataCreate($id) {
 				echo '{"error":{"text":' . $e->getMessage() . '}}';
 			}
 		}else{
-			$app->response()->setStatus(401);
-			echo '{"error":{"text": "Nemáte oprávnění k uložení schéma"}}';
+			$app->response()->setStatus(404);
+			echo '{"error":{"text": "Schéma nebylo nalezeno."}}';
 		}
 	}else{
 		$app->response()->setStatus(401);
-		echo '{"error":{"text": "Nemáte oprávnění k uložení schéma"}}';
+		echo '{"error":{"text": "Schéma není vaše."}}';
 	}
 }
+
 function schemaDataUpdate($schema_id) {
 	$app = \Slim\Slim::getInstance();
 
