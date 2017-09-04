@@ -14,6 +14,7 @@ window.eco = {
     Validators: {},
     Mapper: {},
     Utils: getUtils(),
+    basedir: config.basedir || '',
     ViewGarbageCollector: {
         items: [],
         clear: function () {
@@ -84,7 +85,7 @@ window.eco = {
         var schemas = new eco.Collections.Schemas();
         schemas.fetch();
         var groups = new eco.Collections.GroupCollection(null,{
-            url: "/api/groups"
+            url: eco.basedir+"/api/groups"
         });
 
         var entities = new eco.Collections.Entities();
@@ -285,12 +286,12 @@ window.eco = {
 
             //load teachers tasks
             var tasks_collection = new eco.Collections.Tasks(null, {
-                url: "/api/tasks",
+                url: eco.basedir+"/api/tasks",
             });
 
             //load students in teachers groups
             var students_collection = new eco.Collections.Students(null, {
-                url: "/api/students",
+                url: eco.basedir+"/api/students",
             });
 
             var task_student_view = new eco.Views.TaskStudent({
@@ -326,7 +327,7 @@ window.eco = {
                 model: hw,
             });
 
-            main.append(detailView.$el);
+            main.append(detailView.render().$el);
             hw.fetch();
         }
 
@@ -347,7 +348,7 @@ window.eco = {
             });
 
             var collection = new eco.Collections.Homeworks(null,{
-                url: "/api/groups/"+id+"/homeworks",
+                url: eco.basedir+"/api/groups/"+id+"/homeworks",
             });
 
             var view = new eco.Views.GroupHomeworkList({
@@ -381,7 +382,7 @@ window.eco = {
             var vent = _.extend({}, Backbone.Events);
 
             var collection = new eco.Collections.Tasks(null, {
-                url: "/api/tasks",
+                url: eco.basedir+"/api/tasks",
             });
 
             var view = new eco.Views.Tasks({
@@ -431,7 +432,7 @@ window.eco = {
             var vent = _.extend({}, Backbone.Events);
 
             var model = new eco.Models.Task({
-                url: "/api/tasks/"+id,
+                url: eco.basedir+"/api/tasks/"+id,
             });
             model.fetch();
 
@@ -443,7 +444,7 @@ window.eco = {
             });
 
             var files = new eco.Collections.Files(null,{
-                url: '/api/tasks/'+id+'/files',
+                url: eco.basedir+'/api/tasks/'+id+'/files',
             });
 
             console.log("FILES", files);

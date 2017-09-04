@@ -91,7 +91,7 @@
 <script type="text/template" id="taskFilleAddForm-template">
     <hr>
     <h2>Přidat soubor k zadání</h2>
-    <form enctype="multipart/form-data" action="/api/files" method="post">
+    <form enctype="multipart/form-data" action="<?php echo $basepath; ?>/api/files" method="post">
         <div class="row">
             <input type="hidden" name="task_id" value="<%=task.id%>">
             <div class="col-xs-12 col-sm-3">

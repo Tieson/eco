@@ -1,6 +1,6 @@
 
 eco.Models.Student = Backbone.Model.extend({
-    // urlRoot: '/api/students'
+    // urlRoot: eco.basedir+'/api/students'
 });
 
 eco.Models.StudentHomework = Backbone.Model.extend({
@@ -10,7 +10,7 @@ eco.Models.StudentHomework = Backbone.Model.extend({
     url: function () {
         return this._url;
     },
-    urlRoot: '/api/homework',
+    urlRoot: eco.basedir+'/api/homework',
     defaults: {
         student_id: null,
         task_id: null,

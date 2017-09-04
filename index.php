@@ -7,11 +7,14 @@ $config = require('./config/config.php');
 
 $basedir = $config['basepath'];
 
-require $basedir.$config['vendor'].'autoload.php';
+require $config['vendor'].'autoload.php';
 
-$config['displayErrorDetails'] = true;
-$config['addContentLengthHeader'] = false;
-//$config['cookies.encrypt'] = true;
+$slim_config = array(
+	'displayErrorDetails' => true,
+	'addContentLengthHeader' => false,
+	'cookies.encrypt' => true,
+);
+
 
 function getDB()
 {
@@ -26,26 +29,28 @@ function getDB()
 	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	return $dbConnection;
 }
-$app = new \Slim\Slim(["settings" => $config]);
+$app = new \Slim\Slim(array("settings" => $slim_config));
 
 $authenticate = function ($app) {
 	return function () use ($app) {
+		global $basedir;
 		if (!isset($_SESSION['user_id'])) {
-			$_SESSION['urlRedirect'] = $app->request()->getPathInfo();
+			$_SESSION['urlRedirect'] = $basedir.$app->request()->getPathInfo();
 //			$app->flash('error', 'Login required');
-			$app->redirect('/login');
+			$app->redirect($basedir.'/login');
 		}
 	};
 };
 
 $authenticateTeacher = function ($app) {
 	return function () use ($app) {
+		global $basedir;
 		if (isset($_SESSION['user_id']) && isset($_SESSION['user_role']) && $_SESSION['user_role']=='teacher') {
 
 		} else {
-			$_SESSION['urlRedirect'] = $app->request()->getPathInfo();
+			$_SESSION['urlRedirect'] = $basedir.$app->request()->getPathInfo();
 //			$app->flash('error', 'Login required');
-			$app->redirect('/login');
+			$app->redirect($basedir.'/login');
 		}
 	};
 };
@@ -68,14 +73,16 @@ function setNullDataToViewAndUnset($app, $collection){
 }
 
 $app->hook('slim.before.dispatch', function() use ($app) {
-	global $basedir;
 	setSessionDataToView($app, array(
 		'user_id',
 		'user_name',
 		'user_role',
 		'user_logged',
 	));
-	$app->view()->setData('basepath', $basedir);
+
+	global $basedir;
+
+	$app->view()->setData('basepath', $basedir); //TODO: toto implementovat v masteru
 });
 
 $app->get('/', function() use($app) {
@@ -84,14 +91,15 @@ $app->get('/', function() use($app) {
 });
 
 $app->get("/login", function () use ($app) {
+	global $basedir;
 	$app->response->setStatus(200);
 	$flash = $app->view()->getData('flash');
 	$error = '';
 	if (isset($flash['error'])) {
 		$error = $flash['error'];
 	}
-	$urlRedirect = '/';
-	if ($app->request()->get('r') && $app->request()->get('r') != '/logout' && $app->request()->get('r') != '/login') {
+	$urlRedirect = $basedir.'/';
+	if ($app->request()->get('r') && $app->request()->get('r') != $basedir.'/logout' && $app->request()->get('r') != $basedir.'/login') {
 		$_SESSION['urlRedirect'] = $app->request()->get('r');
 	}
 	if (isset($_SESSION['urlRedirect'])) {
@@ -112,11 +120,13 @@ $app->get("/login", function () use ($app) {
 		'email_value' => $email_value,
 		'email_error' => $email_error,
 		'password_error' => $password_error,
-		'urlRedirect' => $urlRedirect
+		'urlRedirect' => $urlRedirect,
+		'basedir' => $basedir
 	));
 });
 
 $app->post("/login", function () use ($app) {
+	global $basedir;
 	$email = $app->request()->post('email');
 	$password = $app->request()->post('password');
 	$errors = array();
@@ -128,7 +138,7 @@ $app->post("/login", function () use ($app) {
 	}
 	if (count($errors) > 0) {
 		$app->flash('errors', $errors);
-		$app->redirect('/login');
+		$app->redirect($basedir.'/login');
 	}
 
 	$_SESSION['user_name'] = $email;
@@ -141,7 +151,7 @@ $app->post("/login", function () use ($app) {
 		unset($_SESSION['urlRedirect']);
 		$app->redirect($tmp);
 	}
-	$app->redirect('/');
+	$app->redirect($basedir.'/');
 });
 
 $app->get("/logout", function () use ($app) {
@@ -159,9 +169,6 @@ $app->get("/student", $authenticate($app), function () use ($app) {
 });
 $app->get("/teacher", $authenticateTeacher($app), function () use ($app) {
 	$app->render('teacher.php');
-});
-$app->get("/schemas", $authenticate($app), function () use ($app) {
-	$app->render('homepage.php');
 });
 
 

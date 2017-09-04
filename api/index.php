@@ -3,7 +3,7 @@ session_cache_limiter(false);
 session_start();
 
 $config = require('./config/config.php');
-$basedir = $config['basedir']; //$_SERVER['DOCUMENT_ROOT']
+$basedir = $config['basepath'];
 
 require $config['vendor'].'/autoload.php';
 
@@ -35,7 +35,7 @@ $authenticate = function ($app) {
 };
 
 
-$app = new \Slim\Slim(["settings" => $slim_config]);
+$app = new \Slim\Slim(array("settings" => $slim_config));
 
 $app->get('/', function() use($app) {
 	$app->response->setStatus(200);

@@ -112,12 +112,12 @@
         <% } %>
         <a href="#schemas/<%= id %>/edit" class="btn btn-xs btn-default edit-schema" data-schema-id="<%=id%>">
             <i class="glyphicon glyphicon-edit"></i> Upravit</a>
-        <a href="/#schemas/<%= id %>/vhdl" class="btn btn-default btn-xs vhdl-schema">
+        <a href="#schemas/<%= id %>/vhdl" class="btn btn-default btn-xs vhdl-schema">
             <i class="glyphicon glyphicon-download"></i> VHDL
         </a>
-        <a href="/#schemas" data-cid="<%=cid%>" class="btn btn-danger btn-xs delete-schema">
+        <span data-cid="<%=cid%>" class="btn btn-danger btn-xs delete-schema">
             <i class="glyphicon glyphicon-trash"></i> Smazat
-        </a>
+        </span>
     </td>
 
 </script>

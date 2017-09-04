@@ -1,5 +1,5 @@
 eco.Models.Group = Backbone.Model.extend({
-    urlRoot: '/api/groups',
+    urlRoot: eco.basedir+'/api/groups',
     defaults: {
         id: null,
         subject: "",
@@ -47,7 +47,7 @@ eco.Models.UserGroup = Backbone.Model.extend({
         day: null,
         weeks: null,
         block: null,
-        instanceUrl: '/api/groups/',
+        instanceUrl: eco.basedir+'/api/groups/',
     },
     parse: function (data) {
         return {
@@ -124,13 +124,13 @@ eco.Views.GroupDetail = Backbone.View.extend({
         this.model = opts.model;
 
         this.students = new eco.Collections.Students(null, {
-            url: '/api/groups/' + this.model.get('id') + '/students'
+            url: eco.basedir+'/api/groups/' + this.model.get('id') + '/students'
         });
         this.allStudents = new eco.Collections.Students(null, {
-            url: '/api/students'
+            url: eco.basedir+'/api/students'
         });
         this.tasks = new eco.Collections.Tasks(null, {
-            url: '/api/tasks'
+            url: eco.basedir+'/api/tasks'
         });
 
         this.students.fetch();
@@ -239,7 +239,7 @@ eco.Views.GroupDetail = Backbone.View.extend({
         var cid = target.attr('data-cid');
         var item = this.allStudents.get(cid);
         console.log('addStudentToGroup', cid, item);
-        // item.set('url', '/api/groups/' + this.model.get('id') + '/students');
+        // item.set('url', eco.basedir+'/api/groups/' + this.model.get('id') + '/students');
         this.students.create({
             student_id: item.get('id')
         }, {
@@ -342,7 +342,7 @@ eco.Views.GroupDetail = Backbone.View.extend({
                         task_id: tasks[i % (tasks.length)].get('id'),
                         deadline: date + ' ' + time,
                     }, {
-                        url: '/api/homework',
+                        url: eco.basedir+'/api/homework',
                     });
                     // console.log('student', student);
                     homework_for_student.save(null, {
@@ -470,7 +470,7 @@ eco.Views.StudentAssignGroupsList = eco.Views.GenericList.extend({
             function () {
                 var cid = $(event.currentTarget).attr('data-cid'),
                     model = self.collection.get(cid);
-                model.set({instanceUrl:'/api/groups/'+model.get('group_id')+'/students/'+model.get('student_id')});
+                model.set({instanceUrl:eco.basedir+'/api/groups/'+model.get('group_id')+'/students/'+model.get('student_id')});
                 model.destroy();
 
                 self.render();

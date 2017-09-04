@@ -12,7 +12,7 @@ eco.Mapper.FileMapper = function ($element) {
 
 
 eco.Models.File = Backbone.Model.extend({
-    urlRoot: '/api/files',
+    urlRoot: eco.basedir+'/api/files',
     // url: function () {
     //     return this._url;
     // },
@@ -43,7 +43,7 @@ eco.Collections.Files = Backbone.Collection.extend({
         return this.urlString;
     },
     initialize: function (models, options) {
-        this.urlString = options.url || '/api/files';
+        this.urlString = options.url || eco.basedir+'/api/files';
     }
 });
 

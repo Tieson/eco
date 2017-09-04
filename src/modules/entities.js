@@ -29,7 +29,7 @@ eco.Views.EntityView = Backbone.View.extend({
 
 eco.Collections.Entities = Backbone.Collection.extend({
     model: eco.Models.Entity,
-    url: '/api/entities'
+    url: eco.basedir+'/api/entities'
 });
 
 eco.Views.EntititesView = Backbone.View.extend({
@@ -61,7 +61,7 @@ eco.Models.Category = Backbone.Model.extend({
     //     this.entities.fetch();
     // },
     // entitiesUrl: function () {
-    //     return '/api/categories/' + this.id + '/entities';
+    //     return eco.basedir+'/api/categories/' + this.id + '/entities';
     // }
 });
 
@@ -86,7 +86,7 @@ eco.Views.CategoryView = Backbone.View.extend({
 
 eco.Collections.Categories = Backbone.Collection.extend({
     model: eco.Models.Category,
-    url: '/api/categories'
+    url: eco.basedir+'/api/categories'
 });
 
 eco.Models.EntityPanel = Backbone.Model.extend({

@@ -24,7 +24,7 @@
                                         <p class="error"><?PHP echo $error; ?></p>
 			                        <?php endif; ?>
 
-                                    <form action="/login" method="POST">
+                                    <form action="<?php echo $basedir ?>/login" method="POST">
                                         <div class="form-group">
                                             <label for="email">E-mail:</label>
                                             <input type="text" name="email" id="email" value="<?php echo $email_value; ?>"

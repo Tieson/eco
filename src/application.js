@@ -29,6 +29,7 @@ window.eco = {
             return this.items;
         }
     },
+    basedir: config.basedir || '',
 
     start: function(data) {
         //Routes
@@ -82,8 +83,8 @@ window.eco = {
 
         var schemas = new eco.Collections.Schemas();
         schemas.fetch();
-        var groups = new eco.Collections.GroupCollection(null, {
-            url: "/api/groups"
+        var groups = new eco.Collections.GroupCollection(null,{
+            url: eco.basedir+"/api/groups"
         });
 
         var entities = new eco.Collections.Entities();
@@ -301,7 +302,7 @@ window.eco = {
             var vent = _.extend({}, Backbone.Events);
 
             var model = new eco.Models.Task({
-                url: "/api/tasks/"+id,
+                url: eco.basedir+"/api/tasks/"+id,
             });
 
             var viewAddNew = new eco.Views.EditTask({
@@ -314,7 +315,7 @@ window.eco = {
             main.append(viewAddNew.$el);
 
             var files = new eco.Collections.Files(null,{
-                url: '/api/tasks/'+id+'/files',
+                url: eco.basedir+'/api/tasks/'+id+'/files',
             });
 
             console.log("FILES", files);
@@ -354,7 +355,7 @@ window.eco = {
             eco.ViewGarbageCollector.clear();
 
             var collection = new eco.Collections.Tasks(null, {
-                url: "/api/tasks",
+                url: eco.basedir+"/api/tasks",
             });
 
             var view = new eco.Views.GenericList({
@@ -489,8 +490,8 @@ window.eco = {
             eco.ViewGarbageCollector.clear();
             console.log('route:showHwList');
             var hws = new eco.Collections.Homeworks(null,
-                // {url: '/api/students/'+ user.get('student_id') + '/hw'}
-                {url: '/api/students/hw'}
+                // {url: eco.basedir+'/api/students/'+ user.get('student_id') + '/hw'}
+                {url: eco.basedir+'/api/students/hw'}
             );
 
             var hwView = new eco.Views.GenericList({
@@ -545,7 +546,7 @@ window.eco = {
             main_tab.show();
             schemas_tab.hide();
             var groups = new eco.Collections.UserGroupCollection({
-                url: "/api/students/"+user.get('student_id')+"/groups",
+                url: eco.basedir+"/api/students/"+user.get('student_id')+"/groups",
             });
             eco.ViewGarbageCollector.clear();
             var groupsView = new eco.Views.StudentAssignGroupsList({
@@ -563,8 +564,8 @@ window.eco = {
             setPageTitle('Přidání do skupiny');
             main_tab.show();
             schemas_tab.hide();
-            var groups = new eco.Collections.GroupCollection(null, {
-                url: "/api/students/"+user.get('student_id')+"/groups",
+            var groups = new eco.Collections.GroupCollection(null,{
+                url: eco.basedir+"/api/students/"+user.get('student_id')+"/groups",
             });
             eco.ViewGarbageCollector.clear();
             var groupsView = new eco.Views.GroupList({

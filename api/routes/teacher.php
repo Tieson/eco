@@ -13,6 +13,15 @@
 function teachers() {
 	$app = \Slim\Slim::getInstance();
 
+	try {
+		$teacher = requestLoggedTeacher();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
 	try
 	{
 		$db = getDB();
@@ -35,8 +44,22 @@ function teachers() {
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 }
+
+/**
+ * Používá se???
+ * @param $id
+ */
 function teacher($id) {
 	$app = \Slim\Slim::getInstance();
+
+	try {
+		$teacher = requestLoggedTeacher();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
 
 	try
 	{
@@ -66,6 +89,15 @@ function teacher($id) {
 function teacherGroups($id) {
 	$app = \Slim\Slim::getInstance();
 
+	try {
+		$teacher = requestLoggedTeacher();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
 	try
 	{
 		$db = getDB();
@@ -91,6 +123,15 @@ function teacherGroups($id) {
 }
 function teacherHomeworks($id) {
 	$app = \Slim\Slim::getInstance();
+
+	try {
+		$teacher = requestLoggedTeacher();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
 
 	try
 	{
@@ -120,8 +161,23 @@ function teacherHomeworks($id) {
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 }
+
+/**
+ * Zobrazí zadání jiného učitele
+ * pouze pro vyučující
+ * @param $id
+ */
 function teacherTasks($id) {
 	$app = \Slim\Slim::getInstance();
+
+	try {
+		$teacher = requestLoggedTeacher();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
 
 	try
 	{
@@ -186,6 +242,15 @@ function showTasks() {
 function task($id) {
 	$app = \Slim\Slim::getInstance();
 
+	try {
+		$teacher = requestLoggedTeacher();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
 	try
 	{
 		$db = getDB();
@@ -213,10 +278,19 @@ function task($id) {
 function taskCreate() {
 	$app = \Slim\Slim::getInstance();
 
+	try {
+		$teacher = requestLoggedTeacher();
+	}
+	catch(Exception $e){
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
 	$allPostVars = json_decode($app->request->getBody(), true);
 	$values = array(
 		"id" => $allPostVars['id'],
-		"teacher_id" => $_SESSION['teacher_id'],
+		"teacher_id" => $teacher['id'],
 		"name" => $allPostVars['name'],
 		"description" => $allPostVars['description'],
 //		"created" => $allPostVars['created'],
@@ -262,19 +336,28 @@ function taskCreate() {
 function taskUpdate($id) {
 	$app = \Slim\Slim::getInstance();
 
+	try {
+		$teacher = requestLoggedTeacher();
+
+	} catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit;
+	}
+
 	$allPostVars = json_decode($app->request->getBody(), true);
 	$values = array(
 		"name" => $allPostVars['name'],
 		"description" => $allPostVars['description'],
-		"id" => $allPostVars['id'],
-		"teacher_id" => $allPostVars['teacher_id'],
+		"id" => $id,
+		"teacher_id" => $teacher['id'],
 //		"etalon_file" => $allPostVars['etalon_file'],
 //		"test_file" => $allPostVars['test_file'],
 	);
 	try
 	{
 		$db = getDB();
-		$request = $db->prepare("UPDATE task SET name=:name, description=:description, teacher_id=:teacher_id WHERE id=:id");
+		$request = $db->prepare("UPDATE task SET name=:name, description=:description, teacher_id=:teacher_id WHERE id=:id AND teacher_id=:teacher_id");
 
 		if ($request->execute($values)){
 			$app->response()->setStatus(200);
@@ -292,12 +375,22 @@ function taskDelete($id) {
 
 	//TODO: kontrola oprávnění (skupina a student)
 
+	try {
+		$teacher = requestLoggedTeacher();
+
+	} catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit;
+	}
+
 	try
 	{
 		$db = getDB();
 //		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE group_id=:group_id");
-		$prepare = $db->prepare("DELETE FROM `task` WHERE id=:id");
+		$prepare = $db->prepare("DELETE FROM `task` WHERE id=:id AND teacher_id=:teacher_id");
 		$prepare->bindParam(':id', $id, PDO::PARAM_INT);
+		$prepare->bindParam(':teacher_id', $teacher['id'], PDO::PARAM_INT);
 		$result = $prepare->execute();
 
 		if ($result) {

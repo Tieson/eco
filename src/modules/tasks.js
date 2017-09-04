@@ -10,7 +10,7 @@ eco.Mapper.TaskEditMapper = function ($element) {
 
 
 eco.Models.Task = Backbone.Model.extend({
-    urlRoot: '/api/tasks',
+    urlRoot: eco.basedir+'/api/tasks',
     // urlRoot: function () {
     //   return this._urlRoot;
     // },

@@ -128,8 +128,17 @@ function addTaskFile($id) {
 
 function uploadFile () {
 	$app = \Slim\Slim::getInstance();
+	$config = require('./config/config.php');
+	$basedir = $config['basepath'];
 
-	//TODO: oprávnění pouze pro vyučujícího
+	try {
+		$teacher = requestLoggedTeacher();
+
+	} catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit;
+	}
 
 	if (!isset($_FILES['uploads'])) {
 		echo "No files uploaded!!";
@@ -148,53 +157,55 @@ function uploadFile () {
 
 	$name = basename($file_name);
 
-	$uploads_dir = "../soubory/task_".$task_id."/".$type;
+	$base_path = $basedir."/soubory/task_".$task_id."/".$type;
+	$uploads_dir =  $_SERVER['DOCUMENT_ROOT'].$base_path;
 	$destination = "$uploads_dir/$name";
 	if ( ! is_dir($uploads_dir)) {
 		mkdir($uploads_dir,0777, TRUE);
 	}
 	$resultFile = move_uploaded_file($file_tempname, $destination);
 
-	try
-	{
-		$values = array(
-			"task_id" => $task_id,
-			"name" => $title,
-			"file" => $destination,
-			"type" => $type,
-		);
-		$db = getDB();
-		$sth = $db->prepare("INSERT INTO task_files 	(task_id,	name, 	file, 	type)
+	if ($resultFile) {
+		try {
+			$values = array(
+				"task_id" => $task_id,
+				"name" => $title,
+				"file" => $base_path . '/' . $name,
+				"type" => $type,
+			);
+			$db = getDB();
+			$sth = $db->prepare("INSERT INTO task_files 	(task_id,	name, 	file, 	type)
 														VALUES	(:task_id,	:name, 	:file, 	:type)");
 
-		$result = $sth->execute($values);
+			$result = $sth->execute($values);
 
-		if ($result){
-			$id = $db->lastInsertId();
-			$sth = $db->prepare("SELECT * FROM `task_files` WHERE id = :id");
-			$sth->bindParam(":id", $id, PDO::PARAM_INT);
-			$sth->execute();
+			if ($result) {
+				$id = $db->lastInsertId();
+				$sth = $db->prepare("SELECT * FROM `task_files` WHERE id = :id");
+				$sth->bindParam(":id", $id, PDO::PARAM_INT);
+				$sth->execute();
 
-			$item = $sth->fetch(PDO::FETCH_OBJ);
+				$item = $sth->fetch(PDO::FETCH_OBJ);
 
-			if($item) {
-				$app->response()->setStatus(200);
-				$app->response()->headers->set('Content-Type', 'application/json');
-				echo json_encode($item);
-				$db = null;
+				if ($item) {
+					$app->response()->setStatus(200);
+					$app->response()->headers->set('Content-Type', 'application/json');
+					echo json_encode($item);
+					$db = null;
+				} else {
+					throw new PDOException('Getting inserted values was unsuccessful');
+				}
 			} else {
-				throw new PDOException('Getting inserted values was unsuccessful');
+				throw new PDOException('No file was added.');
 			}
-		} else {
-			throw new PDOException('No file was added.');
-		}
 
-	} catch(PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		} catch (PDOException $e) {
+			$app->response()->setStatus(404);
+			echo '{"error":{"text":' . $e->getMessage() . '}}';
+		}
 	}
 
-	$url = '/#tasks/'.$task_id.'/edit';
+	$url = $basedir.'/teacher#tasks/'.$task_id.'/edit';
 	$app->redirect($url);
 }
 

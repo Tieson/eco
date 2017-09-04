@@ -24,7 +24,7 @@ eco.Models.Homework = Backbone.Model.extend({
         return this.statuses[this.get('status')];
     },
     urlRoot: function () {
-        return '/api/homework/';
+        return eco.basedir+'/api/homework/';
     },
     haveSolution: function () {
         return false;
@@ -68,7 +68,7 @@ eco.Models.HomeworkTeacher = Backbone.Model.extend({
         return this.statuses[this.get('status')];
     },
     urlRoot: function () {
-        return '/api/homework/';
+        return eco.basedir+'/api/homework/';
     },
     haveSolution: function () {
         return false;
@@ -217,7 +217,7 @@ eco.Models.HomeworkDetailSolution = Backbone.Model.extend({
 });
 
 eco.Models.Solution = Backbone.Model.extend({
-    // urlRoot: '/api/solutions/',
+    // urlRoot: eco.basedir+'/api/solutions/',
     defaults: {
         id: null,
         architecture: '',
@@ -247,7 +247,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
     afterInitialization: function () {
         this.schemas = new eco.Collections.Schemas({});
         this.solutions = new eco.Collections.Solutions(null,{
-            url: '/api/homework/'+this.model.get('id')+'/solutions',
+            url: eco.basedir+'/api/homework/'+this.model.get('id')+'/solutions',
         });
         this.solutionsView;
         this.renderInit();

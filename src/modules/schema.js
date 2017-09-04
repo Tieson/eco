@@ -1,6 +1,6 @@
 
 eco.Models.Schema = Backbone.Model.extend({
-    urlRoot: '/api/schemas',
+    urlRoot: eco.basedir+'/api/schemas',
     defaults: {
         id: null,
         user_id: null,
@@ -43,7 +43,7 @@ eco.Models.Schema = Backbone.Model.extend({
 
         this.lastVHDL.set("data", graphstring);
         this.lastVHDL.data = graphstring;
-        this.lastVHDL.url = '/api/schemas/' + this.id + '/vhdls';
+        this.lastVHDL.url = eco.basedir+'/api/schemas/' + this.id + '/vhdls';
 
         // console.log(this.lastVHDL.data, this.lastVHDL.url);
         this.lastVHDL.save(null, {
@@ -91,8 +91,8 @@ eco.Models.Schema = Backbone.Model.extend({
         var self = this;
 
         if (this.id) {
-            // vhdl.set('url', '/api/schemas/' + this.id + '/vhdls/last');
-            vhdl.url = '/api/schemas/' + this.id + '/vhdls/last';
+            // vhdl.set('url', eco.basedir+'/api/schemas/' + this.id + '/vhdls/last');
+            vhdl.url = eco.basedir+'/api/schemas/' + this.id + '/vhdls/last';
 
             vhdl.fetch({
                 success: function () {
@@ -161,7 +161,7 @@ eco.Views.SchemaItemView = Backbone.View.extend({
 });
 
 eco.Collections.Schemas = Backbone.Collection.extend({
-    url: '/api/schemas',
+    url: eco.basedir+'/api/schemas',
     model: eco.Models.Schema
 });
 
@@ -233,7 +233,7 @@ eco.Views.SchemasListView = Backbone.View.extend({
 
 
 eco.Models.VHDL = Backbone.Model.extend({
-    // urlRoot: '/api/vhdls',
+    // urlRoot: eco.basedir+'/api/vhdls',
     defaults: {
         id: null,
         data: null,
