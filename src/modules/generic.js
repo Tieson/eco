@@ -175,9 +175,7 @@ eco.Views.GenericForm = Backbone.View.extend({
                     showSnackbar(self.sanckbarMessage);
                     if (self.collection) {
                         schema.set(data);
-                        if(self.collection){
-                            self.collection.add(schema);
-                        }
+                        self.collection.add(schema);
                         schema.fetch();
                         self.model = schema.clone().clear();
                         // self.render();

@@ -19,19 +19,14 @@ eco.Formaters.GroupFormater = function (model) {
 };
 
 eco.Formaters.StudentGroupFormater = function (model) {
-    var result = {
+    var result = _.extend({},model.toJSON(),{
         cid: model.cid,
-        id: model.get('id'),
-        student_id: model.get('student_id'),
         entered: moment(model.get('entered')).format('LLL'),
-        approved: model.get('approved'),
-        subject: model.get('subject'),
         dayKey: model.get('day'),
         day: model.dayFormat(),
         weeks: eco.Utils.getWeeks(model.get('weeks')),
-        block: model.get('block'),
         teacher: {name: model.get('name'), mail: model.get('mail')},
-    };
+    });
     return result;
 };
 
@@ -67,6 +62,10 @@ eco.Formaters.HomeworkFormater = function (model) {
         status: model.getStatus(),
         created: moment(model.get('created')).format('LLL'),
         deadline: moment(model.get('deadline')).format('LLL'),
+        dayKey: model.get('day'),
+        day: eco.Utils.getDay(model.get('day')),
+        weeks: eco.Utils.getWeeks(model.get('weeks')),
+        block: model.get('block')
     });
     return result;
 };

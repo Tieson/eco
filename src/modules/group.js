@@ -341,6 +341,7 @@ eco.Views.GroupDetail = Backbone.View.extend({
                         student_id: students[i].get('id'),
                         task_id: tasks[i % (tasks.length)].get('id'),
                         deadline: date + ' ' + time,
+                        group_id: self.model.get('id'),
                     }, {
                         url: eco.basedir+'/api/homework',
                     });

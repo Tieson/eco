@@ -136,12 +136,11 @@ function teacherHomeworks($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT hw.id as id, t.name as name, hw.status, task_id, hw.student_id, t.teacher_id, deadline, hw.created, u.name AS student_name, u.mail AS student_mail, s.student_id AS student_number
+		$sth = $db->prepare("SELECT hw.id as id, t.name as name, hw.status, task_id, hw.student_id, t.teacher_id, deadline, hw.created, u.name AS student_name, u.mail AS student_mail
         	FROM hw_assigment AS hw
         	JOIN task AS t
-        	JOIN student AS s
-        	JOIN user AS u
-         	ON hw.task_id = t.id AND hw.student_id = s.id AND s.user_id = u.id
+        	JOIN `user` AS u
+         	ON hw.task_id = t.id AND hw.student_id = u.id
             WHERE t.teacher_id = :id ");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
@@ -290,7 +289,7 @@ function taskCreate() {
 	$allPostVars = json_decode($app->request->getBody(), true);
 	$values = array(
 		"id" => $allPostVars['id'],
-		"teacher_id" => $teacher['id'],
+		"teacher_id" => $teacher['user_id'],
 		"name" => $allPostVars['name'],
 		"description" => $allPostVars['description'],
 //		"created" => $allPostVars['created'],
@@ -350,7 +349,7 @@ function taskUpdate($id) {
 		"name" => $allPostVars['name'],
 		"description" => $allPostVars['description'],
 		"id" => $id,
-		"teacher_id" => $teacher['id'],
+		"teacher_id" => $teacher['user_id'],
 //		"etalon_file" => $allPostVars['etalon_file'],
 //		"test_file" => $allPostVars['test_file'],
 	);
@@ -390,7 +389,7 @@ function taskDelete($id) {
 //		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE group_id=:group_id");
 		$prepare = $db->prepare("DELETE FROM `task` WHERE id=:id AND teacher_id=:teacher_id");
 		$prepare->bindParam(':id', $id, PDO::PARAM_INT);
-		$prepare->bindParam(':teacher_id', $teacher['id'], PDO::PARAM_INT);
+		$prepare->bindParam(':teacher_id', $teacher['user_id'], PDO::PARAM_INT);
 		$result = $prepare->execute();
 
 		if ($result) {

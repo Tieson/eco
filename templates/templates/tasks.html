@@ -23,8 +23,6 @@
 <script type="text/template" id="tasksListItem-template">
     <td class="list-name"><a href="#tasks/<%=id%>" class="btn btn-xs button--default"><%=name%></a></td>
     <td class="list-created"><%=created%></td>
-    <!--<td class="list-etalon"><a href="<%=etalon_file%>" target="_blank"><%=etalon_file%></a></td>-->
-    <!--<td class="list-test"><a href="<%=test_file%>" target="_blank"><%=test_file%></a></td>-->
     <td>
         <button class="btn btn-xs btn-danger task_delete" data-cid="<%=cid%>">Smazat</button>
         <a href="#tasks/<%=id%>/edit" class="btn btn-xs btn-default">Upravit</a>
@@ -143,14 +141,12 @@
         <div class="col-xs-12 col-sm-4">
             <dl>
                 <dt>Soubor správného řešení:</dt>
-                <!--<dd><a href="<%=etalon_file%>" target="_blank"><i class="glyphicon glyphicon-file"></i> <%=etalon_file%></a>-->
                 </dd>
             </dl>
         </div>
         <div class="col-xs-12 col-sm-4">
             <dl>
                 <dt>Testovací soubor:</dt>
-                <!--<dd><a href="<%=test_file%>" target="_blank"><i class="glyphicon glyphicon-file"></i> <%=test_file%></a>-->
                 </dd>
             </dl>
         </div>

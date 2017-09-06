@@ -410,8 +410,6 @@ window.eco = {
                     return {
                         'name': $element.find('#task_name').val(),
                         'description': $element.find('#task_description').val(),
-                        'etalon_file': $element.find('#task_etalon').val(),
-                        'test_file': $element.find('#task_test').val(),
                     }
                 },
                 model: new eco.Models.Task(),

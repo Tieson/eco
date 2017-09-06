@@ -1,27 +1,25 @@
 <?php
-/**
- * Created by Tom on 07.04.2017.
- */
-/**
- * Created by PhpStorm.
- * User: Tom
- * Date: 07.04.2017
- * Time: 16:04
- */
 
 
 function groups() {
 	$app = \Slim\Slim::getInstance();
 
+	$db = getDB();
+	try {
+		$teacher = requestLoggedTeacher();
+	}catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
+
 	try
 	{
-		$db = getDB();
-		$sth = $db->prepare("SELECT g.id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher AS teacher_id, u.name AS name, u.mail, t.user_id
+		$sth = $db->prepare("SELECT g.id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher_id, u.name AS name, u.mail
             FROM `groups` AS g
-            JOIN teacher AS t
             JOIN `user` AS u
-            ON t.id = g.teacher AND t.user_id = u.id");
-//		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+            ON g.teacher_id = u.id WHERE g.teacher_id = :id");
+		$sth->bindParam(':id', $teacher['user_id'], PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
@@ -45,11 +43,10 @@ function group($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher AS teacher_id, u.name AS name, u.mail, t.user_id
+		$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher_id, u.name AS name, u.mail
             FROM `groups` AS g
-            JOIN teacher AS t
             JOIN `user` AS u
-            ON t.id = g.teacher AND t.user_id = u.id
+            ON g.teacher_id = u.id
             WHERE g.id=:id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
@@ -75,8 +72,10 @@ function groupStudents($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT s.id AS id, s.user_id, group_id, ga.entered AS group_entered, mail, name, approved
-            FROM student AS s JOIN group_assigment AS ga JOIN user AS u ON s.id=ga.student_id AND s.user_id=u.id
+		$sth = $db->prepare("SELECT u.id AS id, group_id, ga.entered AS group_entered, mail, name, approved
+            FROM `user` AS u 
+            JOIN group_assigment AS ga 
+            ON u.id=ga.student_id
             WHERE group_id=:id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
@@ -115,25 +114,22 @@ function groupCreate() {
 		"day" => $allPostVars['day'],
 		"block" => $allPostVars['block'],
 		"weeks" => $allPostVars['weeks'],
-		"teacher" => $teacher['id'],
+		"teacher_id" => $teacher['user_id'],
 	);
-
-	//TODO: kontrola oprávnění - může jen vyučující
 
 	try
 	{
 		$db = getDB();
-		$result = $db->prepare("INSERT INTO `groups` (subject, day, weeks, block, teacher) VALUES (:subject, :day, :weeks, :block, :teacher)")
+		$result = $db->prepare("INSERT INTO `groups` (subject, day, weeks, block, teacher_id) VALUES (:subject, :day, :weeks, :block, :teacher_id)")
 			->execute($values);
 
 		if ($result){
 			$id = $db->lastInsertId();
 
-			$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher AS teacher_id, u.name AS name, u.mail, t.user_id
+			$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher_id, u.name AS name, u.mail
             FROM `groups` AS g
-            JOIN teacher AS t
             JOIN `user` AS u
-            ON t.id = g.teacher AND t.user_id = u.id
+            ON g.teacher_id = u.id
             WHERE g.id=:id");
 			$sth->bindParam(":id", $id, PDO::PARAM_INT);
 			$sth->execute();
@@ -148,13 +144,12 @@ function groupCreate() {
 		} else {
 			throw new PDOException('No group was created.');
 		}
+		$db = null;
 
 	} catch(PDOException $e) {
+		$db = null;
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	}
-	finally {
-		$db = null;
 	}
 }
 
@@ -163,7 +158,7 @@ function groupAddStudent($id) {
 
 	try {
 		$teacher = requestLoggedTeacher();
-	}catch(Exception $e) {
+	} catch(Exception $e) {
 		$app->response()->setStatus(401);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 		exit();
@@ -190,11 +185,9 @@ function groupAddStudent($id) {
 
 		if ($result) {
 //			$insert_id = $db->lastInsertId();
-			$sth = $db->prepare("SELECT student.id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
-            FROM `student` 
-            JOIN `user` 
-            ON user.id = student.user_id 
-            WHERE student.id = :id LIMIT 1");
+			$sth = $db->prepare("SELECT id AS `id`, id AS `user_id`, user.mail AS mail, user.name AS name 
+            FROM `user` 
+            WHERE user.id = :id LIMIT 1");
 			$sth->bindParam(":id", $allPostVars['student_id'], PDO::PARAM_INT);
 			$sth->execute();
 
@@ -212,12 +205,11 @@ function groupAddStudent($id) {
 		} else {
 			throw new PDOException('No student was added to group.');
 		}
+		$db = null;
 
 	} catch(PDOException $e) {
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	}
-	finally {
 		$db = null;
 	}
 }
@@ -227,6 +219,13 @@ function groupRemoveStudent($group_id, $student_id) {
 	$app = \Slim\Slim::getInstance();
 
 	//TODO: kontrola oprávnění (skupina a student)
+	try {
+		$teacher = requestLoggedTeacher();
+	} catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
 
 	try
 	{
@@ -257,13 +256,21 @@ function groupDelete($id) {
 	$app = \Slim\Slim::getInstance();
 
 	//TODO: kontrola oprávnění (skupina a student)
+	try {
+		$teacher = requestLoggedTeacher();
+	} catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
 
 	try
 	{
 		$db = getDB();
 //		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE group_id=:group_id");
-		$prepare = $db->prepare("DELETE FROM `groups` WHERE id=:id");
+		$prepare = $db->prepare("DELETE FROM `groups` WHERE id=:id AND teacher_id = :teacher_id");
 		$prepare->bindParam(':id', $id, PDO::PARAM_INT);
+		$prepare->bindParam(':teacher_id', $teacher['user_id'], PDO::PARAM_INT);
 		$result = $prepare->execute();
 
 		if ($result) {

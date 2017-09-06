@@ -142,7 +142,7 @@ function schemaDelete($id) {
 		//Učitel může vidět schémata všech studentů
 		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
             FROM schema_base
-            WHERE id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM student))");
+            WHERE id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM user WHERE type_uctu='student'))");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
 	}
@@ -198,22 +198,24 @@ function schemaDetail($id) {
             WHERE id = :id AND user_id = :user_id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+		$sth->execute();
+
+		$schema = $sth->fetch(PDO::FETCH_OBJ);
 
 	}else if(isTeacher($user)){
 		//Učitel může vidět schémata všech studentů
 		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
             FROM schema_base
-            WHERE id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM student))");
+            WHERE id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM user WHERE type_uctu='student'))");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+		$sth->execute();
+
+		$schema = $sth->fetch(PDO::FETCH_OBJ);
 	}
 
 	try
 	{
-		$sth->execute();
-
-		$schema = $sth->fetch(PDO::FETCH_OBJ);
-
 		if($schema) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
@@ -261,7 +263,7 @@ function schemaData($id) {
             FROM schema_data
             JOIN schema_base AS base 
             ON  schema_id = base.id
-            WHERE schema_id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM student))
+            WHERE schema_id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM user WHERE type_uctu='student'))
             ORDER BY schema_data.id DESC");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
@@ -440,7 +442,7 @@ function schemaDataLast($id) {
             FROM schema_data AS sd
             JOIN schema_base AS base 
             ON  schema_id = base.id
-            WHERE schema_id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM student))
+            WHERE schema_id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM user WHERE type_uctu='student'))
             ORDER BY sd.id DESC
 			LIMIT 1");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);

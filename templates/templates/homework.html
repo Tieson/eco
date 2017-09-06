@@ -93,6 +93,7 @@
             <thead>
             <th>Název</th>
             <th>Termín</th>
+            <th>Skupina</th>
             <th>Stav</th>
             <!--<th>Akce</th>-->
             </thead>
@@ -107,6 +108,7 @@
 <script type="text/template" id="homeworkListItem-template">
     <td class="list-name"><a href="#homeworks/<%= id %>" class="btn btn-xs button--default" data-id="<%= id %>"><%= name %></a></td>
     <td class="list-termin"><%= deadline %></td>
+    <td class="list-predmet"><%= subject %> (<%= day %>, <%= block %>. blok, <%= weeks %> týden)</td>
     <td class="list-stav">
         <div class="badge badge-default"><%= status %></div>
     </td>
@@ -317,7 +319,7 @@
 
 
 <script type="text/template" id="solutionsListItem-template">
-    <td class="list-name"><a href="/#schemas/<%=schema_id%>" class="btn btn-xs button button--default"><%=name%> (<%=architecture%>)</a></td>
+    <td class="list-name"><a href="<?php echo $basepath; ?>/#schemas/<%=schema_id%>" class="btn btn-xs button button--default"><%=name%> (<%=architecture%>)</a></td>
     <td class="list-created"><%=created%></td>
     <td class="list-status"><%=status%></td>
     <td class="list-result"><%=test_message%></td>

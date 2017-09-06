@@ -25,14 +25,13 @@ function homework($id) {
          	ON hw.task_id = t.id
             WHERE hw.id = :id AND hw.student_id = :student_id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
-		$sth->bindParam(':student_id', $user['id'], PDO::PARAM_INT);
+		$sth->bindParam(':student_id', $user['user_id'], PDO::PARAM_INT);
 	}else if(isTeacher($user)){
 		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, u.name AS student_name 
             FROM hw_assigment AS hw
         	JOIN task AS t
-        	JOIN student AS s
         	JOIN user AS u
-         	ON hw.task_id = t.id AND s.user_id = u.id AND hw.student_id = s.id
+         	ON hw.task_id = t.id AND hw.student_id = u.id
             WHERE hw.id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 	}
@@ -65,10 +64,11 @@ function studentsHomeworks(){
 	$db = getDB();
 	try {
 		$student = requestLoggedStudent();
-		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description
+		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, g.subject, g.day, g.weeks, g.block
             FROM hw_assigment AS hw
             JOIN task AS t
-            ON hw.task_id = t.id
+            JOIN groups AS g
+            ON hw.task_id = t.id AND g.id=hw.group_id
             WHERE student_id = :id");
 		$sth->bindParam(':id', $student['id'], PDO::PARAM_INT);
 	} catch (Exception $e) {
@@ -118,22 +118,22 @@ function homeworkSolutionList($id) {
 	try
 	{
 		if (isStudent($user)) {
-			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, s.schema_id,
-			sch.name, sch.architecture
+			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, s.schema_id, g.subject, g.day, g.weeks, g.block, sch.name, sch.architecture
             FROM solution AS s
         	JOIN hw_assigment AS hw
         	JOIN schema_base AS sch
-         	ON s.homework_id = hw.id AND s.schema_id=sch.id
+            JOIN groups AS g
+         	ON s.homework_id = hw.id AND s.schema_id=sch.id AND g.id=hw.group_id
             WHERE hw.id = :id AND hw.student_id = :student_id");
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
 			$sth->bindParam(':student_id', $user['id'], PDO::PARAM_INT);
 		} else if (isTeacher($user)) {
-			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, s.schema_id,
-			sch.name, sch.architecture
+			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, s.schema_id, g.subject, g.day, g.weeks, g.block, sch.name, sch.architecture
             FROM solution AS s
         	JOIN hw_assigment AS hw
         	JOIN schema_base AS sch
-         	ON s.homework_id = hw.id AND s.schema_id=sch.id
+            JOIN groups AS g
+         	ON s.homework_id = hw.id AND s.schema_id=sch.id AND g.id=hw.group_id
             WHERE hw.id = :id");
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		}
@@ -258,12 +258,15 @@ function homeworkSolutionCreate($id) {
 		} else {
 			throw new PDOException('Adding solution was unsuccessful. You do not own requested homework.');
 		}
+		$db = null;
 
 	} catch(PDOException $e) {
 		$app->response()->setStatus(400);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	}
-	finally {
+		echo json_encode(array(
+			'error' => array(
+				'text' => $e->getMessage()
+			)
+		));
 		$db = null;
 	}
 
@@ -286,6 +289,7 @@ function assignHomework() {
 		'student_id' => $allPostVars['student_id'],
 		'deadline' => $allPostVars['deadline'],
 		'status' => $allPostVars['status'],
+		'group_id' => $allPostVars['group_id'],
 	);
 
 	try
@@ -293,8 +297,8 @@ function assignHomework() {
 		$db = getDB();
 
 			$sth = $db->prepare("INSERT INTO `hw_assigment` 
-			(`task_id`,`student_id`,`created`,`deadline`,`status`)
-			VALUES(:task_id, :student_id, NOW(), :deadline, :status )");
+			(`task_id`,`student_id`,`created`,`deadline`,`status`,`group_id`)
+			VALUES(:task_id, :student_id, NOW(), :deadline, :status, :group_id )");
 
 			$result = $sth->execute($values);
 
@@ -305,12 +309,10 @@ function assignHomework() {
 			} else {
 				throw new PDOException('Creating homework was unsuccessful');
 			}
-
+		$db = null;
 	} catch(PDOException $e) {
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	}
-	finally {
 		$db = null;
 	}
 
@@ -411,14 +413,13 @@ function groupHomeworks($id){
 	$db = getDB();
 	try
 	{
-		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, u.name AS u_name, u.mail, ga.group_id, hw.status
+		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, u.name AS u_name, u.mail, hw.group_id, hw.status, g.subject, g.day, g.weeks, g.block
             FROM hw_assigment AS hw
             JOIN task AS t
-            JOIN student AS s
             JOIN user AS u
-            JOIN group_assigment AS ga
-            ON hw.task_id = t.id AND ga.student_id = hw.student_id AND s.id = hw.student_id AND u.id = s.user_id
-            WHERE ga.group_id = :id");
+            JOIN groups AS g
+            ON hw.task_id = t.id AND u.id = hw.student_id AND g.id=hw.group_id
+            WHERE hw.group_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		if ($sth->execute()) {
 			$items = $sth->fetchAll(PDO::FETCH_OBJ);

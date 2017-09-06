@@ -19,8 +19,8 @@ function students() {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT student.id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
-            FROM `student` JOIN `user` ON user.id = student.user_id");
+		$sth = $db->prepare("SELECT id, id AS `user_id`, mail, `name` AS `name` 
+            FROM `user` WHERE type_uctu='student'");
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
@@ -87,7 +87,7 @@ function studentHomeworkList($id) {
          	ON hw.task_id = t.id
             WHERE student_id = :id AND t.teacher_id=:teacher_id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
-		$sth->bindParam(':teacher_id', $teacher['id'], PDO::PARAM_INT);
+		$sth->bindParam(':teacher_id', $teacher['user_id'], PDO::PARAM_INT);
 	}catch (Exception $e){
 		try {
 			$student = requestLoggedStudent();
@@ -166,14 +166,13 @@ function studentGroupList($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT ga.group_id, ga.student_id, ga.entered, ga.approved, 
+		$sth = $db->prepare("SELECT ga.group_id, ga.user_id, ga.entered, ga.approved, 
 			g.subject, g.`day`, g.weeks, g.block, u.name, u.mail 
             FROM group_assigment AS ga 
             JOIN `groups` AS g 
-            JOIN teacher AS t 
             JOIN `user` AS u 
-            ON ga.group_id = g.id AND t.id = g.teacher AND t.user_id = u.id
-            WHERE student_id = :id");
+            ON ga.group_id = g.id AND g.user_id = u.id
+            WHERE g.user_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);

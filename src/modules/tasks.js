@@ -20,8 +20,8 @@ eco.Models.Task = Backbone.Model.extend({
         name: "",
         description: "",
         created: null,
-        etalon_file: "",
-        test_file: "",
+        // etalon_file: null,
+        // test_file: null,
         // files: {}
     },
     initialize: function (opts) {

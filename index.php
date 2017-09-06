@@ -15,7 +15,6 @@ $slim_config = array(
 	'cookies.encrypt' => true,
 );
 
-
 function getDB()
 {
 	global $config;
@@ -26,6 +25,7 @@ function getDB()
 
 	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
 	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
+	$dbConnection->exec("set names utf8");
 	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	return $dbConnection;
 }
@@ -92,6 +92,7 @@ $app->get('/', function() use($app) {
 
 $app->get("/login", function () use ($app) {
 	global $basedir;
+
 	$app->response->setStatus(200);
 	$flash = $app->view()->getData('flash');
 	$error = '';
@@ -129,29 +130,43 @@ $app->post("/login", function () use ($app) {
 	global $basedir;
 	$email = $app->request()->post('email');
 	$password = $app->request()->post('password');
-	$errors = array();
-	if ($email != "brian@nesbot.com") {
-		$errors['email'] = "Email is not found.";
-	} else if ($password != "aaaa") {
-//		$app->flash('email', $email);
-		$errors['password'] = "Password does not match.";
-	}
-	if (count($errors) > 0) {
-		$app->flash('errors', $errors);
+
+//	$errors = array();
+//	if ($email != "brian@nesbot.com") {
+//		$errors['email'] = "Email is not found.";
+//	} else if ($password != "aaaa") {
+////		$app->flash('email', $email);
+//		$errors['password'] = "Password does not match.";
+//	}
+//	if (count($errors) > 0) {
+//		$app->flash('errors', $errors);
+//		$app->redirect($basedir.'/login');
+//	}
+
+	$db = getDB();
+
+	$user_prepare = $db->prepare("SELECT * FROM user WHERE mail = :mail LIMIT 1");
+	$user_prepare->bindParam(':mail', $email, PDO::PARAM_STR);
+
+	$user_prepare->execute();
+	$user = $user_prepare->fetchObject();
+
+	if ($user){
+		$_SESSION['user_name'] = $user->name;
+		$_SESSION['user_id'] = $user->id;
+		$_SESSION['user_role'] = $user->type_uctu;
+		$_SESSION['user_logged'] = TRUE;
+
+		if (isset($_SESSION['urlRedirect'])) {
+			$tmp = $_SESSION['urlRedirect'];
+			unset($_SESSION['urlRedirect']);
+			$app->redirect($tmp);
+		}
+		$app->redirect($basedir.'/');
+	}else {
+		$app->flash('errors', array('email'=>'Uživatel nenalezen.'));
 		$app->redirect($basedir.'/login');
 	}
-
-	$_SESSION['user_name'] = $email;
-	$_SESSION['user_id'] = 2;
-	$_SESSION['user_role'] = "teacher";
-	$_SESSION['user_logged'] = TRUE;
-
-	if (isset($_SESSION['urlRedirect'])) {
-		$tmp = $_SESSION['urlRedirect'];
-		unset($_SESSION['urlRedirect']);
-		$app->redirect($tmp);
-	}
-	$app->redirect($basedir.'/');
 });
 
 $app->get("/logout", function () use ($app) {
