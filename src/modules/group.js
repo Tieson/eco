@@ -100,6 +100,10 @@ eco.Collections.UserGroupCollection = Backbone.Collection.extend({
 });
 
 
+var groups = new eco.Collections.GroupCollection(null, {
+    url: '/api/groups/'
+});
+
 // eco.Models.StudentGroup = Backbone.Model.extend({
 //     defaults: {
 //         group_id: null,
@@ -383,11 +387,7 @@ eco.Views.GroupAddForm = eco.Views.GenericForm.extend({
                 success: function (model, response) {
                     console.log("GroupAddForm formSubmit success", self.collection);
                     if (self.collection) {
-                        schema.set(data);
-                        if(self.collection){
-                            self.collection.add(schema);
-                        }
-                        schema.fetch();
+                        self.collection.add(model);
                         self.model = new eco.Models.Group();
                         self.render();
                     }

@@ -130,10 +130,10 @@ function groupCreate() {
             FROM `groups` AS g
             JOIN `user` AS u
             ON g.teacher_id = u.id
-            WHERE g.id=:id");
+            WHERE g.id=:id LIMIT 1");
 			$sth->bindParam(":id", $id, PDO::PARAM_INT);
 			$sth->execute();
-			$group = $sth->fetch(PDO::FETCH_OBJ);
+			$group = $sth->fetchObject();
 			if ($group) {
 				$app->response()->setStatus(200);
 				$app->response()->headers->set('Content-Type', 'application/json');

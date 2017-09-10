@@ -157,7 +157,6 @@ eco.Models.Simulation = Backbone.Model.extend({
                             _.each(ops, function (value, key) {
                                 outputs[key] = magnitude * value;
                             });
-
                         }else{
                             outputs["q"] = magnitude * ops;
                         }

@@ -46,27 +46,25 @@
 </script>
 
 <script type="text/template" id="userGroupsListItem-template">
-
-    <td><%=subject%></td>
-    <td><%=day%></td>
-    <td><%=block%>.</td>
-    <td><%=weeks%></td>
-    <td><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
-    <td><%=entered%></td>
-    <!--<td><a href="#groups/<%=id%>/students/<%=student_id%>/remove" class="leaveGroup btn btn-danger btn-xs" data-cid="<%=cid%>" data-student="<%=student_id%>">opustit skupinu</a></td>-->
+    <td><%=data.subject%></td>
+    <td><%=data.day%></td>
+    <td><%=data.block%>.</td>
+    <td><%=data.weeks%></td>
+    <td><%=data.teacher.name%> (<a href="mailto:<%=data.teacher.mail%>"><%=data.teacher.mail%></a>)</td>
+    <td><%=data.entered%></td>
 </script>
 
 <script type="text/template" id="groupsListItem-template">
-    <td class="list-subject"><%=subject%></td>
-    <td class="list-day"><%=day%></td>
-    <td class="list-block"><%=block%>.</td>
-    <td class="list-weeks"><%=weeks%></td>
-    <td class="list-teacher"><%=teacher.name%> (<a href="mailto:<%=teacher.mail%>"><%=teacher.mail%></a>)</td>
-    <td class="list-created"><%=created%></td>
+    <td class="list-subject"><%=data.subject%></td>
+    <td class="list-day"><%=data.day%></td>
+    <td class="list-block"><%=data.block%>.</td>
+    <td class="list-weeks"><%=data.weeks%></td>
+    <td class="list-teacher"><%=data.teacher.name%> (<a href="mailto:<%=data.teacher.mail%>"><%=data.teacher.mail%></a>)</td>
+    <td class="list-created"><%=data.created%></td>
     <td>
-        <a href="#groups/<%=id%>" class="btn btn-xs button--default"><i class="glyphicon glyphicon-file"></i> Detail</a>
-        <a href="#groups/<%=id%>/homeworks" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-tasks"></i> Úkoly</a>
-        <a href="#groups/<%=id%>/delete" class="btn btn-xs btn-danger group-delete" data-cid="<%=cid%>"> <i class="glyphicon glyphicon-trash"></i> Smazat</a>
+        <a href="#groups/<%=data.id%>" class="btn btn-xs button--default"><i class="glyphicon glyphicon-file"></i> Detail</a>
+        <a href="#groups/<%=data.id%>/homeworks" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-tasks"></i> Úkoly</a>
+        <a href="#groups/<%=data.id%>/delete" class="btn btn-xs btn-danger group-delete" data-cid="<%=data.cid%>"> <i class="glyphicon glyphicon-trash"></i> Smazat</a>
     </td>
 </script>
 
@@ -188,7 +186,7 @@
 <script type="text/template" id="groupDetailStudents-template">
     <div class="row">
         <div class="col-xs-12 col-sm-6">
-            <h2><%=title%></h2>
+            <h2><%-title%></h2>
         </div>
     </div>
     <input class="search form-control" placeholder="Filtr"/>
@@ -208,10 +206,10 @@
 </script>
 
 <script type="text/template" id="groupsDetailStudent-template">
-    <td class="list-name"><%=name%></td>
-    <td class="list-mail"><%=mail%></td>
+    <td class="list-name"><%=data.name%></td>
+    <td class="list-mail"><%=data.mail%></td>
     <td>
-        <span class="btn btn-xs btn-danger remove-student" data-cid="<%=cid%>">
+        <span class="btn btn-xs btn-danger remove-student" data-cid="<%=data.cid%>">
             <i class="glyphicon glyphicon-trash"></i> Odebrat
         </span>
         <!--<a href="#teacher" class="btn btn-xs btn-success student-add-hw">-->
@@ -221,7 +219,7 @@
 </script>
 
 <script type="text/template" id="groupsDetailUsers-template">
-    <h2><%=title%></h2>
+    <h2><%-title%></h2>
     <input class="search form-control" placeholder="Filtr"/>
     <div class="table-responsive">
         <table class="table">
@@ -239,10 +237,10 @@
 </script>
 
 <script type="text/template" id="groupsDetailUsersItem-template">
-    <td class="list-name"><%=name%></td>
-    <td class="list-mail"><%=mail%></td>
+    <td class="list-name"><%=data.name%></td>
+    <td class="list-mail"><%=data.mail%></td>
     <td>
-        <span class="btn btn-xs btn-success add-student" data-cid="<%=cid%>">
+        <span class="btn btn-xs btn-success add-student" data-cid="<%=data.cid%>">
             <i class="glyphicon glyphicon-plus"></i> Přidat
         </span>
     </td>

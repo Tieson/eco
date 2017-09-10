@@ -55,30 +55,6 @@
     </div>
 </script>
 
-<script type="text/template" id="schemaListModal-template">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title"><%= title %></h4>
-            </div>
-            <div class="modal-body">
-                <div class="list-group schema_open_list">
-                    <% _.each(collection, function(schema) { %>
-                    <a href="#schemas/<%= schema.id %>" data-schema-id="<%= schema.id %>"
-                       class="list-group-item schema_open_list__item"><strong><%= schema.name %></strong> -
-                        <%= schema.architecture %></a>
-                    <% }); %>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn btn-storno button">Zavřít</a>
-            </div>
-        </div>
-    </div>
-</script>
-
-
 <script type="text/template" id="schemasOpenList-template">
     <h2>Otevřít schéma</h2>
     <input class="search form-control" placeholder="Filtr" />
@@ -102,18 +78,18 @@
 <script type="text/template" id="schemasOpenItem-template">
 
     <td class="list-name">
-        <a href="#schemas/<%= id %>" class="btn btn-xs btn-success open-schema" data-schema-id="<%=id%>">
-            <i class="glyphicon glyphicon-open"></i> <strong><%= name %></strong></a>
+        <a href="#schemas/<%= data.id %>" class="btn btn-xs btn-success open-schema" data-schema-id="<%=data.id%>">
+            <i class="glyphicon glyphicon-open"></i> <strong><%= data.name %></strong></a>
     </td>
-    <td class="list-architecture"><%= architecture %></td>
-    <td class="list-created"><%= created %></td>
+    <td class="list-architecture"><%= data.architecture %></td>
+    <td class="list-created"><%= data.created %></td>
     <td>
-        <a href="#schemas/<%= id %>/edit" class="btn btn-xs btn-default edit-schema" data-schema-id="<%=id%>">
+        <a href="#schemas/<%= data.id %>/edit" class="btn btn-xs btn-default edit-schema" data-schema-id="<%=data.id%>">
             <i class="glyphicon glyphicon-edit"></i> Upravit</a>
-        <a href="#schemas/<%= id %>/vhdl" class="btn btn-default btn-xs vhdl-schema">
+        <a href="#schemas/<%= data.id %>/vhdl" class="btn btn-default btn-xs vhdl-schema">
             <i class="glyphicon glyphicon-download"></i> VHDL
         </a>
-        <span data-cid="<%=cid%>" class="btn btn-danger btn-xs delete-schema">
+        <span data-cid="<%=data.cid%>" class="btn btn-danger btn-xs delete-schema">
             <i class="glyphicon glyphicon-trash"></i> Smazat
         </span>
     </td>
@@ -122,7 +98,7 @@
 
 
 <script type="text/template" id="schemasNew-template">
-    <h2><%=titleText%></h2>
+    <h2><%-titleText%></h2>
 
     <form action="#">
         <div class="row">
@@ -199,7 +175,7 @@
 
 
 <script type="text/template" id="schemasSimpleListItem-template">
-    <td class="list-name"><strong><%= name %></strong></td>
-    <td class="list-architecture"><%= architecture %></td>
-    <td class="list-created"><%= created %></td>
+    <td class="list-name"><strong><%= data.name %></strong></td>
+    <td class="list-architecture"><%= data.architecture %></td>
+    <td class="list-created"><%= data.created %></td>
 </script>

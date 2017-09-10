@@ -63,19 +63,19 @@ eco.Views.GenericList = Backbone.View.extend({
 
 eco.Views.GenericItem = Backbone.View.extend({
     tagName: 'tr',
+    className: 'genericListItem',
     initialize: function (opts) {
-        this.template = _.template($(opts.template).html());
+        this.template = _.template($(opts.template).html(), {variable: 'data'});
         this.model = opts.model;
         this.formater = opts.formater || eco.Formaters.GenericFormater;
         this.uniqueId = opts.uniqueId || '';
+        this.listenTo(this.model, 'change', this.render);
     },
     render: function () {
         var data = this.formater(this.model);
         var html = this.template(data);
-        console.log("_________FORMATER___________", data);
         this.$el.html(html);
         this.$el.addClass(this.uniqueId+"Item");
-        this.$el.addClass("genericListItem");
         this.$el.attr('data-id', data.id);
         this.$el.attr('data-cid', data.cid);
 

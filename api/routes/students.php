@@ -45,11 +45,9 @@ function student($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT student.id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
-            FROM `student` 
-            JOIN `user` 
-            ON user.id = student.user_id 
-            WHERE student.id = :id LIMIT 1");
+		$sth = $db->prepare("SELECT id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
+            FROM `user` 
+            WHERE id = :id LIMIT 1");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetch(PDO::FETCH_OBJ);
@@ -85,7 +83,7 @@ function studentHomeworkList($id) {
             FROM hw_assigment AS hw
         	JOIN task AS t
          	ON hw.task_id = t.id
-            WHERE student_id = :id AND t.teacher_id=:teacher_id");
+            WHERE hw.student_id = :id AND t.teacher_id=:teacher_id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':teacher_id', $teacher['user_id'], PDO::PARAM_INT);
 	}catch (Exception $e){
@@ -96,7 +94,7 @@ function studentHomeworkList($id) {
 	            FROM hw_assigment AS hw
 	            JOIN task AS t
 	            ON hw.task_id = t.id
-	            WHERE student_id = :id");
+	            WHERE hw.student_id = :id");
 				$sth->bindParam(':id', $id, PDO::PARAM_INT);
 			}else {
 				throw new Exception('Nemáte potřebné oprávnění.');
@@ -138,7 +136,7 @@ function studentHomeworkDetail($id, $hw_id) {
             FROM hw_assigment AS hw 
             JOIN task AS t
             ON hw.task_id = t.id 
-            WHERE student_id = :id 
+            WHERE hw.student_id = :id 
             AND hw.id = :hw_id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':hw_id', $hw_id, PDO::PARAM_INT);
@@ -160,20 +158,27 @@ function studentHomeworkDetail($id, $hw_id) {
 	}
 }
 
-function studentGroupList($id) {
+function studentGroupList() {
 	$app = \Slim\Slim::getInstance();
 
+	try {
+		$student = requestLoggedStudent();
+	}catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit();
+	}
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT ga.group_id, ga.user_id, ga.entered, ga.approved, 
+		$sth = $db->prepare("SELECT ga.group_id, ga.student_id, ga.entered, ga.approved, 
 			g.subject, g.`day`, g.weeks, g.block, u.name, u.mail 
             FROM group_assigment AS ga 
             JOIN `groups` AS g 
             JOIN `user` AS u 
-            ON ga.group_id = g.id AND g.user_id = u.id
-            WHERE g.user_id = :id");
-		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+            ON ga.group_id = g.id AND ga.student_id = u.id
+            WHERE ga.student_id = :id");
+		$sth->bindParam(':id', $student['id'], PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
@@ -183,7 +188,7 @@ function studentGroupList($id) {
 			echo json_encode($items);
 			$db = null;
 		} else {
-			throw new PDOException('No records found.');
+			echo json_encode($items);
 		}
 
 	} catch(PDOException $e) {

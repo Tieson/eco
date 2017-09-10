@@ -20,6 +20,7 @@ function getDB()
 
 	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
 	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
+	$dbConnection->exec("set names utf8");
 	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	return $dbConnection;
 }
@@ -64,10 +65,11 @@ $app->get("/private", $authenticate($app), function () use ($app) {
 $app->get('/students', 'students'); //seznam všech studentů
 $app->get('/students/hw', 'studentsHomeworks'); //seznam úkolů pro studenta
 $app->get('/students/hw/id', 'studentHomeworkDetail'); //detail úkolu studenta
+$app->get('/students/groups', 'studentGroupList');
 $app->get('/students/:id', 'student'); //informace o konkrétním uživateli - asi není potřeba
 $app->get('/students/:id/hw', 'studentHomeworkList'); //seznam úkolů konkrétního studentas
 $app->get('/students/:id/hw/:hw_id', 'studentHomeworkDetail');
-$app->get('/students/:id/groups', 'studentGroupList');
+//$app->get('/students/:id/groups', 'studentGroupList');
 $app->delete('/students/:id', 'student');
 
 

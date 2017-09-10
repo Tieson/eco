@@ -17,12 +17,10 @@ eco.Router = Backbone.Router.extend({
         // 'teachers/:id/tasks': 'showTasks', //přesunuto do teacher
         // 'teachers/:id/hw': 'showGroupHomeworks', /přesunuto do teacher
 
-
         //zadání - pro učitele...
         // 'tasks': 'showAllTasks',
         // 'tasks/:id': 'showTaskDetail',
         // 'tasks/:id/edit': 'editTask',
-
 
         /** Skupiny **/
         'groups': 'showGroups', // seznam všech skupin

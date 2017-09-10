@@ -102,6 +102,8 @@ window.eco = {
         //MOCK user object
         var user = {
             get: function (key) {
+                console.log('%cMOCK user.get', 'color: white; backbround: red;', key);
+                //TODO: odstranit mock objekt
                 switch(key){
                     case 'id':
                         return 1;
@@ -504,6 +506,7 @@ window.eco = {
                     "list-name",
                     "list-termin",
                     "list-stav",
+                    "list-predmet",
                 ]
             });
             main.append(hwView.render().$el);
@@ -546,7 +549,7 @@ window.eco = {
             main_tab.show();
             schemas_tab.hide();
             var groups = new eco.Collections.UserGroupCollection({
-                url: eco.basedir+"/api/students/"+user.get('student_id')+"/groups",
+                url: eco.basedir+"/api/students/groups",
             });
             eco.ViewGarbageCollector.clear();
             var groupsView = new eco.Views.StudentAssignGroupsList({
@@ -566,6 +569,7 @@ window.eco = {
             schemas_tab.hide();
             var groups = new eco.Collections.GroupCollection(null,{
                 url: eco.basedir+"/api/students/"+user.get('student_id')+"/groups",
+                //TODO: odstranit mock objekt
             });
             eco.ViewGarbageCollector.clear();
             var groupsView = new eco.Views.GroupList({

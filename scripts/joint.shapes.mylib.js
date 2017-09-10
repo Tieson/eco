@@ -211,10 +211,7 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
 });
 
 // Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
-joint.shapes.mylib.Hradlo.prototype.onSignal = function (signal, handler) {
-//            console.log("joint.shapes.mylib.Hradlo.prototype.onSignal", this);
-    handler.call(this, 0, signal);
-};
+
 
 //---------------------- HRADLA IO --------------------------------------------//
 
@@ -1942,28 +1939,28 @@ joint.shapes.mylib.RS = joint.shapes.mylib.HradloRS22.extend({
 });
 
 joint.shapes.mylib.RST = joint.shapes.mylib.HradloRS32.extend({
-    state: false,
-    defaults: joint.util.deepSupplement({
-        type: 'mylib.RST',
-        attrs: {
-            '.label': { text: 'RST', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
-               '.jm': { text: 'r', ref: 'rect', 'ref-dx': -100, 'ref-dy': -120 },
-              '.jm2': { text: 's', ref: 'rect', 'ref-dx': -100, 'ref-dy': -40 },
-              '.jm5': { text: 't', ref: 'rect', 'ref-dx': -100, 'ref-dy': -80 },
-              '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -105 },
-              '.jm4': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 }
-        }
-    }, joint.shapes.mylib.HradloRS32.prototype.defaults),
+  state: false,
+  defaults: joint.util.deepSupplement({
+      type: 'mylib.RST',
+      attrs: {
+          '.label': { text: 'RST', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
+             '.jm': { text: 'r', ref: 'rect', 'ref-dx': -100, 'ref-dy': -120 },
+            '.jm2': { text: 's', ref: 'rect', 'ref-dx': -100, 'ref-dy': -40 },
+            '.jm5': { text: 't', ref: 'rect', 'ref-dx': -100, 'ref-dy': -80 },
+            '.jm3': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -105 },
+            '.jm4': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 }
+      }
+  }, joint.shapes.mylib.HradloRS32.prototype.defaults),
 
-    operation: function(p){
-        if (p['t'] > 0){
-            this.state = p['r'] ? (p['s'] ? -1 : 0) : (p['s'] ? 1 : this.state);
-        }
-        return {
-            "q": this.state,
-            "qn": this.state<0?-1:!this.state
-        }
+  operation: function(p){
+    if (p['t'] > 0){
+      this.state = p['r'] ? (p['s'] ? -1 : 0) : (p['s'] ? 1 : this.state);
     }
+    return {
+      "q": this.state,
+      "qn": this.state<0?-1:!this.state
+    }
+  }
 });
 
 

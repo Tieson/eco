@@ -1,5 +1,5 @@
 <script type="text/template" id="tasksList-template">
-    <h1><%=title%></h1>
+    <h1><%-title%></h1>
     <input class="search form-control" placeholder="Filtr" />
 
     <div class="table-responsive">
@@ -21,16 +21,16 @@
 </script>
 
 <script type="text/template" id="tasksListItem-template">
-    <td class="list-name"><a href="#tasks/<%=id%>" class="btn btn-xs button--default"><%=name%></a></td>
-    <td class="list-created"><%=created%></td>
+    <td class="list-name"><a href="#tasks/<%=data.id%>" class="btn btn-xs button--default"><%=data.name%></a></td>
+    <td class="list-created"><%=data.created%></td>
     <td>
-        <button class="btn btn-xs btn-danger task_delete" data-cid="<%=cid%>">Smazat</button>
-        <a href="#tasks/<%=id%>/edit" class="btn btn-xs btn-default">Upravit</a>
+        <button class="btn btn-xs btn-danger task_delete" data-cid="<%=data.cid%>">Smazat</button>
+        <a href="#tasks/<%=data.id%>/edit" class="btn btn-xs btn-default">Upravit</a>
     </td>
 </script>
 
 <script type="text/template" id="tasksSimple-template">
-    <h1><%=title%></h1>
+    <h1><%-title%></h1>
     <input class="search form-control" placeholder="Filtr" />
     <div class="table-responsive">
         <table class="table table-striped">
@@ -46,15 +46,15 @@
     </div>
 </script>
 <script type="text/template" id="tasksSimpleItem-template">
-    <td class="list-name"><%=name%></td>
-    <td class="list-created"><%=created%></td>
+    <td class="list-name"><%=data.name%></td>
+    <td class="list-created"><%=data.created%></td>
 </script>
 
 
 <script type="text/template" id="tasksFilesList-template">
     <div class="row mt10">
         <div class="col-xs-12 col-sm-6">
-            <h2><%=title%></h2>
+            <h2><%-title%></h2>
         </div>
         <div class="col-xs-12 col-sm-6 col-lg-3 pull-right">
             <input class="search form-control mt20" placeholder="Filtr" />
@@ -78,10 +78,10 @@
 </script>
 
 <script type="text/template" id="tasksFilesItem-template">
-    <td class="list-file"><a href="<%=file%>" class="btn btn-xs button--default"><%=name%></a></td>
-    <td class="list-type"><%=type%></td>
+    <td class="list-file"><a href="<%=data.file%>" class="btn btn-xs button--default"><%=data.name%></a></td>
+    <td class="list-type"><%=data.type%></td>
     <td>
-        <button class="btn btn-xs btn-danger file_delete" data-cid="<%=cid%>">Smazat</button>
+        <button class="btn btn-xs btn-danger file_delete" data-cid="<%=data.cid%>">Smazat</button>
     </td>
 </script>
 
@@ -162,7 +162,7 @@
 </script>
 
 <script type="text/template" id="taskForm-template">
-    <h1><%=title%></h1>
+    <h1><%-title%></h1>
     <form action="#">
         <div class="row">
             <div class="col-xs-12 col-sm-3">
@@ -189,7 +189,7 @@
 
 
 <script type="text/template" id="taskEditForm-template">
-    <h1><%=title%></h1>
+    <h1><%-title%></h1>
     <form action="#">
         <div class="row">
             <div class="col-xs-12 col-sm-3">
