@@ -2,7 +2,10 @@
  * Created by Tom on 27.04.2017.
  */
 
-
+joint.shapes.mylib.Hradlo.prototype.onSignal = function (signal, handler) {
+//            console.log("joint.shapes.mylib.Hradlo.prototype.onSignal", this);
+    handler.call(this, 0, signal);
+};
 
 eco.Models.Simulation = Backbone.Model.extend({
 
@@ -130,6 +133,7 @@ eco.Models.Simulation = Backbone.Model.extend({
             if (gate) {
 
                 if (gate instanceof joint.shapes.mylib.Hradlo) {
+                    console.log(gate);
                     gate.onSignal(signal, function () {
 
                         var ports = {};

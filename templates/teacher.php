@@ -51,35 +51,22 @@
             routes: {
                 '': 'home',
 
-                'groups': 'showGroups', //zobrazení seznamu skupin, které vyučuící vlastní
-                'groups/:id': 'showGroupDetail', //zobrazení detailu skupiny
-                'groups/:id/homeworks': 'showGroupHomeworks', //TODO: zobrazení úkolů skupiny - pro učitele
+                'groups': 'showGroups', //seznam skupin vyučujícího
+                'groups/:id': 'showGroupDetail', //detailu skupiny
+                'groups/:id/homeworks': 'showGroupHomeworks', //seznam úkolů zadanách ve skupině
 
-                'students': 'showStudents', //zobrazení studentů
+                'tasks': 'showOwnTasks', // seznam zadání
+                'tasks/:id': 'showTaskDetail', //detail zadání
+                'tasks/:id/edit': 'editTask', // úprava zadání s uploadem souborů
 
-                'tasks': 'showOwnTasks',
-                'tasks/:id': 'showTaskDetail',
-                'tasks/:id/edit': 'editTask',
+                'homeworks/:id': 'showHwDetail', //detail úkolů se zadáním
 
-                'homeworks' : 'homeworksAssigment',
-                'homeworks/:id': 'showHwDetail', //zobrazí detail úkolů se zadáním a dalšími informacemi
+                'schemas': 'showSchemas', //seznam vlastních schémat
+                'schemas/new': 'schemaCreateNew', //vytvoření nového schema
+                'schemas/:id': 'openedSchema', //otevření schéma
+                'schemas/:id/edit': 'showSchemaEdit', //úprava údajů schéma
 
-
-                /** Schémata **/
-                'schemas': 'showSchemas', //seznam schémat, která lze otevřít (pouze vlastní schémata)
-                'schemas/new': 'schemaCreateNew', //vytvoření nového schema - pro konkrétního uživatele
-                'schemas/:id': 'openedSchema', //Pro editaci konkrétního schéma = otevření schéma (pouze jedno otevřené)
-                'schemas/:id/edit': 'showSchemaEdit',
-
-                'teachers/:id/tasks': 'showTasks',
-//                'teachers/:id/hw': 'showGroupHomeworks',
-
-
-
-                /** Studenti **/
-                'students/groups': 'showUserGroups', // zobrazí seznam skupin ve kterých student je
-                'students/:id/groups/:id': 'showUserGroupDetail', // zobrazí detail skupiny ve které je student - jiný pohled pro studenta a ostatní
-                'students/:id/homeworks': 'showStudentsHwList', // zobrazí všechny úkoly studenta
+//                'students/:id/homeworks': 'showStudentsHwList', // zobrazí všechny úkoly studenta
 
                 '*path':  'defaultRoute',
             }

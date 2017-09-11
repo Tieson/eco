@@ -4,39 +4,20 @@
 
 eco.Router = Backbone.Router.extend({
     routes: {
-        '': 'home',
+'': 'home',
 
-        /** Schémata **/
-        'schemas': 'showSchemas', //seznam schémat, která lze otevřít (pouze vlastní schémata)
-        'schemas/new': 'schemaCreateNew', //vytvoření nového schema - pro konkrétního uživatele
-        'schemas/:id/vhdl': 'schemaExportVhdl',
-        'schemas/:id': 'openedSchema', //Pro editaci konkrétního schéma = otevření schéma (pouze jedno otevřené)
-        'schemas/:id/edit': 'showSchemaEdit',
+'schemas': 'showSchemas', //seznam schémat uživatele
+'schemas/new': 'schemaCreateNew', //vytvoření nového schema
+'schemas/:id/vhdl': 'schemaExportVhdl', //exportuje schéma do hdl souboru
+'schemas/:id': 'openedSchema', //otevře schéma
+'schemas/:id/edit': 'showSchemaEdit', //upraví údaje schéma
 
-        'teacher/groups/:id/students/remove/:student_id': 'removeStudentFromGroup', //TODO: dodělat funkci pro odebrání studenta z kruhu
-        // 'teachers/:id/tasks': 'showTasks', //přesunuto do teacher
-        // 'teachers/:id/hw': 'showGroupHomeworks', /přesunuto do teacher
+'students/groups': 'showUserGroups', //seznam skupin studenta
 
-        //zadání - pro učitele...
-        // 'tasks': 'showAllTasks',
-        // 'tasks/:id': 'showTaskDetail',
-        // 'tasks/:id/edit': 'editTask',
+'homeworks': 'showHwList', //seznam úkolů
+'homeworks/:id': 'showHwDetail', //detail úkolů
 
-        /** Skupiny **/
-        'groups': 'showGroups', // seznam všech skupin
-        'groups/:id': 'showGroupDetail', // detail skupiny se seznamem studentů
-        'groups/add' : 'addGroup', // formulář pro přidánjí nové skupiny
-
-        /** Studenti **/
-        'students': 'showStudents',
-        'students/groups': 'showUserGroups', // zobrazí seznam skupin ve kterých student je
-        'students/:id/groups/:id': 'showUserGroupDetail', // zobrazí detail skupiny ve které je student - jiný pohled pro studenta a ostatní
-        'students/:id/homeworks': 'showStudentsHwList', // zobrazí všechny úkoly studenta
-
-        'homeworks': 'showHwList', //zobrazí seznam úkolů
-        'homeworks/:id': 'showHwDetail', //zobrazí detail úkolů se zadáním a dalšími informacemi
-
-        '*path':  'defaultRoute',
+'*path':  'defaultRoute', // defaultní: error 404
     },
     route: function(route, name, callback) {
         var router = this;

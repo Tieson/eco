@@ -8,6 +8,7 @@ eco.Models.Schema = Backbone.Model.extend({
         architecture: '',
         description: '',
         opened: false,
+        deleted: null,
         // created: null,
         // colletion: null, //kolekce VHDL dat
         graph: null,

@@ -191,17 +191,10 @@ function inputNameValidator(self, event) {
 
 
 function broadcastSignal(gate, signals, paper, graph) {
-    // console.log("broadcastSignal(gate, signal, schema)", gate, signal, schema);
-    // broadcast signal to all output ports
-    // _.defer(_.invoke, graph.getConnectedLinks(gate, {outbound: true}), 'set', 'signal', signal);
-    // console.log('%c Mělo by udělat: toggleLive ', 'background: orange; color: white');
-    // toggleLive(gate, signal, paper);
-
     var outLinks = graph.getConnectedLinks(gate, {outbound: true})
         .map(function (x) {
             return x;
         });
-
 
     var result = _.reduce(outLinks, function(result, item) {
         var key = item.get('source').port;
@@ -209,14 +202,10 @@ function broadcastSignal(gate, signals, paper, graph) {
         return result;
     }, {});
 
-
     _.each(result, function (wires, key) {
         _.defer(_.invoke, wires, 'set', 'signal', signals[key]);
-        // toggleLive(gate, signals[key], paper); //zvýrazňuje hradlo pokud jeho poslední výstup je v log 1 :D -> k ničemu, ale může se hodit u vstupů //TODO: udělat to u v stupů samostatně.
     });
-
     return true;
-
 }
 
 function toggleLive(model, signal, paper) {
@@ -253,33 +242,35 @@ function startClock(gate, signal, paper, graph) {
  * @returns {number}
  */
 function initializeSignal(paper, graph) {
-    console.log("%c initializeSignal ", "background: brown; color: yellow");
-    var signal = Math.random();
-    var self = this;
+  console.log("%c initializeSignal ", "background: brown; color: yellow");
+  var signal = Math.random(); //náhodná inicializace signálu
+  // signal > 0 => vodič s log. 1, signal < 0  => vodič s log. 0
 
-    // > 0 vodič s log. 1
-    // < 0 vodič s log. 0
+  // vynulování všech signálů
+  _.invoke(graph.getLinks(), 'set', 'signal', 0);
 
-    // 0 none of the above - reset value
+  // odebrání všech aktivních tříd
+  paper.$el.find('.live').each(function () {
+      V(this).removeClass('live');
+  });
 
-    // vynulování všech signálů
-    _.invoke(graph.getLinks(), 'set', 'signal', 0);
-
-    // odebrání všech aktivních tříd
-    paper.$el.find('.live').each(function () {
-        V(this).removeClass('live');
-    });
-
-    _.each(graph.getElements(), function (element) {
-        // rozeslání signálů ze vstupů
-        var view = paper.findViewByModel(element);
-        (element instanceof joint.shapes.mylib.INPUT) && broadcastSignal(element, {q : element.signal}, paper, graph) && view.$el.toggleClass('live', element.signal > 0);
-        (element instanceof joint.shapes.mylib.VCC) && broadcastSignal(element, {q : element.signal}, paper, graph) && view.$el.toggleClass('live', element.signal > 0);
-        (element instanceof joint.shapes.mylib.GND) && broadcastSignal(element, {q : element.signal}, paper, graph) && view.$el.toggleClass('live', element.signal > 0);
-        (element instanceof joint.shapes.mylib.CLK) && startClock(element, {q : element.signal}, paper, graph) && view.$el.toggleClass('live', element.signal > 0);
-    });
-
-    return signal;
+  // rozeslání signálů ze vstupů
+  _.each(graph.getElements(), function (element) {
+    var view = paper.findViewByModel(element);
+    (element instanceof joint.shapes.mylib.INPUT)
+    && broadcastSignal(element, {q : element.signal}, paper, graph)
+    && view.$el.toggleClass('live', element.signal > 0);
+    (element instanceof joint.shapes.mylib.VCC)
+    && broadcastSignal(element, {q : element.signal}, paper, graph)
+    && view.$el.toggleClass('live', element.signal > 0);
+    (element instanceof joint.shapes.mylib.GND)
+    && broadcastSignal(element, {q : element.signal}, paper, graph)
+    && view.$el.toggleClass('live', element.signal > 0);
+    (element instanceof joint.shapes.mylib.CLK)
+    && startClock(element, {q : element.signal}, paper, graph)
+    && view.$el.toggleClass('live', element.signal > 0);
+  });
+  return signal;
 }
 
 
@@ -328,6 +319,12 @@ function getUtils() {
                 return x.val();
             },
         },
+        taskStates: {
+            open: '<span class="label label-warning">Zatím neodevzdáno</span>',
+            ok: '<span class="label label-success">Úspěšně odevzdané</span>',
+            nok: '<span class="label label-warning">Zatím neúspěšné</span>',
+            closed: '<span class="label label-danger">Neúspěšné</span>'
+        },
         solutionStatuses: {
             waiting: '<span class="label label-warning">Čeká na kontrolu</span>',
             done: '<span class="label label-success">Zkontrolováno</span>',
@@ -339,6 +336,9 @@ function getUtils() {
         },
         getSolutionStatus: function (key) {
             return getTranslate(key, this.solutionStatuses);
+        },
+        getTaskStatus: function (key) {
+            return getTranslate(key, this.taskStates);
         },
         getDay: function(key){
             return getTranslate(key, this.days);

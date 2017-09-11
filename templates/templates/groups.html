@@ -10,7 +10,7 @@
                 <th>Den</th>
                 <th>Blok</th>
                 <th>Týden</th>
-                <th>Vyučující</th>
+                <!--<th>Vyučující</th>-->
                 <th>Vytvořeno</th>
                 <th>Akce</th>
             </tr>
@@ -59,7 +59,7 @@
     <td class="list-day"><%=data.day%></td>
     <td class="list-block"><%=data.block%>.</td>
     <td class="list-weeks"><%=data.weeks%></td>
-    <td class="list-teacher"><%=data.teacher.name%> (<a href="mailto:<%=data.teacher.mail%>"><%=data.teacher.mail%></a>)</td>
+    <!--<td class="list-teacher"><%=data.teacher.name%> (<a href="mailto:<%=data.teacher.mail%>"><%=data.teacher.mail%></a>)</td>-->
     <td class="list-created"><%=data.created%></td>
     <td>
         <a href="#groups/<%=data.id%>" class="btn btn-xs button--default"><i class="glyphicon glyphicon-file"></i> Detail</a>
@@ -75,26 +75,26 @@
 <script type="text/template" id="groupsDetail-template">
 
     <h1>
-        <span>Detail skupiny: <%=subject%></span>
+        <span>Detail skupiny: <%-subject%></span>
     </h1>
     <div class="panel panel-default">
         <div class="panel-body">
             <div class="row">
                 <div class="col-xs-12 col-sm-3">
                     <dt>Den</dt>
-                    <dd><%=day%></dd>
+                    <dd><%-day%></dd>
                 </div>
                 <div class="col-xs-12 col-sm-3">
                     <dt>Blok</dt>
-                    <dd><%=block%>.</dd>
+                    <dd><%-block%>.</dd>
                 </div>
                 <div class="col-xs-12 col-sm-3">
                     <dt>Týden</dt>
-                    <dd><%=weeks%></dd>
+                    <dd><%-weeks%></dd>
                 </div>
                 <div class="col-xs-12 col-sm-3">
                     <dt>Vytvořeno</dt>
-                    <dd><%=created%></dd>
+                    <dd><%-created%></dd>
                 </div>
                 <div class="col-xs-12 col-sm-3">
                     <label for="addStudentsToGroupBtn">

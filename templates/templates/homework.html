@@ -106,17 +106,12 @@
 
 
 <script type="text/template" id="homeworkListItem-template">
-    <td class="list-name"><a href="#homeworks/<%= data.id %>" class="btn btn-xs button--default" data-id="<%= data.id %>"><%= data.name %></a></td>
-    <td class="list-termin"><%= data.deadline %></td>
-    <td class="list-predmet"><%= data.subject %> (<%= data.day %>, <%= data.block %>. blok, <%= data.weeks %> týden)</td>
+    <td class="list-name"><a href="#homeworks/<%- data.id %>" class="btn btn-xs button--default" data-id="<%- data.id %>"><%- data.name %></a></td>
+    <td class="list-termin"><%- data.deadline %></td>
+    <td class="list-predmet"><%- data.subject %> (<%- data.day %>, <%- data.block %>. blok, <%- data.weeks %> týden)</td>
     <td class="list-stav">
         <div class="badge badge-default"><%= data.status %></div>
     </td>
-    <!--<td>-->
-        <!--<a href="#" class="btn btn-xs button&#45;&#45;default hw-btn-add" data-hw-id="<%= id %>">Přidat řešení</a>-->
-        <!--<a href="#" class="btn btn-xs button&#45;&#45;primary hw-btn-test" data-hw-id="<%= id %>">Otestovat</a>-->
-        <!--<a href="#" class="btn btn-xs button&#45;&#45;success hw-btn-submit" data-hw-id="<%= id %>">Odevzdat</a>-->
-    <!--</td>-->
 </script>
 
 
@@ -143,15 +138,15 @@
 
 
 <script type="text/template" id="homeworkTeacherListItem-template">
-    <td class="list-name"><a href="#homeworks/<%= data.id %>" class="btn btn-xs button--default" data-id="<%= data.id %>"><%= data.name %></a></td>
-    <td class="list-user"><strong><%= data.u_name %></strong> (<%=data.mail%>)</td>
-    <td class="list-termin"><%= data.deadline %></td>
+    <td class="list-name"><a href="#homeworks/<%- data.id %>" class="btn btn-xs button--default" data-id="<%- data.id %>"><%- data.name %></a></td>
+    <td class="list-user"><strong><%- data.u_name %></strong> (<%-data.mail%>)</td>
+    <td class="list-termin"><%- data.deadline %></td>
     <td class="list-status"><%= data.status %></td>
     <!--<td class="list-stav">-->
         <!--<div class="badge badge-default"><%= status %></div>-->
     <!--</td>-->
     <td>
-        <span class="btn btn-xs btn-danger homework-delete" data-cid="<%=data.cid%>"> <i class="glyphicon glyphicon-trash"></i> Zrušit</span>
+        <span class="btn btn-xs btn-danger homework-delete" data-cid="<%-data.cid%>"> <i class="glyphicon glyphicon-trash"></i> Zrušit</span>
     </td>
 </script>
 
@@ -160,26 +155,26 @@
 
     <div class="row">
         <div class="col-xs-12">
-            <h1><%= name %></h1>
+            <h1><%- name %></h1>
         </div>
     </div>
     <div class="row">
         <div class="col-xs-12 col-sm-4">
             <dl>
                 <dt>Termín</dt>
-                <dd><%= deadline %></dd>
+                <dd><%- deadline %></dd>
             </dl>
         </div>
         <div class="col-xs-12 col-sm-4">
             <dl>
                 <dt>Stav</dt>
-                <dd><%= status %></dd>
+                <dd><%-status %></dd>
             </dl>
         </div>
         <div class="col-xs-12 col-sm-4">
             <dl>
                 <dt>Vytvořeno</dt>
-                <dd><%= created %></dd>
+                <dd><%-created %></dd>
             </dl>
         </div>
     </div>
@@ -220,7 +215,7 @@
 
     <div class="row">
         <div class="col-xs-12">
-            <h1><%-title%><%= name %></h1>
+            <h1><%-title%><%-name%></h1>
         </div>
     </div>
     <div class="panel panel-default">
@@ -230,25 +225,25 @@
                 <div class="col-xs-12 col-sm-3">
                     <dl>
                         <dt>Student</dt>
-                        <dd><%= student_name %></dd>
+                        <dd><%- student_name %></dd>
                     </dl>
                 </div>
                 <div class="col-xs-12 col-sm-3">
                     <dl>
                         <dt>Termín</dt>
-                        <dd><%= deadline %></dd>
+                        <dd><%- deadline %></dd>
                     </dl>
                 </div>
                 <div class="col-xs-12 col-sm-3">
                     <dl>
                         <dt>Stav</dt>
-                        <dd><%= status %></dd>
+                        <dd><%- status %></dd>
                     </dl>
                 </div>
                 <div class="col-xs-12 col-sm-3">
                     <dl>
                         <dt>Vytvořeno</dt>
-                        <dd><%= created %></dd>
+                        <dd><%- created %></dd>
                     </dl>
                 </div>
             </div>
@@ -284,9 +279,9 @@
 
 
 <script type="text/template" id="hwListItem-template">
-    <td><a href="#homeworks/<%= data.id %>" class="btn btn-xs button--default" data-id="<%= data.id %>"><%= data.name %></a></td>
-    <td><a href="mailto:<%= data.student_mail %>"><%= data.student_name %> (<%= data.student_number %>)</a></td>
-    <td><%= data.deadline %></td>
+    <td><a href="#homeworks/<%= data.id %>" class="btn btn-xs button--default" data-id="<%= data.id %>"><%- data.name %></a></td>
+    <td><a href="mailto:<%= data.student_mail %>"><%- data.student_name %> (<%- data.student_number %>)</a></td>
+    <td><%- data.deadline %></td>
     <td>
         <div class="badge badge-default"><%= data.status %></div>
     </td>
@@ -319,13 +314,13 @@
 
 
 <script type="text/template" id="solutionsListItem-template">
-    <td class="list-name"><a href="<?php echo $basepath; ?>/#schemas/<%=data.schema_id%>" class="btn btn-xs btn btn-success"><i class="glyphicon glyphicon-open"></i> <%=data.name%> (<%=data.architecture%>)</a></td>
-    <td class="list-created"><%=data.created%></td>
+    <td class="list-name"><a href="<?php echo $basepath; ?>/#schemas/<%-data.schema_id%>" class="btn btn-xs btn btn-success"><i class="glyphicon glyphicon-open"></i> <%-data.name%> (<%-data.architecture%>)</a></td>
+    <td class="list-created"><%-data.created%></td>
     <td class="list-status"><%=data.status%></td>
-    <td class="list-result"><%=data.test_message%></td>
+    <td class="list-result"><%-data.test_message%></td>
     <td>
         <!--<span class="btn btn-default btn-xs downloadVHDL" data-cid="<%=data.cid%>"><i class="glyphicon glyphicon-download"></i> VHDL</span>-->
-        <% if(statusTechnical=='waiting') { %>
+        <% if(data.statusTechnical=='waiting') { %>
             <span class="btn btn-danger btn-xs delete-solution" data-cid="<%=data.cid%>"><i class="glyphicon glyphicon-trash"></i> smazat</span>
         <% } %>
     </td>

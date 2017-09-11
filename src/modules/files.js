@@ -2,7 +2,7 @@
  * Created by Tom on 01.08.2017.
  */
 
-eco.Mapper.FileMapper = function ($element) {
+eco.Mappers.FileMapper = function ($element) {
     return {
         'name': $element.find('#file_label').val(),
         'type': $element.find('#file_type').val(),
@@ -90,7 +90,6 @@ eco.Views.Files = eco.Views.GenericList.extend({
             function () {
                 var cid = $(event.currentTarget).attr('data-cid'),
                     model = self.collection.get(cid);
-                console.log("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK k k k k k k", cid, self.collection, model);
 
                 model.destroy({
                     success: function () {

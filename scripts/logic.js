@@ -74,15 +74,15 @@ function initializeSignal() {
 // Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
 joint.shapes.logic.Gate.prototype.onSignal = function(signal, handler) {
     handler.call(this, signal);
-}
+};
 // The repeater delays a signal handling by 400ms
 joint.shapes.logic.Repeater.prototype.onSignal = function(signal, handler) {
     _.delay(handler, 400, signal);
-}
+};
 // Output element just marks itself as alive.
 joint.shapes.logic.Output.prototype.onSignal = function(signal) {
     toggleLive(this, signal);
-}
+};
 
 // diagramm setup
 

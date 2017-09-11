@@ -366,7 +366,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         });
 
         var solutionFormView = new eco.Views.GenericForm({
-            mapper: eco.Mapper.SolutionHomeworkMapper
+            mapper: eco.Mappers.SolutionHomeworkMapper
         });
 
         this.solutionsView = new eco.Views.GenericList({

@@ -21,6 +21,8 @@ eco.Formaters.GroupFormater = function (model) {
 eco.Formaters.StudentGroupFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
+        subject: model.escape('subject'),
+        block: model.escape('block'),
         entered: moment(model.get('entered')).format('LLL'),
         dayKey: model.escape('day'),
         day: model.dayFormat(),
@@ -35,7 +37,7 @@ eco.Formaters.TasksFormater = function (model) {
         cid: model.cid,
         // id: model.get('id'),
         name: model.escape('name'),
-        // description: model.escape('description'),
+        description: model.get('description'),
         // etalon_file: model.escape('etalon_file'),
         // test_file: model.escape('test_file'),
         created: moment(model.get('created')).format('LLL')
@@ -46,7 +48,7 @@ eco.Formaters.TasksFormater = function (model) {
 eco.Formaters.HwTeacherFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
-        status: model.escape('status'),
+        status: eco.Utils.getTaskStatus(model.escape('status')),
         created: moment(model.get('created')).format('LLL'),
         deadline: moment(model.get('deadline')).format('LLL'),
     });
@@ -56,9 +58,12 @@ eco.Formaters.HwTeacherFormater = function (model) {
 eco.Formaters.HomeworkFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
+        id: model.id,
         type: eco.Utils.fileTypes[model.get('type')],
         // name: model.get('name'),
         // file: model.get('file'),
+        // id: model.get('id'),
+        subject: model.escape('subject'),
         status: model.getStatus(),
         created: moment(model.get('created')).format('LLL'),
         deadline: moment(model.get('deadline')).format('LLL'),
@@ -92,7 +97,7 @@ eco.Formaters.SolutionsFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
         created: moment(model.get('created')).format('LLL'),
-        statusTechnical: model.escape('status'),
+        statusTechnical: model.get('status'),
         status: eco.Utils.getSolutionStatus(model.get('status')),
     });
     return result;

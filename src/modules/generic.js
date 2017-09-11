@@ -52,7 +52,6 @@ eco.Views.GenericList = Backbone.View.extend({
             };
             this.$('.items-container').addClass('list');
             this.userList = new List('genericList'+this.uniqueId, options);
-            console.log("LIST INIT 1234567890", options, this.searchNames, this.userList);
         } catch (err) {
             ;
         }

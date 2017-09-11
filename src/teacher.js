@@ -1,8 +1,5 @@
 // Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
-joint.shapes.mylib.Hradlo.prototype.onSignal = function (signal, handler) {
-//            console.log("joint.shapes.mylib.Hradlo.prototype.onSignal", this);
-    handler.call(this, 0, signal);
-};
+
 
 
 
@@ -12,7 +9,7 @@ window.eco = {
     Views: {},
     Formaters: {},
     Validators: {},
-    Mapper: {},
+    Mappers: {},
     Utils: getUtils(),
     basedir: config.basedir || '',
     ViewGarbageCollector: {
@@ -437,7 +434,7 @@ window.eco = {
             var viewAddNew = new eco.Views.EditTask({
                 title: "Upravit zadání",
                 template: '#taskEditForm-template',
-                mapper: eco.Mapper.TaskEditMapper,
+                mapper: eco.Mappers.TaskEditMapper,
                 model: model,
             });
 

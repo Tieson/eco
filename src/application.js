@@ -9,8 +9,9 @@ window.eco = {
     Views: {},
     Formaters: {},
     Validators: {},
-    Mapper: {},
+    Mappers: {},
     Utils: getUtils(),
+    basedir: config.basedir || '',
     ViewGarbageCollector: {
         items: [],
         clear: function () {
@@ -29,7 +30,6 @@ window.eco = {
             return this.items;
         }
     },
-    basedir: config.basedir || '',
 
     start: function(data) {
         //Routes
@@ -45,7 +45,6 @@ window.eco = {
         // router.on('route:addGroup', showAddGroup);
 
         /** Studenti **/
-        // router.on('route:showStudents', showStudents);
         router.on('route:showUserGroups', showUserGroups);
         router.on('route:showUserGroupDetail', showUserGroupDetail);
         // router.on('route:showStudentsHwList', showStudentsHwList);
@@ -310,7 +309,7 @@ window.eco = {
             var viewAddNew = new eco.Views.EditTask({
                 title: "Upravit zadání",
                 template: '#taskEditForm-template',
-                mapper: eco.Mapper.TaskEditMapper,
+                mapper: eco.Mappers.TaskEditMapper,
                 model: model,
             });
             model.fetch();
@@ -325,6 +324,7 @@ window.eco = {
             // část pro výpis souborů
             var filesView = new eco.Views.Files({
                 title: "Soubory",
+                noRecordsMessage: 'Zatím zde nejsou žádné soubory.',
                 template: '#tasksFilesList-template',
                 itemTemplate: '#tasksFilesItem-template',
                 formater: eco.Formaters.FileFormater,

@@ -1,7 +1,7 @@
 
 
 
-eco.Mapper.TaskEditMapper = function ($element) {
+eco.Mappers.TaskEditMapper = function ($element) {
     return {
         'name': $element.find('#task_name').val(),
         'description': $element.find('#task_description').val(),

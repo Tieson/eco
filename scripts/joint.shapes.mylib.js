@@ -2712,13 +2712,13 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
     },
     pointerup: function (evt, x, y) {
         joint.dia.ElementView.prototype.pointerup.call(this,evt,x,y);
-        console.log("remove click");
         this._dx = x;
         this._dy = y;
         this._action = '';
         var className = evt.target.parentNode.getAttribute('class');
         switch (className) {
             case 'element-tool-remove':
+                console.log("remove click");
                 var graph = this.model.graph;
                 var counter = graph.get('counter');
                 counter.removeOne(this.model.attr('custom').type, this.model.attr('custom').number);

@@ -25,7 +25,7 @@ function schemas() {
 	try
 	{
 		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
-            FROM schema_base WHERE user_id=:user_id");
+            FROM schema_base WHERE user_id=:user_id AND deleted IS NULL");
 		$sth->bindParam(":user_id", $user['user_id'], PDO::PARAM_INT);
 
 		$sth->execute();
@@ -159,7 +159,8 @@ function schemaDelete($id) {
 					$app->response()->setStatus(404);
 					$app->response()->header('X-Status-Reason', "Item was not found.");
 				} else {
-					$prepared = $db->prepare("DELETE FROM schema_base WHERE id = :id");
+//					$prepared = $db->prepare("DELETE FROM schema_base WHERE id = :id");
+					$prepared = $db->prepare("UPDATE schema_base SET deleted=NOW() WHERE id = :id");
 					$prepared->bindParam(":id", $id, PDO::PARAM_INT);
 					if ($prepared->execute()) {
 						echo '{"result":{"text":"Item was deleted"}}';
@@ -195,7 +196,7 @@ function schemaDetail($id) {
 	if (isStudent($user)){
 		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
             FROM schema_base
-            WHERE id = :id AND user_id = :user_id");
+            WHERE id = :id AND user_id = :user_id AND deleted IS NULL");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
 		$sth->execute();
@@ -206,7 +207,7 @@ function schemaDetail($id) {
 		//Učitel může vidět schémata všech studentů
 		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
             FROM schema_base
-            WHERE id = :id AND (user_id = :user_id OR user_id IN (SELECT DISTINCT user_id FROM user WHERE type_uctu='student'))");
+            WHERE id = :id AND (user_id = :user_id  OR user_id IN (SELECT DISTINCT user_id FROM user WHERE type_uctu='student'))");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
 		$sth->execute();
