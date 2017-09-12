@@ -15,23 +15,8 @@ $sql1 = file_get_contents('./sql/1.sql');
 
 define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
 
-//var_dump($sql1);
 
-//function getDB()
-//{
-//	global $config;
-//	$dbhost = $config['db']['host'];
-//	$dbuser = $config['db']['user'];
-//	$dbpass = $config['db']['password'];
-//	$dbname = $config['db']['database'];
-//
-//	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
-//	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
-//	$dbConnection->exec("set names utf8");
-//	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-//	$dbConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, 1);
-//	return $dbConnection;
-//}
+
 
 //$db = getDB();
 //$sth = $db->prepare($sql1);
@@ -168,7 +153,7 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
 
 	function print_error($msg)
 	{
-		print "<div class='alert alert-error'>$msg</div>";
+		print "<div class='alert alert-danger'>$msg</div>";
 	}
 
 	function print_notice($msg)
@@ -206,42 +191,6 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
 		}
 	}
 
-	function make_config($DB_TYPE, $DB_HOST, $DB_USER, $DB_NAME, $DB_PASS,
-	                     $DB_PORT, $SELF_URL_PATH)
-	{
-
-		$data = explode("\n", file_get_contents("../config.php-dist"));
-
-		$rv = "";
-
-		$finished = false;
-
-		foreach ($data as $line) {
-			if (preg_match("/define\('DB_TYPE'/", $line)) {
-				$rv .= "\tdefine('DB_TYPE', '$DB_TYPE');\n";
-			} else if (preg_match("/define\('DB_HOST'/", $line)) {
-				$rv .= "\tdefine('DB_HOST', '$DB_HOST');\n";
-			} else if (preg_match("/define\('DB_USER'/", $line)) {
-				$rv .= "\tdefine('DB_USER', '$DB_USER');\n";
-			} else if (preg_match("/define\('DB_NAME'/", $line)) {
-				$rv .= "\tdefine('DB_NAME', '$DB_NAME');\n";
-			} else if (preg_match("/define\('DB_PASS'/", $line)) {
-				$rv .= "\tdefine('DB_PASS', '$DB_PASS');\n";
-			} else if (preg_match("/define\('DB_PORT'/", $line)) {
-				$rv .= "\tdefine('DB_PORT', '$DB_PORT');\n";
-			} else if (preg_match("/define\('SELF_URL_PATH'/", $line)) {
-				$rv .= "\tdefine('SELF_URL_PATH', '$SELF_URL_PATH');\n";
-			} else if (!$finished) {
-				$rv .= "$line\n";
-			}
-
-			if (preg_match("/\?\>/", $line)) {
-				$finished = true;
-			}
-		}
-
-		return $rv;
-	}
 
 	function db_query($link, $query, $type, $die_on_error = true)
 	{
@@ -280,103 +229,175 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
 		return $url_path;
 	}
 
+
+	function isConfigExists(){
+	    return file_exists("config/config.php");
+    }
+
 	?>
 
-    <div class="floatingLogo"><img src="../images/logo_small.png"></div>
 
     <h1>ECO Instalátor</h1>
 
     <div class='content'>
 
 		<?php
+		@$op = $_REQUEST['op'];
+        @$alternative = $_REQUEST['alternative'];
+		if ($alternative == 'fromconfig' && isConfigExists()) {
 
-		if (file_exists("config/config.php")) {
-			require "config/config.php";
+			$config = include('./config/config.php');
+
+			if ($config) {
+
+				try {
+					$link = db_connect($config['db']['host'], $config['db']['user'], $config['db']['password'], $config['db']['database'], 'mysql', '');
+					@$DB_USER = $config['db']['user'];
+					@$DB_NAME = $config['db']['database'];
+					@$DB_TYPE = 'mysql';
+					@$DB_HOST = $config['db']['host'];
+					@$DB_PASS = '';
+					@$DB_PORT = $config['db']['port']?$config['db']['port']:'';
+					@$SELF_URL_PATH = strip_tags($_POST['SELF_URL_PATH']);
+
+					print_notice('Byla použita konfigurace z konfiguračního souboru. user=' . $config['db']['user'] . ' database=' . $config['db']['database']);
+				} catch (Exception $ex) {
+					print_error($ex->getMessage());
+					exit;
+				}
+			}
+
 
 			if (!defined('_INSTALLER_IGNORE_CONFIG_CHECK')) {
 				print_error("Error: config.php již existuje. Ruším operaci.");
 				exit;
 			}
 		}
+		else {
 
-		@$op = $_REQUEST['op'];
+			$config = include('./config/config.php');
 
-		@$DB_HOST = strip_tags($_POST['DB_HOST']);
-		@$DB_TYPE = strip_tags($_POST['DB_TYPE']);
-		@$DB_USER = strip_tags($_POST['DB_USER']);
-		@$DB_NAME = strip_tags($_POST['DB_NAME']);
-		@$DB_PASS = strip_tags($_POST['DB_PASS']);
-		@$DB_PORT = strip_tags($_POST['DB_PORT']);
-		@$SELF_URL_PATH = strip_tags($_POST['SELF_URL_PATH']);
+			if ($config) {
+			}
 
-		if (!$SELF_URL_PATH) {
-			$SELF_URL_PATH = preg_replace("/\/install.php$/", "/", make_self_url_path());
+			@$DB_HOST = strip_tags($_POST['DB_HOST']);
+			@$DB_TYPE = strip_tags($_POST['DB_TYPE']);
+			@$DB_USER = strip_tags($_POST['DB_USER']);
+			@$DB_NAME = strip_tags($_POST['DB_NAME']);
+			@$DB_PASS = strip_tags($_POST['DB_PASS']);
+			@$DB_PORT = strip_tags($_POST['DB_PORT']);
+			@$SELF_URL_PATH = strip_tags($_POST['SELF_URL_PATH']);
+
+			if (!$SELF_URL_PATH) {
+				$SELF_URL_PATH = preg_replace("/\/install.php$/", "/", make_self_url_path());
+			}
+
+			try {
+				$link = db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME, $DB_TYPE, $DB_PORT);
+			} catch (Exception $ex) {
+				print_error($ex->getMessage());
+			}
 		}
-		?>
-
+?>
+        <div class="panel panel-default">
+            <div class="panel-body">
         <form action="" method="post">
             <input class="form-control" type="hidden" name="op" value="testconfig">
+            <input class="form-control" type="hidden" name="alternative" value="alternative">
 
-            <h2>Database settings</h2>
+	        <?php if ($alternative == 'alternative') { ?>
+                <h2>Nastavení databáze</h2>
+	        <?php } else { ?>
+                <h2>Alternativní nastavení databáze</h2>
+	        <?php } ?>
 
-			<?php
+
+            <?php
 			$issel_pgsql = $DB_TYPE == "pgsql" ? "selected" : "";
 			$issel_mysql = $DB_TYPE == "mysql" ? "selected" : "";
 			?>
 
-            <fieldset>
-                <label>Database type</label>
-                <select name="DB_TYPE" class="form-control">
-                    <option <?php echo $issel_mysql ?> value="mysql">MySQL</option>
-                </select>
-            </fieldset>
+            <div class="row">
+                <div class="col-xs-12 col-sm-3">
+                    <fieldset>
+                        <label>Database type</label>
+                        <select name="DB_TYPE" class="form-control">
+                            <option <?php echo $issel_mysql ?> value="mysql">MySQL</option>
+                        </select>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <fieldset>
+                        <label>Username</label>
+                        <input class="form-control" class="input class=" form-control" input class="form-control"-text" required
+                        name="DB_USER" size="20" value="<?php echo $DB_USER ?>"/>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <fieldset>
+                        <label>Password</label>
+                        <input class="form-control" class="input class=" form-control" input class="form-control"-text"
+                        name="DB_PASS" size="20" type="password" value="<?php echo $DB_PASS ?>"/>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <fieldset>
+                        <label>Database name</label>
+                        <input class="form-control" class="input class=" form-control" input class="form-control"-text" required
+                        name="DB_NAME" size="20" value="<?php echo $DB_NAME ?>"/>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <fieldset>
+                        <label>Host name</label>
+                        <input class="form-control" class="input class=" form-control" input class="form-control"-text"
+                        name="DB_HOST" size="20" value="<?php echo $DB_HOST ?>"/>
+                        <span class="text text-muted">Pokud je potřeba</span>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <fieldset>
+                        <label>Port</label>
+                        <input class="form-control" class="input class=" form-control" input class="form-control"-text"
+                        name="DB_PORT" type="number" size="20" value="<?php echo $DB_PORT ?>"/>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    <fieldset>
+                        <label>URL</label>
+                        <input class="form-control" class="input class=" form-control" input class="form-control"-text"
+                        type="url" name="SELF_URL_PATH" placeholder="<?php echo $SELF_URL_PATH; ?>"
+                        size="60" value="<?php echo $SELF_URL_PATH ?>"/>
+                    </fieldset>
 
-            <fieldset>
-                <label>Username</label>
-                <input class="form-control" class="input class=" form-control" input class="form-control"-text" required
-                name="DB_USER" size="20" value="<?php echo $DB_USER ?>"/>
-            </fieldset>
-
-            <fieldset>
-                <label>Password</label>
-                <input class="form-control" class="input class=" form-control" input class="form-control"-text"
-                name="DB_PASS" size="20" type="password" value="<?php echo $DB_PASS ?>"/>
-            </fieldset>
-
-            <fieldset>
-                <label>Database name</label>
-                <input class="form-control" class="input class=" form-control" input class="form-control"-text" required
-                name="DB_NAME" size="20" value="<?php echo $DB_NAME ?>"/>
-            </fieldset>
-
-            <fieldset>
-                <label>Host name</label>
-                <input class="form-control" class="input class=" form-control" input class="form-control"-text"
-                name="DB_HOST" size="20" value="<?php echo $DB_HOST ?>"/>
-                <span class="text text-muted">Pokud je potřeba</span>
-            </fieldset>
-
-            <fieldset>
-                <label>Port</label>
-                <input class="form-control" class="input class=" form-control" input class="form-control"-text"
-                name="DB_PORT" type="number" size="20" value="<?php echo $DB_PORT ?>"/>
-            </fieldset>
-
-            <h2>Další nastavení</h2>
-
-            <p>Toto by mělo bát nastaveno na umístění, kde bude aplikace dostupná.</p>
-
-            <fieldset>
-                <label>Tiny Tiny RSS URL</label>
-                <input class="form-control" class="input class=" form-control" input class="form-control"-text"
-                type="url" name="SELF_URL_PATH" placeholder="<?php echo $SELF_URL_PATH; ?>"
-                size="60" value="<?php echo $SELF_URL_PATH ?>"/>
-            </fieldset>
-
-
-            <p><input class="btn btn-success" type="submit" value="Test configuration"></p>
+                    <p>Toto by mělo být nastaveno na umístění, kde bude aplikace dostupná.</p>
+                </div>
+                <div class="col-xs-12">
+                    <p><input class="btn btn-success" type="submit" value="Použít konfiguraci"></p>
+                </div>
+            </div>
 
         </form>
+            </div>
+        </div>
+<?php
+        if (isConfigExists()){
+        ?>
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form action="" method="post">
+                    <input class="form-control" type="hidden" name="op" value="testconfig">
+                    <input class="form-control" type="hidden" name="alternative" value="fromconfig">
+                    <button class="btn btn-info" type="submit">
+                        Použít konfiguraci ze souboru config
+                    </button>
+                </form>
+            </div>
+        </div>
+	    <?php
+	    }
+	    ?>
 
 		<?php if ($op == 'testconfig') { ?>
 
@@ -442,17 +463,13 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
                     <h2>Kontrola Databáze</h2>
 
 					<?php
-					$link = db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME, $DB_TYPE, $DB_PORT);
-
 					if (!$link) {
 						print_error("Unable to connect to database using specified parameters.");
 						exit;
 					}
-
 					print_notice("Database test succeeded."); ?>
                 </div>
             </div>
-
 
             <div class="panel panel-default">
                 <div class="panel-body">
@@ -480,6 +497,7 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
                             <td>
                                 <form method="post">
                                     <input class="form-control" type="hidden" name="op" value="installschema">
+                                    <input class="form-control" type="hidden" name="alternative" value="<?php echo $alternative; ?>">
 
                                     <input class="form-control" type="hidden" name="DB_USER"
                                            value="<?php echo $DB_USER ?>"/>
@@ -530,8 +548,9 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
                                     <input class="form-control" type="hidden" name="SELF_URL_PATH"
                                            value="<?php echo $SELF_URL_PATH ?>"/>
 
-                                    <input class="btn btn-danger" type="hidden" name="op" value="skipschema">
-                                    <p><input class="form-control" type="submit" value="Skip initialization"></p>
+                                    <input class="form-control" type="hidden" name="op" value="skipschema">
+                                    <input class="form-control" type="hidden" name="alternative" value="<?php echo $alternative; ?>">
+                                    <p><input class="form-control" type="submit" value="Přeskočit inicializaci - pouze aktualizovat"></p>
                                 </form>
 
                             </td>
@@ -544,13 +563,16 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
 			<?php
 
 		} else if ($op == 'installschema' || $op == 'skipschema') {
-			?>
+
+
+		    ?>
+
 
             <div class="panel panel-default">
                 <div class="panel-body">
 					<?php
 
-					$link = db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME, $DB_TYPE, $DB_PORT);
+//					$link = db_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME, $DB_TYPE, $DB_PORT);
 
 					if (!$link) {
 						print_error("Nelze se připojit k datbázi se zadanými údaji");
@@ -577,117 +599,43 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
 						print_notice("Instalace databáze dokončena.");
 
 					} else {
-						print_notice("Instalace databáze preskočena.");
+						print_notice("Instalace databáze preskočena. Pouze aktualizace.");
+
+						/**
+						 * Update databáze
+						 */
+
+						$result = @db_query($link, "SELECT version FROM version LIMIT 1", $DB_TYPE, false);
+
+						while ($row = $result->fetch_assoc()) {
+							$files = array_slice(scandir('schemas/versions/'), 2);
+							$files_count = count($files);
+							if($files_count == $row['version']){
+								print_notice('Databáze je aktuální. verze: ' . $row['version']);
+							}else{
+								print_notice('Aktuální verze databáze: ' . $row['version'] . ' počet souborů s updatem: ' . $files_count);
+
+                                for ($i = (int)($row['version']) + 1; $i <= $files_count; $i++) {
+                                    $lines = explode(";", preg_replace("/[\r\n]/", "", file_get_contents("schemas/versions/" . $i . '.sql')));
+
+                                    print_notice('Soubor ' . $i . '.sql' . ' počet příkazů: ' . count($lines));
+                                    foreach ($lines as $line) {
+                                        if (strpos($line, "--") !== 0 && $line) {
+                                            db_query($link, $line, $DB_TYPE);
+                                        }
+                                    }
+                                }
+							}
+						}
 					}
 
-
-					/**
-					 * Update databáze
-					 */
-
-//					$result = @db_query($link, "SELECT version FROM version", $DB_TYPE, false);
-//
-//					if ($result && $result > 0) {
-//
-//					} else {
-//						$result = 0;
-//					}
-//					$files = array_slice(scandir('schemas/versions/'), 2);
-//					$files_count = count($files);
-//					print_notice('Aktuální verze databáze: ' . $result . ' počet souborů s updatem: ' . $files_count);
-//
-//					for ($i = $result; $i < $files_count; $i++) {
-////				    $sql = file_get_contents($files[$i]);
-//						echo($files[$i]);
-//
-//						$lines = explode(";", preg_replace("/[\r\n]/", "", file_get_contents("schemas/versions/".$files[$i])));
-//
-//						foreach ($lines as $line) {
-//							if (strpos($line, "--") !== 0 && $line) {
-//								db_query($link, $line, $DB_TYPE);
-//							}
-//						}
-//					}
-
-
-					//				print "<h2>Generated configuration file</h2>";
-					//
-					//				print "<p>Copy following text and save as <code>config.php</code> in tt-rss main directory. It is suggested to read through the file to the end in case you need any options changed fom default values.</p>";
-					//
-					//				print "<p>After copying the file, you will be able to login with default username and password combination: <code>admin</code> and <code>password</code>. Don't forget to change the password immediately!</p>"; ?>
-                    <!---->
-                    <!--                <form action="" method="post">-->
-                    <!--                    <input class="form-control" type="hidden" name="op" value="saveconfig">-->
-                    <!--                    <input class="form-control" type="hidden" name="DB_USER" value="-->
-					<?php //echo $DB_USER ?><!--"/>-->
-                    <!--                    <input class="form-control" type="hidden" name="DB_PASS" value="-->
-					<?php //echo $DB_PASS ?><!--"/>-->
-                    <!--                    <input class="form-control" type="hidden" name="DB_NAME" value="-->
-					<?php //echo $DB_NAME ?><!--"/>-->
-                    <!--                    <input class="form-control" type="hidden" name="DB_HOST" value="-->
-					<?php //echo $DB_HOST ?><!--"/>-->
-                    <!--                    <input class="form-control" type="hidden" name="DB_PORT" value="-->
-					<?php //echo $DB_PORT ?><!--"/>-->
-                    <!--                    <input class="form-control" type="hidden" name="DB_TYPE" value="-->
-					<?php //echo $DB_TYPE ?><!--"/>-->
-                    <!--                    <input class="form-control" type="hidden" name="SELF_URL_PATH" value="-->
-					<?php //echo $SELF_URL_PATH ?><!--"/>-->
-                    <!--					--><?php //print "<textarea cols=\"80\" rows=\"20\">";
-					//					echo make_config($DB_TYPE, $DB_HOST, $DB_USER, $DB_NAME, $DB_PASS,
-					//						$DB_PORT, $SELF_URL_PATH);
-					//					print "</textarea>"; ?>
-                    <!---->
-                    <!--					--><?php //if (is_writable("..")) { ?>
-                    <!--                    <p>We can also try saving the file automatically now.</p>-->
-                    <!---->
-                    <!--                    <p><input class="form-control" type="submit" value="Save configuration"></p>-->
-                    <!--                </form>-->
-                    <!--			--><?php //} else {
-					//				print_error("Unfortunately, parent directory is not writable, so we're unable to save config.php automatically.");
-					//			}
-
-					print_notice("You can generate the file again by changing the form above.");
 					?>
                 </div>
             </div>
 			<?php
 
 		} else if ($op == "saveconfig") {
-			?>
-
-            <!--        <div class="panel panel-default">-->
-            <!--            <div class="panel-body">-->
-            <!--				--><?php
-//				print "<h2>Saving configuration file to parent directory...</h2>";
-//
-//				if (!file_exists("../config.php")) {
-//
-//					$fp = fopen("../config.php", "w");
-//
-//					if ($fp) {
-//						$written = fwrite($fp, make_config($DB_TYPE, $DB_HOST,
-//							$DB_USER, $DB_NAME, $DB_PASS,
-//							$DB_PORT, $SELF_URL_PATH));
-//
-//						if ($written > 0) {
-//							print_notice("Successfully saved config.php. You can try <a href=\"..\">loading tt-rss now</a>.");
-//
-//						} else {
-//							print_notice("Unable to write into config.php in tt-rss directory.");
-//						}
-//
-//						fclose($fp);
-//					} else {
-//						print_error("Unable to open config.php in tt-rss directory for writing.");
-//					}
-//				} else {
-//					print_error("config.php already present in tt-rss directory, refusing to overwrite.");
-//				}
-//				?>
-            <!---->
-            <!--            </div>-->
-            <!--        </div>-->
-			<?php
+		    ;
 		}
 		?>
     </div>

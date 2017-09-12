@@ -1,7 +1,7 @@
 /**
  * Created by Tom on 13.04.2017.
  */
-
+"use strict";
 eco.Router = Backbone.Router.extend({
     routes: {
 '': 'home',
