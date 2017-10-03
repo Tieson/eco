@@ -491,8 +491,7 @@ window.eco = {
             schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
             console.log('route:showHwList');
-            var hws = new eco.Collections.Homeworks(null,
-                // {url: eco.basedir+'/api/students/'+ user.get('student_id') + '/hw'}
+            var homeworsk = new eco.Collections.Homeworks(null,
                 {url: eco.basedir+'/api/students/hw'}
             );
 
@@ -501,7 +500,7 @@ window.eco = {
                 template: '#homeworkList-template',
                 itemTemplate: '#homeworkListItem-template',
                 formater: eco.Formaters.HomeworkFormater,
-                collection: hws,
+                collection: homeworsk,
                 searchNames: [
                     "list-name",
                     "list-termin",
@@ -510,7 +509,7 @@ window.eco = {
                 ]
             });
             main.append(hwView.render().$el);
-            hws.fetch({
+            homeworsk.fetch({
                 success: function () {
                     showSnackbar('Načítání dokončeno.');
                 },
@@ -548,7 +547,7 @@ window.eco = {
             setPageTitle('Skupiny');
             main_tab.show();
             schemas_tab.hide();
-            var groups = new eco.Collections.UserGroupCollection({
+            var groups = new eco.Collections.UserGroupCollection(null,{
                 url: eco.basedir+"/api/students/groups",
             });
             eco.ViewGarbageCollector.clear();
@@ -557,10 +556,11 @@ window.eco = {
                 itemTemplate: '#userGroupsListItem-template',
                 formater: eco.Formaters.StudentGroupFormater,
                 collection: groups,
-                el: main
+                // el: main
             });
             console.log("group url", groups);
             groups.fetch();
+            main.append(groupsView.render().$el);
         }
 
         function showUserAddGroups() {

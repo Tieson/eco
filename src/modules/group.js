@@ -91,7 +91,7 @@ eco.Collections.GroupCollection = Backbone.Collection.extend({
 
 eco.Collections.UserGroupCollection = Backbone.Collection.extend({
     model: eco.Models.UserGroup,
-    initialize: function (opts) {
+    initialize: function (models,opts) {
         this.urlString = opts.url;
     },
     url: function () {
@@ -449,11 +449,7 @@ eco.Views.GroupsList = eco.Views.GenericList.extend({
 
 eco.Views.StudentAssignGroupsList = eco.Views.GenericList.extend({
     events: {
-        'click .leaveGroup': 'leaveGroup',
-    },
-    afterInitialization:  function () {
-        console.log("AFTER INIT");
-        this.initSortable();
+        // 'click .leaveGroup': 'leaveGroup',
     },
     leaveGroup: function (event) {
         event.preventDefault();
@@ -479,6 +475,4 @@ eco.Views.StudentAssignGroupsList = eco.Views.GenericList.extend({
             });
         return false;
     },
-    initSortable: function () {
-    }
 });

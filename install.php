@@ -11,7 +11,6 @@
 //$config = require('./config/config.php');
 
 
-$sql1 = file_get_contents('./sql/1.sql');
 
 define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
 

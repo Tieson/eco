@@ -243,10 +243,16 @@ eco.Models.VHDL = Backbone.Model.extend({
     }
 });
 
+/**
+ * Deprecated
+ */
 eco.Collections.VHDLs = Backbone.Collection.extend({
     model: eco.Models.VHDL,
-    initialize: function (opts) {
-        // this.url = opts.url;
+    initialize: function (models, opts) {
+        this.urlString = opts.url;
+    },
+    url: function(){
+        return this.urlString;
     }
 });
 

@@ -74,9 +74,12 @@ eco.Models.HomeworkTeacher = Backbone.Model.extend({
     }
 });
 
+/**
+ * Deprecated
+ */
 eco.Collections.HomeworksTeacher = Backbone.Collection.extend({
     model: eco.Models.HomeworkTeacher,
-    initialize: function (opts) {
+    initialize: function (models, opts) {
         this._url = opts.url;
     },
     url: function () {

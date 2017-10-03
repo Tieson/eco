@@ -1,161 +1,178 @@
+
+--Copyright (c) 2017 Technical University in Liberec.
+--All rights reserved.
+--
+--Redistribution and use in source and binary forms are permitted
+--provided that the above copyright notice and this paragraph are
+--duplicated in all such forms and that any documentation,
+--advertising materials, and other materials related to such
+--distribution and use acknowledge that the software was developed
+--by the Technical University in Liberec. The name of the
+--Technical University in Liberec may not be used to endorse or
+--promote products derived
+--from this software without specific prior written permission.
+--THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+--IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+--WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
 ------------------------------------------------------------------
 -- BASIC GATES ---------------------------------------------------
 ------------------------------------------------------------------
--- BUF, INV, AND, NAND, OR, NOR, XOR, XNOR -----------------------
+-- TUL_BUF, TUL_INV, TUL_AND, TUL_NAND, TUL_OR, TUL_NOR, TUL_XOR, TUL_XNOR -----------------------
 ------------------------------------------------------------------
 
 ------------------------------------------------------------------
--- BUF gate ------------------------------------------------------
+-- TUL_BUF gate ------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity BUF is
+entity TUL_BUF is
 	port(
 		a : in  std_logic;
 		q : out std_logic
 	);
-end entity BUF;
+end entity TUL_BUF;
 
-architecture RTL of BUF is
+architecture RTL of TUL_BUF is
 begin
 	q <= a;
 
 end architecture RTL;
 
 ------------------------------------------------------------------
--- INV gate ------------------------------------------------------
+-- TUL_INV gate ------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity INV is
+entity TUL_INV is
 	port(
 		a : in  std_logic;
 		q : out std_logic
 	);
-end entity INV;
+end entity TUL_INV;
 
-architecture RTL of INV is
+architecture RTL of TUL_INV is
 begin
 	q <= not a;
 
 end architecture RTL;
 
 ------------------------------------------------------------------
--- AND gate ------------------------------------------------------
+-- TUL_AND gate ------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity AND is
+entity TUL_AND is
 	port(
 		a : in  std_logic;
 		b : in  std_logic;
 		q : out std_logic
 	);
-end entity AND;
+end entity TUL_AND;
 
-architecture RTL of AND is
+architecture RTL of TUL_AND is
 begin
 	q <= a and b;
 
 end architecture RTL;
 
 ------------------------------------------------------------------
--- OR gate -------------------------------------------------------
+-- TUL_OR gate -------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity OR is
+entity TUL_OR is
 	port(
 		a : in  std_logic;
 		b : in  std_logic;
 		q : out std_logic
 	);
-end entity OR;
+end entity TUL_OR;
 
-architecture RTL of OR is
+architecture RTL of TUL_OR is
 begin
 	q <= a or b;
 
 end architecture RTL;
 
 ------------------------------------------------------------------
--- NAND gate -----------------------------------------------------
+-- TUL_NAND gate -----------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity NAND is
+entity TUL_NAND is
 	port(
 		a : in  std_logic;
 		b : in  std_logic;
 		q : out std_logic
 	);
-end entity NAND;
+end entity TUL_NAND;
 
-architecture RTL of NAND is
+architecture RTL of TUL_NAND is
 begin
 	q <= not (a and b);
 
 end architecture RTL;
 
 ------------------------------------------------------------------
--- NOR gate ------------------------------------------------------
+-- TUL_NOR gate ------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity NOR is
+entity TUL_NOR is
 	port(
 		a : in  std_logic;
 		b : in  std_logic;
 		q : out std_logic
 	);
-end entity NOR;
+end entity TUL_NOR;
 
-architecture RTL of NOR is
+architecture RTL of TUL_NOR is
 begin
 	q <= not (a or b);
 
 end architecture RTL;
 
 ------------------------------------------------------------------
--- XOR gate ------------------------------------------------------
+-- TUL_XOR gate ------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity XOR is
+entity TUL_XOR is
 	port(
 		a : in  std_logic;
 		b : in  std_logic;
 		q : out std_logic
 	);
-end entity XOR;
+end entity TUL_XOR;
 
-architecture RTL of XOR is
+architecture RTL of TUL_XOR is
 begin
 	q <= a xor b;
 
 end architecture RTL;
 
 ------------------------------------------------------------------
--- XNOR gate -----------------------------------------------------
+-- TUL_XNOR gate -----------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity XNOR is
+entity TUL_XNOR is
 	port(
 		a : in  std_logic;
 		b : in  std_logic;
 		q : out std_logic
 	);
-end entity XNOR;
+end entity TUL_XNOR;
 
-architecture RTL of XNOR is
+architecture RTL of TUL_XNOR is
 begin
 	q <= not (a xor b);
 
