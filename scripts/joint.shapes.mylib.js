@@ -83,9 +83,18 @@ function logicFunction(params, foo, first, negate){
 }
 
 
-//Reakce na hrany
+/**
+ * REAKCE NA HRANY
+ */
 
+/**
+ * NÁBĚŽNÁ HRANA
+ * @param memory
+ * @param port
+ * @returns {boolean|*}
+ */
 function rising_edge(memory, port){
+    console.log("rising_edge", memory, port);
     return memory != port && isHigh(port);
 }
 function decrease_edge(memory, port){
@@ -101,7 +110,7 @@ function isHigh(p){
     return p > 0;
 }
 function isLow(p){
-    return p == 0;
+    return p <= 0;
 }
 
 function portIsHigh(ports, p){
@@ -115,15 +124,17 @@ function portIsInvalid(ports, p){
 }
 
 
-
+// AND má defaul hodnotu 1
 function logAnd(result, value, key){
     return result && value;
 }
 
+// OR má defaultní hodnotu 0
 function logOr(result, value, key){
     return result || value;
 }
 
+// XOR má defaultní hodnotu nedefinovanou
 function logXor(result, value, key){
     if (result == undefined){
         return value;
@@ -133,17 +144,21 @@ function logXor(result, value, key){
 
 
 function createRAMKey(p, a){
-    return _.pick(p, a).join('');
+    var pick =  _.map(_.pick(p, a, true), function(x){
+        return x;
+    });
+    var result = pick.join('');
+    return result;
 }
 
 function executerAnd(pick){
     return _.reduce(pick, logAnd, true);
 }
 function executerOr(pick){
-    return _.reduce(pick, logAnd, false);
+    return _.reduce(pick, logOr, false);
 }
 function executerXor(pick){
-    return _.reduce(pick, logAnd, undefined);
+    return _.reduce(pick, logXor, undefined);
 }
 
 
@@ -151,6 +166,47 @@ function logExecute(p, pick, executer){
     return executer(_.pick(p,pick));
 }
 
+function logicExecuter(p, ports, operation, def){
+    // var pick = element.get('inPorts');
+    return _.reduce(_.pick(p, ports), operation, def);
+}
+
+/**
+ *  MAPOVÁNÍ PRIORITNÍHO KODÉRU
+ * @param p
+ * @param bits
+ * @returns {{v: number}}
+ */
+function priority(p, bits) {
+    var i = 0, any = false;
+    _.each(p, function (a) {
+        if (a>0) {
+            any = true;
+            return false;
+        }
+        i++;
+    });
+    var result = {
+        v: 0
+    };
+    var values = (i).toString(2).split('').reverse();
+    var j = 0;
+    if (any) {
+        result['v'] = 1;
+        _.each(values, function (x) {
+            result['q' + j] = parseInt(x);
+            j++;
+            if (j >= bits) {
+                return false;
+            }
+        });
+    }
+    for (; j < bits; j++) {
+        result['q' + j] = 0;
+    }
+    console.log("____", p, any, result);
+    return result;
+}
 
 joint.shapes.mylib = {};
 
@@ -207,7 +263,10 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
 
     }, joint.shapes.basic.Generic.prototype.defaults),
 
-    operation: function() { return true; } 
+    operation: function() { return true; },
+    getInPortValues: function(p){
+        return _.pick(p, this.get('inPorts'));
+    }
 });
 
 // Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
@@ -231,9 +290,17 @@ joint.shapes.mylib.HradloIO = joint.shapes.mylib.Hradlo.extend({
     switchSignal: function () {}
 });
 
+
+/**
+ *
+ * VSTUPY A VÝSTUPY
+ *
+ */
+
+
 joint.shapes.mylib.INPUT = joint.shapes.mylib.HradloIO.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/></g>',
-    signal: true,
+    signal: 0,
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.INPUT',
@@ -275,8 +342,6 @@ joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
         
     }, joint.shapes.mylib.HradloIO.prototype.defaults),
     operation: function(){
-        // this.signal = (this.signal+1)%2;
-        //TODO: dodělat timer
         return this.signal;
     },
     switchSignal: function () {
@@ -350,7 +415,11 @@ joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
     operation: function() { return true; }
 });
 
-//---------------------- HRADLA BEZ NOT ---------------------------------------//
+
+
+/**
+ * HRADLA BEZ NEGACÍ - PŘÍPRAVA PŘEDKŮ
+ */
 
 joint.shapes.mylib.Hradlo11 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/></g>',
@@ -370,7 +439,6 @@ joint.shapes.mylib.Hradlo11 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.Hradlo21 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
 
@@ -390,7 +458,6 @@ joint.shapes.mylib.Hradlo21 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.Hradlo31 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
@@ -411,7 +478,6 @@ joint.shapes.mylib.Hradlo31 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.Hradlo41 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
@@ -434,7 +500,9 @@ joint.shapes.mylib.Hradlo41 = joint.shapes.mylib.Hradlo.extend({
     operation: function() { return true; }
 });
 
-//-------------------- HRADLA S NOT -------------------------------------//
+/**
+ * HRADLA S NEGACEMI - PŘÍPRAVA PŘEDKŮ
+ */
 
 joint.shapes.mylib.Hradlo11N = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="not_gate"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/></g>',
@@ -455,7 +523,6 @@ joint.shapes.mylib.Hradlo11N = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.Hradlo21N = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="not_gate"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/></g>',
 
@@ -476,7 +543,6 @@ joint.shapes.mylib.Hradlo21N = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.Hradlo31N = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="not_gate"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
@@ -498,7 +564,6 @@ joint.shapes.mylib.Hradlo31N = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.Hradlo41N = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="not_gate"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
@@ -522,7 +587,9 @@ joint.shapes.mylib.Hradlo41N = joint.shapes.mylib.Hradlo.extend({
     operation: function() { return true; }
 });
 
-//-------------------------------- Hradla jiná ----------------------------------------------//
+/**
+ * POKROČILEJŠÍ HRADLA
+ */
 
 joint.shapes.mylib.HradloMux31 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
@@ -546,7 +613,6 @@ joint.shapes.mylib.HradloMux31 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.HradloMux61 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
@@ -572,7 +638,6 @@ joint.shapes.mylib.HradloMux61 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.HradloMux11_1 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="input input11"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
 
@@ -603,7 +668,6 @@ joint.shapes.mylib.HradloMux11_1 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.HradloDec14 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
 
@@ -627,7 +691,6 @@ joint.shapes.mylib.HradloDec14 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.HradloDec18 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/><circle class="output output6"/><circle class="output output7"/><circle class="output output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/></g>',
 
@@ -656,7 +719,6 @@ joint.shapes.mylib.HradloDec18 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.HradloPrCo83 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/></g>',
 
@@ -686,7 +748,6 @@ joint.shapes.mylib.HradloPrCo83 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
 joint.shapes.mylib.HradloPrCo42 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
@@ -713,12 +774,16 @@ joint.shapes.mylib.HradloPrCo42 = joint.shapes.mylib.Hradlo.extend({
     operation: function() { return true; }
 });
 
+/**
+ * SEKVENČNÍ OBVODY - ZÁKLADNÍ
+ */
 joint.shapes.mylib.HradloState = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
+    state: false,
     defaults: joint.util.deepSupplement({
 
-        type: 'mylib.HradloRS22',
+        type: 'mylib.HradloState',
         size: { width: 80, height: 120 },
         attrs: {
              '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.3, magnet: 'passive', port: 'r' },
@@ -732,13 +797,15 @@ joint.shapes.mylib.HradloState = joint.shapes.mylib.Hradlo.extend({
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
 
+    changeState: function(p){},
     operation: function(p){
         if (inputsAreInvalid(p, this.get('inPorts'))) {
             return createInvalidOutput(this);
         }
+        this.changeState(p);
         return {
             "q": this.state,
-            "qn": !this.state
+            "qn": this.state<0?-1:!this.state
         }
     }
 });
@@ -760,19 +827,7 @@ joint.shapes.mylib.HradloRS22 = joint.shapes.mylib.HradloState.extend({
         outPorts: ['q', 'qn'],
 
     }, joint.shapes.mylib.HradloState.prototype.defaults),
-
-    operation: function(p){
-        if (inputsAreInvalid(p, this.get('inPorts'))) {
-            return createInvalidOutput(this);
-        }
-        this.state = r ? (s ? -1 : 0) : (s ? 1 : this.state);
-        return {
-            "q": this.state,
-            "qn": this.state<0?-1:!this.state
-        }
-    }
 });
-
 joint.shapes.mylib.HradloRS32 = joint.shapes.mylib.HradloState.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
@@ -788,13 +843,10 @@ joint.shapes.mylib.HradloRS32 = joint.shapes.mylib.HradloState.extend({
              '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'qn' },
         },
-        inPorts: ['r', 's','t'],
+        inPorts: ['r', 's', 't'],
         outPorts: ['q', 'qn'],
-
-
     }, joint.shapes.mylib.HradloState.prototype.defaults)
 });
-
 joint.shapes.mylib.HradloD22 = joint.shapes.mylib.HradloState.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
     state: false,
@@ -812,22 +864,8 @@ joint.shapes.mylib.HradloD22 = joint.shapes.mylib.HradloState.extend({
         inPorts: ['d', 'clk'],
         outPorts: ['q', 'qn'],
 
-    }, joint.shapes.mylib.HradloState.prototype.defaults),
-
-    operation: function(p){
-        if (inputsAreInvalid(p)) {
-            return createInvalidOutput(this);
-        }
-        if (p['clk'] && p['d']){
-            this.state = !this.state;
-        }
-        return  {
-            "q" : this.state,
-            "qn" : !this.state
-        }
-    }
+    }, joint.shapes.mylib.HradloState.prototype.defaults)
 });
-
 joint.shapes.mylib.HradloD42 = joint.shapes.mylib.HradloState.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
 
@@ -838,8 +876,8 @@ joint.shapes.mylib.HradloD42 = joint.shapes.mylib.HradloState.extend({
         attrs: {
             '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.2, magnet: 'passive', port: 'd' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.4, magnet: 'passive', port: 'clk' },
-            '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.6, magnet: 'passive', port: 'ar' },
-            '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'as' },
+            '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.6, magnet: 'passive', port: 'as' },
+            '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.8, magnet: 'passive', port: 'ar' },
             
              '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.3, magnet: true, port: 'q' },
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.7, magnet: true, port: 'qn' },
@@ -848,10 +886,7 @@ joint.shapes.mylib.HradloD42 = joint.shapes.mylib.HradloState.extend({
         outPorts: ['q', 'qn'],
 
     }, joint.shapes.mylib.HradloState.prototype.defaults),
-
-    operation: function() { return true; }
 });
-
 joint.shapes.mylib.HradloD42SR = joint.shapes.mylib.HradloState.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/></g>',
 
@@ -871,11 +906,8 @@ joint.shapes.mylib.HradloD42SR = joint.shapes.mylib.HradloState.extend({
         inPorts: ['d', 'clk', 'ss', 'sr'],
         outPorts: ['q', 'qn'],
 
-    }, joint.shapes.mylib.HradloState.prototype.defaults),
-
-    operation: function() { return true; }
+    }, joint.shapes.mylib.HradloState.prototype.defaults)
 });
-
 joint.shapes.mylib.HradloJK32 = joint.shapes.mylib.HradloState.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
@@ -894,11 +926,8 @@ joint.shapes.mylib.HradloJK32 = joint.shapes.mylib.HradloState.extend({
         inPorts: ['j', 'k', 'clk'],
         outPorts: ['q', 'qn'],
 
-    }, joint.shapes.mylib.HradloState.prototype.defaults),
-
-    operation: function() { return true; }
+    }, joint.shapes.mylib.HradloState.prototype.defaults)
 });
-
 joint.shapes.mylib.HradloJK52AR = joint.shapes.mylib.HradloState.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
@@ -919,11 +948,8 @@ joint.shapes.mylib.HradloJK52AR = joint.shapes.mylib.HradloState.extend({
         inPorts: ['j', 'k', 'clk', 'as', 'ar'],
         outPorts: ['q', 'qn'],
 
-    }, joint.shapes.mylib.HradloState.prototype.defaults),
-
-    operation: function() { return true; }
+    }, joint.shapes.mylib.HradloState.prototype.defaults)
 });
-
 joint.shapes.mylib.HradloJK52SR = joint.shapes.mylib.HradloState.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/></g>',
 
@@ -944,11 +970,12 @@ joint.shapes.mylib.HradloJK52SR = joint.shapes.mylib.HradloState.extend({
         inPorts: ['j', 'k', 'clk', 'ss', 'sr'],
         outPorts: ['q', 'qn'],
 
-    }, joint.shapes.mylib.Hradlo.prototype.defaults),
-
-    operation: function() { return true; }
+    }, joint.shapes.mylib.Hradlo.prototype.defaults)
 });
 
+/**
+ * MATEMATICKÉ OBVODY - předci
+ */
 joint.shapes.mylib.HradloHALFADD = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/></g>',
 
@@ -967,23 +994,7 @@ joint.shapes.mylib.HradloHALFADD = joint.shapes.mylib.Hradlo.extend({
         outPorts: ['s', 'c'],
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
-
-    operation: function (p) {
-        if (p['a'] < 0 || p['b'] < 0) {
-            return {
-                "s": -1,
-                "c": -1
-            }
-        }
-        var s = p['a'] != p['b'],
-            c = p['a'] == 1 && p['b'] == 1;
-        return {
-            "s": s,
-            "c": c
-        };
-    }
 });
-
 joint.shapes.mylib.HradloFULLADD = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/></g>',
 
@@ -1002,26 +1013,8 @@ joint.shapes.mylib.HradloFULLADD = joint.shapes.mylib.Hradlo.extend({
         inPorts: ['a', 'b', 'cin'],
         outPorts: ['s', 'cout'],
 
-    }, joint.shapes.mylib.Hradlo.prototype.defaults),
-
-    operation: function(p) {
-        //TODO: předělat na p
-        if (p['a']< 0 || p['b']< 0) {
-            return {
-                "s": -1,
-                "cout": -1
-            }
-        }
-        var s = (p['a']!= p['b']) != p['cin'];
-        var cout = (p['a']+ p['b']+ p['cin']> 1);
-        return {
-            "s": s,
-            "cout": cout
-        }
-    }
-
+    }, joint.shapes.mylib.Hradlo.prototype.defaults)
 });
-
 joint.shapes.mylib.HradloADD4 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
 
@@ -1053,38 +1046,7 @@ joint.shapes.mylib.HradloADD4 = joint.shapes.mylib.Hradlo.extend({
         outPorts: ['s3','s2','s1','s0','cout'],
 
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
-
-    operation: function(p) {
-        var a = parseInt(_.map(_.pick(p,['a0','a1','a2','a3']), function(x){ if (x) return 1; else return 0;}).reverse().join(''), 2 );
-        var bPick = _.pick(p,['b0','b1','b2','b3']);
-        var b = (p['invb'])?
-            parseInt(_.map(bPick, function(x){ if (x) return 0; else return 1;}).reverse().join(''), 2 ):
-            parseInt(_.map(bPick, function(x){ if (x) return 1; else return 0;}).reverse().join(''), 2 );
-        var c = parseInt(p['cin']?"1":"0", 2 );
-
-        console.log("A", a);
-        console.log("B", b);
-        console.log("C", c);
-
-        var sum = a+b+c;
-
-        console.log("SUM", sum);
-
-        var _result = sum.toString(2).split('').reverse();
-        console.log(_result);
-        var result = {
-            s3: _result[3]?_.parseInt(_result[3]):0,
-            s2: _result[2]?_.parseInt(_result[2]):0,
-            s1: _result[1]?_.parseInt(_result[1]):0,
-            s0: _result[0]?_.parseInt(_result[0]):0,
-            cout: _result[4]?_.parseInt(_result[4]):0
-        };
-
-        console.log("result", result);
-        return result;
-    }
 });
-
 joint.shapes.mylib.HradloMUL8 = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/><circle class="output output6"/><circle class="output output7"/><circle class="output output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/></g>',
 
@@ -1115,32 +1077,8 @@ joint.shapes.mylib.HradloMUL8 = joint.shapes.mylib.Hradlo.extend({
         inPorts: ['a0','a1','a2','a3','b0','b1','b2','b3','cin','invb'],
         outPorts: ['s7','s6','s5','s4','s3','s2','s1','s0'],
 
-    }, joint.shapes.mylib.Hradlo.prototype.defaults),
-
-    operation: function(p) {
-        var a = parseInt(_.map(_.pick(p,['a0','a1','a2','a3']), function(x){ if (x) return 1; else return 0;}).reverse().join(''), 2 );
-        var bPick = _.pick(p,['b0','b1','b2','b3']);
-        var b = parseInt(_.map(bPick, function(x){ if (x) return 1; else return 0;}).reverse().join(''), 2 );
-
-        console.log("A", a);
-        console.log("B", b);
-
-        var sum = a*b;
-
-        console.log("MUL", sum);
-
-        var _result = sum.toString(2).split('').reverse();
-        console.log(_result);
-        var result = {};
-        _.each(this.get('outPorts'), function(value, index){
-            result[value] = _result[7-index]?_.parseInt(_result[7-index]):0;
-        });
-
-        console.log("result", result);
-        return result;
-    }
+    }, joint.shapes.mylib.Hradlo.prototype.defaults)
 });
-
 joint.shapes.mylib.HradloCLEQ = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="output output1"/><circle class="output output2"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/></g>',
 
@@ -1162,11 +1100,8 @@ joint.shapes.mylib.HradloCLEQ = joint.shapes.mylib.Hradlo.extend({
             '.output2': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.25, magnet: true, port: 'leqn' },
         }
 
-    }, joint.shapes.mylib.Hradlo.prototype.defaults),
-
-    operation: function() { return true; }
+    }, joint.shapes.mylib.Hradlo.prototype.defaults)
 });
-
 joint.shapes.mylib.HradloUDCOUNTER = joint.shapes.mylib.Hradlo.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/><circle class="output output6"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/></g>',
 
@@ -1193,12 +1128,14 @@ joint.shapes.mylib.HradloUDCOUNTER = joint.shapes.mylib.Hradlo.extend({
             '.output6': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.65, magnet: true, port: 'match' },
         }
 
-    }, joint.shapes.mylib.Hradlo.prototype.defaults),
-
-    operation: function() { return true; }
+    }, joint.shapes.mylib.Hradlo.prototype.defaults)
 });
 
-joint.shapes.mylib.HradloARAM116 = joint.shapes.mylib.Hradlo.extend({
+/**
+ * Paměti - předci
+ */
+joint.shapes.mylib.HradloMemory = joint.shapes.mylib.Hradlo.extend({});
+joint.shapes.mylib.HradloARAM116 = joint.shapes.mylib.HradloMemory.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
 
     defaults: joint.util.deepSupplement({
@@ -1209,11 +1146,11 @@ joint.shapes.mylib.HradloARAM116 = joint.shapes.mylib.Hradlo.extend({
              '.input1': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.10, magnet: 'passive', port: 'ce' },
             '.input2': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.20, magnet: 'passive', port: 'we' },
             '.input3': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.30, magnet: 'passive', port: 'a3' },
-            '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.40, magnet: 'passive', port: 'a2' },           
+            '.input4': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.40, magnet: 'passive', port: 'a2' },
             '.input5': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.50, magnet: 'passive', port: 'a1' },
             '.input6': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.60, magnet: 'passive', port: 'a0' },
             '.input7': { ref: 'rect', 'ref-x': -2, 'ref-y': 0.70, magnet: 'passive', port: 'd' },
-            
+
              '.output1': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.5, magnet: true, port: 'q' }
         }
 
@@ -1221,8 +1158,7 @@ joint.shapes.mylib.HradloARAM116 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
-joint.shapes.mylib.HradloRAM116 = joint.shapes.mylib.Hradlo.extend({
+joint.shapes.mylib.HradloRAM116 = joint.shapes.mylib.HradloMemory.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="output output1"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/></g>',
 
     defaults: joint.util.deepSupplement({
@@ -1245,8 +1181,7 @@ joint.shapes.mylib.HradloRAM116 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
-joint.shapes.mylib.HradloARAM416 = joint.shapes.mylib.Hradlo.extend({
+joint.shapes.mylib.HradloARAM416 = joint.shapes.mylib.HradloMemory.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
 
     memory: {},
@@ -1272,36 +1207,9 @@ joint.shapes.mylib.HradloARAM416 = joint.shapes.mylib.Hradlo.extend({
              '.output4': { ref: 'rect', 'ref-dx': 2, 'ref-y': 0.8, magnet: true, port: 'q0' }
         }
 
-    }, joint.shapes.mylib.Hradlo.prototype.defaults),
-
-    //implementováno v potomkovi
-    // operation: function(a0, a1, a2, a3, ce, d0, d1, d2, d3, we) {
-    //     var key = [a0, a1, a2, a3].join('');
-    //     var result = {
-    //         q0: 0,
-    //         q1: 0,
-    //         q2: 0,
-    //         q3: 0
-    //     };
-    //     if (ce === 1) {
-    //         if (we === 1){
-    //             this.memory[key] = [d0, d1, d2, d3];
-    //         }
-    //         if (this.memory[key]){
-    //             var data = this.memory[key];
-    //             result = {
-    //                 q0: data[0],
-    //                 q1: data[1],
-    //                 q2: data[2],
-    //                 q3: data[3]
-    //             }
-    //         }
-    //     }
-    //     return result;
-    // }
+    }, joint.shapes.mylib.Hradlo.prototype.defaults)
 });
-
-joint.shapes.mylib.HradloRAM416 = joint.shapes.mylib.Hradlo.extend({
+joint.shapes.mylib.HradloRAM416 = joint.shapes.mylib.HradloMemory.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/></g>',
 
     defaults: joint.util.deepSupplement({
@@ -1330,8 +1238,7 @@ joint.shapes.mylib.HradloRAM416 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
-joint.shapes.mylib.HradloARAM4256 = joint.shapes.mylib.Hradlo.extend({
+joint.shapes.mylib.HradloARAM4256 = joint.shapes.mylib.HradloMemory.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="input input11"/><circle class="input input12"/><circle class="input input13"/><circle class="input input14"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
 
     defaults: joint.util.deepSupplement({
@@ -1364,8 +1271,7 @@ joint.shapes.mylib.HradloARAM4256 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
-joint.shapes.mylib.HradloRAM4256 = joint.shapes.mylib.Hradlo.extend({
+joint.shapes.mylib.HradloRAM4256 = joint.shapes.mylib.HradloMemory.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="input input11"/><circle class="input input12"/><circle class="input input13"/><circle class="input input14"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/></g>',
 
     defaults: joint.util.deepSupplement({
@@ -1398,8 +1304,7 @@ joint.shapes.mylib.HradloRAM4256 = joint.shapes.mylib.Hradlo.extend({
 
     operation: function() { return true; }
 });
-
-joint.shapes.mylib.HradloDPRAM4256 = joint.shapes.mylib.Hradlo.extend({
+joint.shapes.mylib.HradloDPRAM4256 = joint.shapes.mylib.HradloMemory.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><circle class="input input1"/><circle class="input input2"/><circle class="input input3"/><circle class="input input4"/><circle class="input input5"/><circle class="input input6"/><circle class="input input7"/><circle class="input input8"/><circle class="input input9"/><circle class="input input10"/><circle class="input input11"/><circle class="input input12"/><circle class="input input13"/><circle class="input input14"/><circle class="input input15"/><circle class="input input16"/><circle class="input input17"/><circle class="input input18"/><circle class="input input19"/><circle class="input input20"/><circle class="input input21"/><circle class="input input22"/><circle class="input input23"/><circle class="input input24"/><circle class="input input25"/><circle class="input input26"/><circle class="input input27"/><circle class="input input28"/><circle class="output output1"/><circle class="output output2"/><circle class="output output3"/><circle class="output output4"/><circle class="output output5"/><circle class="output output6"/><circle class="output output7"/><circle class="output output8"/></g><g><text class="jm"/><text class="jm2"/><text class="jm3"/><text class="jm4"/><text class="jm5"/><text class="jm6"/><text class="jm7"/><text class="jm8"/><text class="jm9"/><text class="jm10"/><text class="jm11"/><text class="jm12"/><text class="jm13"/><text class="jm14"/><text class="jm15"/><text class="jm16"/><text class="jm17"/><text class="jm18"/><text class="jm19"/><text class="jm20"/><text class="jm21"/><text class="jm22"/><text class="jm23"/><text class="jm24"/><text class="jm25"/><text class="jm26"/><text class="jm27"/><text class="jm28"/><text class="jm29"/><text class="jm30"/><text class="jm31"/><text class="jm32"/><text class="jm33"/><text class="jm34"/><text class="jm35"/><text class="jm36"/></g>',
 
     defaults: joint.util.deepSupplement({
@@ -1451,8 +1356,10 @@ joint.shapes.mylib.HradloDPRAM4256 = joint.shapes.mylib.Hradlo.extend({
     operation: function() { return true; }
 });
 
-//-------------------------------- Logické členy --------------------------------------------//
 
+/**
+ * ZÁKLADNÍ HRADLA
+ */
 joint.shapes.mylib.TUL_OR = joint.shapes.mylib.Hradlo21.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.TUL_OR',
@@ -1468,7 +1375,6 @@ joint.shapes.mylib.TUL_OR = joint.shapes.mylib.Hradlo21.extend({
         return p['a'] || p['b'];
     }
 });
-
 joint.shapes.mylib.TUL_AND = joint.shapes.mylib.Hradlo21.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.TUL_AND',
@@ -1484,7 +1390,6 @@ joint.shapes.mylib.TUL_AND = joint.shapes.mylib.Hradlo21.extend({
         return p['a'] && p['b'];
     }
 });
-
 joint.shapes.mylib.TUL_INV = joint.shapes.mylib.Hradlo11N.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.TUL_INV',
@@ -1500,7 +1405,6 @@ joint.shapes.mylib.TUL_INV = joint.shapes.mylib.Hradlo11N.extend({
         return p['a']<0?-1:!p['a'];
     }
 });
-
 joint.shapes.mylib.TUL_NAND = joint.shapes.mylib.Hradlo21N.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.TUL_NAND',
@@ -1517,10 +1421,10 @@ joint.shapes.mylib.TUL_NAND = joint.shapes.mylib.Hradlo21N.extend({
     operation: function (p) {
         // console.log("IN", this.get('inPorts'), "OUT", this.get('outPorts'));
         if (inputsAreInvalid(p, this.get('inPorts'))) return -1;
-        return !logExecute(p, this.get('inPorts'), executerAnd);
+        // return !logExecute(p, this.get('inPorts'), executerAnd);
+        return !logicExecuter(p, this.get('inPorts'), logAnd, true);
     }
 });
-
 joint.shapes.mylib.TUL_NOR = joint.shapes.mylib.Hradlo21N.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.TUL_NOR',
@@ -1534,11 +1438,10 @@ joint.shapes.mylib.TUL_NOR = joint.shapes.mylib.Hradlo21N.extend({
     }, joint.shapes.mylib.Hradlo21N.prototype.defaults),
     operation: function (p) {
         if (inputsAreInvalid(p)) return -1;
-        return !(p['a'] || p['b']);
+        // return !(p['a'] || p['b']);
+        return !logicExecuter(p, this.get('inPorts'), logOr, false);
     }
 });
-
-
 joint.shapes.mylib.TUL_XOR = joint.shapes.mylib.Hradlo21.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.TUL_XOR',
@@ -1555,7 +1458,6 @@ joint.shapes.mylib.TUL_XOR = joint.shapes.mylib.Hradlo21.extend({
         return p['a'] != p['b'];
     }
 });
-
 joint.shapes.mylib.TUL_XNOR = joint.shapes.mylib.Hradlo21N.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.TUL_XNOR',
@@ -1572,7 +1474,6 @@ joint.shapes.mylib.TUL_XNOR = joint.shapes.mylib.Hradlo21N.extend({
         return !(p['a'] != p['b']);
     }
 });
-
 joint.shapes.mylib.TUL_BUF = joint.shapes.mylib.Hradlo11.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.TUL_BUF',
@@ -1588,8 +1489,9 @@ joint.shapes.mylib.TUL_BUF = joint.shapes.mylib.Hradlo11.extend({
     }
 });
 
-//---------------------------------- Trivstupa hradla --------------------------------//
-
+/**
+ * TŘÍVSTUPÁ HRADLA
+ */
 joint.shapes.mylib.NAND3 = joint.shapes.mylib.Hradlo31N.extend({    
     defaults: joint.util.deepSupplement({
         type: 'mylib.NAND3',
@@ -1605,10 +1507,9 @@ joint.shapes.mylib.NAND3 = joint.shapes.mylib.Hradlo31N.extend({
     //ram: [],
     operation: function (p) {
         if (inputsAreInvalid(p)) return -1;
-        return !logExecute(p, ['a','b','c'], executerAnd);
+        return !logicExecuter(p, this.get('inPorts'), logAnd, 1);
     }
 });
-
 joint.shapes.mylib.AND3 = joint.shapes.mylib.Hradlo31.extend({    
     defaults: joint.util.deepSupplement({
         type: 'mylib.AND3',
@@ -1620,12 +1521,11 @@ joint.shapes.mylib.AND3 = joint.shapes.mylib.Hradlo31.extend({
               '.jm4': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -70 },
         }
     }, joint.shapes.mylib.Hradlo31.prototype.defaults),
-    operation: function (a, b, c) {
-        if (a < 0 || b < 0 || c < 0) return -1;
-        return (a && b && c);
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return logicExecuter(p, this.get('inPorts'), logAnd, 1);
     }
 });
-
 joint.shapes.mylib.OR3 = joint.shapes.mylib.Hradlo31.extend({
 	defaults: joint.util.deepSupplement({
 		type: 'mylib.OR3',
@@ -1637,13 +1537,27 @@ joint.shapes.mylib.OR3 = joint.shapes.mylib.Hradlo31.extend({
 			'.jm4': {text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -70},
 		}
 	}, joint.shapes.mylib.Hradlo31.prototype.defaults),
-    operation: function (a, b, c) {
-        if (a < 0 || b < 0 || c < 0) return -1;
-        return (a || b || c);
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return logicExecuter(p, this.get('inPorts'), logOr, 0);
     }
 });
-
-
+joint.shapes.mylib.XOR3 = joint.shapes.mylib.Hradlo31.extend({
+	defaults: joint.util.deepSupplement({
+		type: 'mylib.XOR3',
+		attrs: {
+			'.label': {text: '≥1', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
+			'.jm': {text: 'a', ref: 'rect', 'ref-dx': -70, 'ref-dy': -95},
+			'.jm2': {text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -65},
+			'.jm3': {text: 'c', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40},
+			'.jm4': {text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -70},
+		}
+	}, joint.shapes.mylib.Hradlo31.prototype.defaults),
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return logicExecuter(p, this.get('inPorts'), logXor, 0);
+    }
+});
 joint.shapes.mylib.NOR3 = joint.shapes.mylib.Hradlo31N.extend({    
     defaults: joint.util.deepSupplement({
         type: 'mylib.NOR3',
@@ -1656,14 +1570,32 @@ joint.shapes.mylib.NOR3 = joint.shapes.mylib.Hradlo31N.extend({
               '.jm4': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -70 },             
         }
     }, joint.shapes.mylib.Hradlo31N.prototype.defaults),
-    operation: function (a, b, c) {
-        if (a < 0 || b < 0 || c < 0) return -1;
-        return !(a || b || c);
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return !logicExecuter(p, this.get('inPorts'), logOr, 0);
+    }
+});
+joint.shapes.mylib.XNOR3 = joint.shapes.mylib.Hradlo31N.extend({
+    defaults: joint.util.deepSupplement({
+        type: 'mylib.XNOR3',
+        attrs: {
+            '.wire': { 'ref-dx': 15, d: 'M 0 0 L 30 0' },
+            '.label': { text: '≥1',ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
+               '.jm': { text: 'a', ref: 'rect', 'ref-dx': -70, 'ref-dy': -95 },
+              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -70, 'ref-dy': -65 },
+              '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -70, 'ref-dy': -40 },
+              '.jm4': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -70 },
+        }
+    }, joint.shapes.mylib.Hradlo31N.prototype.defaults),
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return !logicExecuter(p, this.get('inPorts'), logXor, 0);
     }
 });
 
-//---------------------------------- Ctyrvstupa hradla --------------------------------//
-
+/**
+ * ČTYŘVSTUPÁ HRADLA
+ */
 joint.shapes.mylib.NAND4 = joint.shapes.mylib.Hradlo41N.extend({    
     defaults: joint.util.deepSupplement({
         type: 'mylib.NAND4',
@@ -1677,12 +1609,11 @@ joint.shapes.mylib.NAND4 = joint.shapes.mylib.Hradlo41N.extend({
               '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },                        
         }
     }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
-    operation: function (a, b, c, d) {
-        if (a < 0 || b < 0 || c < 0 || d < 0) return -1;
-        return !(a && b && c && d);
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return !logicExecuter(p, this.get('inPorts'), logAnd, 1);
     }
 });
-
 joint.shapes.mylib.AND4 = joint.shapes.mylib.Hradlo41.extend({    
     defaults: joint.util.deepSupplement({
         type: 'mylib.AND4',
@@ -1695,12 +1626,11 @@ joint.shapes.mylib.AND4 = joint.shapes.mylib.Hradlo41.extend({
              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -75 },            
         }
     }, joint.shapes.mylib.Hradlo41.prototype.defaults),
-    operation: function (a, b, c, d) {
-        if (a < 0 || b < 0 || c < 0 || d < 0) return -1;
-        return (a && b && c && d);
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return logicExecuter(p, this.get('inPorts'), logAnd, 1);
     }
 });
-
 joint.shapes.mylib.OR4 = joint.shapes.mylib.Hradlo41N.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.OR4',
@@ -1714,12 +1644,29 @@ joint.shapes.mylib.OR4 = joint.shapes.mylib.Hradlo41N.extend({
               '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },            
         }                                 
     }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
-    operation: function (a, b, c, d) {
-        if (a < 0 || b < 0 || c < 0 || d < 0) return -1;
-        return (a || b || c || d);
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return logicExecuter(p, this.get('inPorts'), logOr, 0);
     }
 });
-
+joint.shapes.mylib.XOR4 = joint.shapes.mylib.Hradlo41N.extend({
+    defaults: joint.util.deepSupplement({
+        type: 'mylib.OR4',
+        attrs: {
+             '.wire': { 'ref-dx': 15, d: 'M 0 0 L 30 0' },
+            '.label': { text: '≥1', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
+               '.jm': { text: 'a', ref: 'rect', 'ref-dx': -80, 'ref-dy': -100 },
+              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -80, 'ref-dy': -77 },
+              '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -80, 'ref-dy': -58 },
+              '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },
+              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },
+        }
+    }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return logicExecuter(p, this.get('inPorts'), logXor, 0);
+    }
+});
 joint.shapes.mylib.NOR4 = joint.shapes.mylib.Hradlo41N.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.NOR4',
@@ -1733,14 +1680,33 @@ joint.shapes.mylib.NOR4 = joint.shapes.mylib.Hradlo41N.extend({
               '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },
         }
     }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
-    operation: function (a, b, c, d) {
-        if (a < 0 || b < 0 || c < 0 || d < 0) return -1;
-        return !(a || b || c || d);
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return !logicExecuter(p, this.get('inPorts'), logOr, 0);
+    }
+});
+joint.shapes.mylib.XNOR4 = joint.shapes.mylib.Hradlo41N.extend({
+    defaults: joint.util.deepSupplement({
+        type: 'mylib.NOR4',
+        attrs: {
+             '.wire': { 'ref-dx': 15, d: 'M 0 0 L 30 0' },
+            '.label': { text: '≥1', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
+               '.jm': { text: 'a', ref: 'rect', 'ref-dx': -80, 'ref-dy': -100 },
+              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -80, 'ref-dy': -77 },
+              '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -80, 'ref-dy': -58 },
+              '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },
+              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },
+        }
+    }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return !logicExecuter(p, this.get('inPorts'), logXor, 0);
     }
 });
 
-//--------------------------------- Komplexní hradla ---------------------------------//
-
+/**
+ *
+ */
 joint.shapes.mylib.MUX2 = joint.shapes.mylib.HradloMux31.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.MUX2',
@@ -1752,12 +1718,11 @@ joint.shapes.mylib.MUX2 = joint.shapes.mylib.HradloMux31.extend({
               '.jm4': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },            
         }                                 
     }, joint.shapes.mylib.HradloMux31.prototype.defaults),
-    operation: function (a0, a1, sel) {
-        if (a0 < 0 || a1 < 0 || sel < 0) return -1;
-        return (sel?a1:a0);
+    operation: function (p) {
+        if (inputsAreInvalid(p)) return -1;
+        return (p['sel']?p['a1']:p['a0']);
     }
 });
-
 joint.shapes.mylib.MUX4 = joint.shapes.mylib.HradloMux61.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.MUX4',
@@ -1772,19 +1737,17 @@ joint.shapes.mylib.MUX4 = joint.shapes.mylib.HradloMux61.extend({
               '.jm7': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -70 },             
         }                                 
     }, joint.shapes.mylib.HradloMux61.prototype.defaults),
-    operation: function (a0, a1, a2, a3, sel0, sel1) {
-        var result = (sel1?(sel0?a3:a2):(sel0?a1:a0));
-
-        _.each(arguments, function(value){
-            if (value < 0){
-                result = -1;
-                return;
-            }
-        });
+    operation: function (p) {
+        var result = p['sel1']?(p['sel0']?p['a3']:p['a2']):(p['sel0']?p['a1']:p['a0']);
+        // _.each(arguments, function(value){
+        //     if (value < 0){
+        //         result = -1;
+        //         return;
+        //     }
+        // });
         return result;
     }
 });
-
 joint.shapes.mylib.MUX8 = joint.shapes.mylib.HradloMux11_1.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.MUX8',
@@ -1804,19 +1767,12 @@ joint.shapes.mylib.MUX8 = joint.shapes.mylib.HradloMux11_1.extend({
              '.jm12': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -120 },            
         }                                 
     }, joint.shapes.mylib.HradloMux11_1.prototype.defaults),
-    operation: function (a0, a1, a2, a3, a4, a5, a6, a7, sel0, sel1, sel2) {
-        var result =  sel2?(sel1?(sel0?a7:a6):(sel0?a5:a4)):(sel1?(sel0?a3:a2):(sel0?a1:a0));
+    operation: function (p) {
+        var result = p['sel2']?(p['sel1']?(p['sel0']?p['a7']:p['a6']):(p['sel0']?p['a5']:p['a4'])):(p['sel1']?(p['sel0']?p['a3']:p['a2']):(p['sel0']?p['a1']:p['a0']));
 
-        _.each(arguments, function(value){
-            if (value < 0){
-                result = -1;
-                return;
-            }
-        });
         return result;
     }
 });
-
 joint.shapes.mylib.DEC14 = joint.shapes.mylib.HradloDec14.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.DEC14',
@@ -1830,18 +1786,17 @@ joint.shapes.mylib.DEC14 = joint.shapes.mylib.HradloDec14.extend({
               '.jm6': { text: 'y3', ref: 'rect', 'ref-dx': 10, 'ref-dy': -50 },            
         }                                 
     }, joint.shapes.mylib.HradloDec14.prototype.defaults),
-    operation: function (sel0, sel1) {
+    operation: function (p) {
         if (inputsAreInvalid(p,this.get('inPorts'))) return -1;
         var results = {
-            'y0' : sel0==0 && sel1==0,
-            'y1' : sel0==1 && sel1==0,
-            'y2' : sel0==0 && sel1==1,
-            'y3' : sel0==1 && sel1==1
+            'y0' : p['sel0']==0 && p['sel1']==0,
+            'y1' : p['sel0']==1 && p['sel1']==0,
+            'y2' : p['sel0']==0 && p['sel1']==1,
+            'y3' : p['sel0']==1 && p['sel1']==1
         };
         return results;
     }
 });
-
 joint.shapes.mylib.DEC18 = joint.shapes.mylib.HradloDec18.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.DEC18',
@@ -1860,8 +1815,9 @@ joint.shapes.mylib.DEC18 = joint.shapes.mylib.HradloDec18.extend({
              '.jm11': { text: 'y7', ref: 'rect', 'ref-dx': 10, 'ref-dy': -43 },             
         }                                 
     }, joint.shapes.mylib.HradloDec18.prototype.defaults),
-    operation: function (p, sel0, sel1, sel2) {
+    operation: function (p) {
         if (inputsAreInvalid(p,this.get('inPorts'))) return -1;
+        var sel0 = p['sel0'],sel1 = p['sel1'],sel2 = p['sel2'];
         var results = {
             'y0' : sel0==0 && sel1==0 && sel2==0,
             'y1' : sel0==1 && sel1==0 && sel2==0,
@@ -1875,7 +1831,6 @@ joint.shapes.mylib.DEC18 = joint.shapes.mylib.HradloDec18.extend({
         return results;
     }
 });
-
 joint.shapes.mylib.PRIOCOD42 = joint.shapes.mylib.HradloPrCo42.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.PRIOCOD42',
@@ -1891,35 +1846,9 @@ joint.shapes.mylib.PRIOCOD42 = joint.shapes.mylib.HradloPrCo42.extend({
         }                                 
     }, joint.shapes.mylib.HradloPrCo42.prototype.defaults),
     operation: function (p) {
-        var result = {
-            q0 : 0,
-            q1 : 0,
-            v: 0
-        };
-
-        result.v = 1;
-
-        if (p['a0'] == 1){
-            result.q0 = 0;
-            result.q1 = 0;
-        }else if (p['a1'] == 1) {
-            result.q0 = 1;
-            result.q1 = 0;
-        }else if (p['a2'] == 1) {
-            result.q0 = 1;
-            result.q1 = 1;
-        }else if (p['a3'] == 1) {
-            result.q0 = 1;
-            result.q1 = 1;
-        }else{
-            result.q0 = 0;
-            result.q1 = 0;
-            result.v = 0;
-        }
-        return result;
+        return priority(this.getInPortValues(p), 2);
     }
 });
-
 joint.shapes.mylib.PRIOCOD83 = joint.shapes.mylib.HradloPrCo83.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.PRIOCOD83',
@@ -1938,9 +1867,15 @@ joint.shapes.mylib.PRIOCOD83 = joint.shapes.mylib.HradloPrCo83.extend({
               '.jm11': { text: 'q2', ref: 'rect', 'ref-dx': 10, 'ref-dy': -95 },
               '.jm12': { text: 'v', ref: 'rect', 'ref-dx': 10, 'ref-dy': -58 },
         }                                 
-    }, joint.shapes.mylib.HradloPrCo83.prototype.defaults)
+    }, joint.shapes.mylib.HradloPrCo83.prototype.defaults),
+    operation: function (p) {
+        return priority(this.getInPortValues(p), 4);
+    }
 });
 
+/**
+ * Sekvenční obvody - implementace
+ */
 joint.shapes.mylib.RS = joint.shapes.mylib.HradloRS22.extend({
     state: false,
     defaults: joint.util.deepSupplement({
@@ -1953,8 +1888,11 @@ joint.shapes.mylib.RS = joint.shapes.mylib.HradloRS22.extend({
               '.jm4': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },            
         }                                 
     }, joint.shapes.mylib.HradloRS22.prototype.defaults),
+    changeState: function(p){
+        this.state = p['r'] ? (p['s'] ? -1 : 0) : (p['s'] ? 1 : this.state);
+    }
 });
-
+//RST není implementován ve VHDL knihovně
 joint.shapes.mylib.RST = joint.shapes.mylib.HradloRS32.extend({
   state: false,
   defaults: joint.util.deepSupplement({
@@ -1968,19 +1906,12 @@ joint.shapes.mylib.RST = joint.shapes.mylib.HradloRS32.extend({
             '.jm4': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 }
       }
   }, joint.shapes.mylib.HradloRS32.prototype.defaults),
-
-  operation: function(p){
-    if (p['t'] > 0){
-      this.state = p['r'] ? (p['s'] ? -1 : 0) : (p['s'] ? 1 : this.state);
+    changeState: function(p){
+        if (p['t'] > 0){
+            this.state = p['r'] ? (p['s'] ? -1 : 0) : (p['s'] ? 1 : this.state);
+        }
     }
-    return {
-      "q": this.state,
-      "qn": this.state<0?-1:!this.state
-    }
-  }
 });
-
-
 joint.shapes.mylib.DL1 = joint.shapes.mylib.HradloD22.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.DL1',
@@ -1993,36 +1924,26 @@ joint.shapes.mylib.DL1 = joint.shapes.mylib.HradloD22.extend({
         }                                 
     }, joint.shapes.mylib.HradloD22.prototype.defaults),
 
-    operation: function(p){
+    changeState: function(p){
         if (p['clk'] && p['d']){
             this.state = !this.state;
         }
-        return  {
-            "q" : this.state,
-            "qn" : !this.state
-        }
     }
 });
-
 joint.shapes.mylib.DL1AR = joint.shapes.mylib.HradloD42.extend({
-    state: 0,
     defaults: joint.util.deepSupplement({
         type: 'mylib.DL1AR',
         attrs: {
             '.label': { text: 'DL1AR', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
                '.jm': { text: 'd', ref: 'rect', 'ref-dx': -105, 'ref-dy': -115 },
               '.jm2': { text: 'clk', ref: 'rect', 'ref-dx': -115, 'ref-dy': -90 },
-              '.jm3': { text: 'ar', ref: 'rect', 'ref-dx': -110, 'ref-dy': -65 },
-              '.jm4': { text: 'as', ref: 'rect', 'ref-dx': -110, 'ref-dy': -40 },          
+              '.jm3': { text: 'as', ref: 'rect', 'ref-dx': -110, 'ref-dy': -65 },
+              '.jm4': { text: 'ar', ref: 'rect', 'ref-dx': -110, 'ref-dy': -40 },
               '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -110 },
               '.jm6': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },                        
         }                                 
     }, joint.shapes.mylib.HradloD42.prototype.defaults),
-    operation: function(p) {
-        var result = createInvalidOutput(this);
-        if (inputsAreInvalid(p)) {
-            return result;
-        }
+    changeState: function(p) {
         if (portIsHigh(p,'ar')){
             this.state = 0;
         } else if (portIsHigh(p,'as')){
@@ -2030,13 +1951,9 @@ joint.shapes.mylib.DL1AR = joint.shapes.mylib.HradloD42.extend({
         } else if (portIsHigh(p,'clk')){
             this.state = p['d'];
         }
-        result.q = this.state;
-        result.qn = !this.state;
-
-        return result;
+        console.log("state", this.state);
     }
 });
-
 joint.shapes.mylib.JKFF = joint.shapes.mylib.HradloJK32.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.JKFF',
@@ -2049,24 +1966,19 @@ joint.shapes.mylib.JKFF = joint.shapes.mylib.HradloJK32.extend({
               '.jm5': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -62 },
         }                                 
     }, joint.shapes.mylib.HradloJK32.prototype.defaults),
-    operation: function(p) {
-        var result = createInvalidOutput(this);
-        if (inputsAreInvalid(p)) {
-            return result;
+    changeState: function(p) {
+        if (rising_edge(this.clk_edge, p['clk'])){
+            if (portIsHigh(p,'j') && portIsHigh(p,'k')){
+                this.state = !this.state;
+            } else if (portIsHigh(p,'j')){
+                this.state = 1;
+            } else if (portIsHigh(p,'k')){
+                this.state = 0;
+            }
         }
-        if (portIsHigh(p,'j') && portIsHigh(p,'k')){
-            this.state = !this.state;
-        } else if (portIsHigh(p,'j')){
-            this.state = 1;
-        } else if (portIsHigh(p,'k')){
-            this.state = 0;
-        }
-        result.q = this.state;
-        result.qn = !this.state;
-        return result;
+        this.clk_edge = p['clk'];
     }
 });
-
 joint.shapes.mylib.JKFFAR = joint.shapes.mylib.HradloJK52AR.extend({
 
     defaults: joint.util.deepSupplement({
@@ -2082,11 +1994,7 @@ joint.shapes.mylib.JKFFAR = joint.shapes.mylib.HradloJK52AR.extend({
               '.jm7': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },                        
         }                                 
     }, joint.shapes.mylib.HradloJK52AR.prototype.defaults),
-    operation: function(p) {
-        var result = createInvalidOutput(this);
-        if (inputsAreInvalid(p)) {
-            return result;
-        }
+    changeState: function(p) {
         if(portIsHigh(p,'ar')){
             this.state = 0;
         }else if (portIsHigh(p,'as')){
@@ -2102,12 +2010,8 @@ joint.shapes.mylib.JKFFAR = joint.shapes.mylib.HradloJK52AR.extend({
             }
         }
         this.clk_edge = p['clk'];
-        result.q = this.state;
-        result.qn = !this.state;
-        return result;
     }
 });
-
 joint.shapes.mylib.JKFFSR = joint.shapes.mylib.HradloJK52SR.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.JKFFSR',
@@ -2122,15 +2026,11 @@ joint.shapes.mylib.JKFFSR = joint.shapes.mylib.HradloJK52SR.extend({
               '.jm7': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
         }                                 
     }, joint.shapes.mylib.HradloJK52SR.prototype.defaults),
-    operation: function(p) {
-        var result = createInvalidOutput(this);
-        if (inputsAreInvalid(p)) {
-            return result;
-        }
+    changeState: function(p) {
         if (rising_edge(this.clk_edge, p['clk'])) {
-            if (portIsHigh(p, 'ar')) {
+            if (portIsHigh(p, 'sr')) {
                 this.state = 0;
-            } else if (portIsHigh(p, 'as')) {
+            } else if (portIsHigh(p, 'ss')) {
                 this.state = 1;
             }
             else {
@@ -2144,12 +2044,8 @@ joint.shapes.mylib.JKFFSR = joint.shapes.mylib.HradloJK52SR.extend({
             }
         }
         this.clk_edge = p['clk'];
-        result.q = this.state;
-        result.qn = !this.state;
-        return result;
     }
 });
-
 joint.shapes.mylib.DFF = joint.shapes.mylib.HradloD22.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.DFF',
@@ -2161,21 +2057,13 @@ joint.shapes.mylib.DFF = joint.shapes.mylib.HradloD22.extend({
               '.jm4': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
         }                                 
     }, joint.shapes.mylib.HradloD22.prototype.defaults),
-    operation: function(p) {
-        var result = createInvalidOutput(this);
-        if (inputsAreInvalid(p)) {
-            return result;
-        }
+    changeState: function(p) {
         if (rising_edge(this.clk_edge, p['clk'])) {
             this.state = p['d'];
         }
         this.clk_edge = p['clk'];
-        result.q = this.state;
-        result.qn = !this.state;
-        return result;
     }
 });
-
 joint.shapes.mylib.DFFAR = joint.shapes.mylib.HradloD42.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.DFFAR',
@@ -2189,11 +2077,7 @@ joint.shapes.mylib.DFFAR = joint.shapes.mylib.HradloD42.extend({
               '.jm6': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
         }                                 
     }, joint.shapes.mylib.HradloD42.prototype.defaults),
-    operation: function(p) {
-        var result = createInvalidOutput(this);
-        if (inputsAreInvalid(p)) {
-            return result;
-        }
+    changeState: function(p) {
         if (portIsHigh(p, 'ar')) {
             this.state = 0;
         } else if (portIsHigh(p, 'as')) {
@@ -2202,12 +2086,9 @@ joint.shapes.mylib.DFFAR = joint.shapes.mylib.HradloD42.extend({
             this.state = p['d'];
         }
         this.clk_edge = p['clk'];
-        result.q = this.state;
-        result.qn = !this.state;
-        return result;
+        console.log("state", this.state);
     }
 });
-
 joint.shapes.mylib.DFFSR = joint.shapes.mylib.HradloD42SR.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.DFFSR',
@@ -2216,16 +2097,12 @@ joint.shapes.mylib.DFFSR = joint.shapes.mylib.HradloD42SR.extend({
                '.jm': { text: 'd', ref: 'rect', 'ref-dx': -105, 'ref-dy': -115 },
               '.jm2': { text: 'clk', ref: 'rect', 'ref-dx': -115, 'ref-dy': -90 },
               '.jm3': { text: 'ss', ref: 'rect', 'ref-dx': -110, 'ref-dy': -65 },
-              '.jm4': { text: 'sr', ref: 'rect', 'ref-dx': -110, 'ref-dy': -40 },          
+              '.jm4': { text: 'sr', ref: 'rect', 'ref-dx': -110, 'ref-dy': -40 },
               '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -110 },
               '.jm6': { text: 'qn', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
         }                                 
     }, joint.shapes.mylib.HradloD42SR.prototype.defaults),
-    operation: function(p) {
-        var result = createInvalidOutput(this);
-        if (inputsAreInvalid(p)) {
-            return result;
-        }
+    changeState: function(p) {
         if (rising_edge(this.clk_edge, p['clk'])) {
             if (portIsHigh(p, 'sr')) {
                 this.state = 0;
@@ -2236,12 +2113,13 @@ joint.shapes.mylib.DFFSR = joint.shapes.mylib.HradloD42SR.extend({
             }
         }
         this.clk_edge = p['clk'];
-        result.q = this.state;
-        result.qn = !this.state;
-        return result;
     }
 });
 
+
+/**
+ * Matematické - implementace funkcí
+ */
 joint.shapes.mylib.HALFADDER = joint.shapes.mylib.HradloHALFADD.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.HALFADDER',
@@ -2253,10 +2131,19 @@ joint.shapes.mylib.HALFADDER = joint.shapes.mylib.HradloHALFADD.extend({
               '.jm4': { text: 'c', ref: 'rect', 'ref-dx': 10, 'ref-dy': -60 },
 
         }                                 
-    }, joint.shapes.mylib.HradloHALFADD.prototype.defaults)
-    //operace definována v předkovy
+    }, joint.shapes.mylib.HradloHALFADD.prototype.defaults),
+    operation: function (p) {
+        if (inputsAreInvalid(p, this.get('inPorts'))) {
+            return createInvalidOutput(this);
+        }
+        var s = p['a'] != p['b'],
+            c = p['a'] == 1 && p['b'] == 1;
+        return {
+            "s": s,
+            "c": c
+        };
+    }
 });
-
 joint.shapes.mylib.FULLADDER = joint.shapes.mylib.HradloFULLADD.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.FULLADDER',
@@ -2268,10 +2155,19 @@ joint.shapes.mylib.FULLADDER = joint.shapes.mylib.HradloFULLADD.extend({
               '.jm4': { text: 's', ref: 'rect', 'ref-dx': 10, 'ref-dy': -105 },           
               '.jm5': { text: 'cout', ref: 'rect', 'ref-dx': 10, 'ref-dy': -62 },
         }                                 
-    }, joint.shapes.mylib.HradloFULLADD.prototype.defaults)
-    //operace definována v předkovy
+    }, joint.shapes.mylib.HradloFULLADD.prototype.defaults),
+    operation: function(p) {
+        if (inputsAreInvalid(p, this.get('inPorts'))) {
+            return createInvalidOutput(this);
+        }
+        var s = (p['a']!= p['b']) != p['cin'];
+        var cout = (p['a']+ p['b']+ p['cin']> 1);
+        return {
+            "s": s,
+            "cout": cout
+        }
+    }
 });
-
 joint.shapes.mylib.ADD4 = joint.shapes.mylib.HradloADD4.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.ADD4',
@@ -2294,9 +2190,27 @@ joint.shapes.mylib.ADD4 = joint.shapes.mylib.HradloADD4.extend({
               '.jm14': { text: 's0', ref: 'rect', 'ref-dx': 10, 'ref-dy': -75 },
               '.jm15': { text: 'cout', ref: 'rect', 'ref-dx': 10, 'ref-dy': -40 },
         }                                 
-    }, joint.shapes.mylib.HradloADD4.prototype.defaults)
-});
+    }, joint.shapes.mylib.HradloADD4.prototype.defaults),
+    operation: function(p) {
+        var a = parseInt(_.map(_.pick(p,['a0','a1','a2','a3']), function(x){ if (x) return 1; else return 0;}).reverse().join(''), 2 );
+        var bPick = _.pick(p,['b0','b1','b2','b3']);
+        var b = (p['invb'])?
+            parseInt(_.map(bPick, function(x){ if (x) return 0; else return 1;}).reverse().join(''), 2 ):
+            parseInt(_.map(bPick, function(x){ if (x) return 1; else return 0;}).reverse().join(''), 2 );
+        var c = parseInt(p['cin']?"1":"0", 2 );
+        var sum = a+b+c;
 
+        var _result = sum.toString(2).split('').reverse();
+        var result = {
+            s3: _result[3]?_.parseInt(_result[3]):0,
+            s2: _result[2]?_.parseInt(_result[2]):0,
+            s1: _result[1]?_.parseInt(_result[1]):0,
+            s0: _result[0]?_.parseInt(_result[0]):0,
+            cout: _result[4]?_.parseInt(_result[4]):0
+        };
+        return result;
+    }
+});
 joint.shapes.mylib.MUL8 = joint.shapes.mylib.HradloMUL8.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.MUL8',
@@ -2320,10 +2234,22 @@ joint.shapes.mylib.MUL8 = joint.shapes.mylib.HradloMUL8.extend({
               '.jm15': { text: 's1', ref: 'rect', 'ref-dx': 10, 'ref-dy': -61 },
               '.jm16': { text: 's0', ref: 'rect', 'ref-dx': 10, 'ref-dy': -43 },
         }                                 
-    }, joint.shapes.mylib.HradloMUL8.prototype.defaults)
-});
+    }, joint.shapes.mylib.HradloMUL8.prototype.defaults),
 
-//TODO: otestovat hradlo
+    operation: function(p) {
+        var a = parseInt(_.map(_.pick(p,['a0','a1','a2','a3']), function(x){ if (x) return 1; else return 0;}).reverse().join(''), 2 );
+        var bPick = _.pick(p,['b0','b1','b2','b3']);
+        var b = parseInt(_.map(bPick, function(x){ if (x) return 1; else return 0;}).reverse().join(''), 2 );
+        var sum = a*b;
+
+        var _result = sum.toString(2).split('').reverse();
+        var result = {};
+        _.each(this.get('outPorts'), function(value, index){
+            result[value] = _result[7-index]?_.parseInt(_result[7-index]):0;
+        });
+        return result;
+    }
+});
 joint.shapes.mylib.COMPARATORLEQ = joint.shapes.mylib.HradloCLEQ.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.COMPARATORLEQ',
@@ -2349,13 +2275,12 @@ joint.shapes.mylib.COMPARATORLEQ = joint.shapes.mylib.HradloCLEQ.extend({
             return result;
         }
         result.leq = fromBinary(_.pick(p, ['a3', 'a2', 'a1', 'a0'])) <= fromBinary(_.pick(p, ['b3', 'b2', 'b1', 'b0']))?1:0;
-        result.leq = !result.leq;
+        result.leqn = !result.leq;
         return result;
     }
 });
-
-//TODO: otestovat hradlo
 joint.shapes.mylib.UPDOWNCOUNTER = joint.shapes.mylib.HradloUDCOUNTER.extend({
+    cnt_reg: 0,
     defaults: joint.util.deepSupplement({
         type: 'mylib.UPDOWNCOUNTER',
         attrs: {
@@ -2379,7 +2304,6 @@ joint.shapes.mylib.UPDOWNCOUNTER = joint.shapes.mylib.HradloUDCOUNTER.extend({
         },
         inPorts: ["clk", "clk_en", "sreset", "spreset", "a3", "a2", "a1", "a0", "down"],
         outPorts: ["q3", "q2", "q1", "q0", "zero", "match"],
-        cnt_reg: 0
     }, joint.shapes.mylib.HradloUDCOUNTER.prototype.defaults),
     operation: function(p) {
         var result = createInvalidOutput(this);
@@ -2408,17 +2332,19 @@ joint.shapes.mylib.UPDOWNCOUNTER = joint.shapes.mylib.HradloUDCOUNTER.extend({
         }
         result.zero = (this.cnt_reg === 0) ? 1 : 0;
         result.match = (this.cnt_reg === fromBinary(_.pick(p, ['a3', 'a2', 'a1', 'a0']))) ? 1 : 0;
-        var r = toBinary(this.cnt_reg);
-        result.q3 = r[3];
-        result.q2 = r[2];
-        result.q1 = r[1];
-        result.q0 = r[0];
+        var _result = this.cnt_reg.toString(2).split('').reverse();
+        _.each(['q3', 'q2', 'q1', 'q0'], function (value, index) {
+            result[value] = _result[3 - index] ? _.parseInt(_result[3 - index]) : 0;
+        });
         this.clk_edge = p['clk'];
-
         return result;
     }
 });
 
+
+/**
+ * PAMĚTI IMPLEMENTACE FUNKCÍ
+ */
 joint.shapes.mylib.ARAM1x16 = joint.shapes.mylib.HradloARAM116.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.ARAM1x16',
@@ -2435,7 +2361,7 @@ joint.shapes.mylib.ARAM1x16 = joint.shapes.mylib.HradloARAM116.extend({
         },
         inPorts: ['ce','we','a3','a2','a1','a0','d'],
         outPorts: ['q'],
-        memory: {}
+        memory: {},
     }, joint.shapes.mylib.HradloARAM116.prototype.defaults),
     operation: function(p) {
         var key = createRAMKey(p,['a3', 'a2', 'a1', 'a0']);
@@ -2444,15 +2370,13 @@ joint.shapes.mylib.ARAM1x16 = joint.shapes.mylib.HradloARAM116.extend({
         }
         if (portIsHigh(p,'ce')){
             if(portIsHigh(p,'we')){
-                this.memory[key] = p['d']?1:0;
+                this.get('memory')[key] = p['d']?1:0;
             }
-            return this.memory[key]?1:0;
+            return this.get('memory')[key]?1:0;
         }
         return 0;
     }
 });
-
-//TODO: Otestovat entitu
 joint.shapes.mylib.RAM1x16 = joint.shapes.mylib.HradloRAM116.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.RAM1x16',
@@ -2470,6 +2394,7 @@ joint.shapes.mylib.RAM1x16 = joint.shapes.mylib.HradloRAM116.extend({
         },
         inPorts: ['clk','ce','we','a3','a2','a1','a0','d'],
         outPorts: ['q'],
+        memory: {},
         clk: false
     }, joint.shapes.mylib.HradloRAM116.prototype.defaults),
     operation: function(p) {
@@ -2479,17 +2404,17 @@ joint.shapes.mylib.RAM1x16 = joint.shapes.mylib.HradloRAM116.extend({
         }
         if (rising_edge(this.clk, p['clk'])){
             if(portIsHigh(p,'we')){
-                this.memory[key] = p['d']?1:0;
+                this.get('memory')[key] = p['d']?1:0;
             }
         }
         this.clk = !this.clk;
-        return this.memory[key];
+        return this.get('memory')[key];
     }
 });
-
 joint.shapes.mylib.ARAM4x16 = joint.shapes.mylib.HradloARAM416.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.ARAM4x16',
+        memory: {},
         attrs: {
              '.label': { text: 'ARAM4x16', ref: 'rect', 'ref-x': .1, 'ref-y': .1, stroke: 'black'},            
                 '.jm': { text: 'ce', ref: 'rect', 'ref-dx': -125, 'ref-dy': -189 },
@@ -2508,10 +2433,51 @@ joint.shapes.mylib.ARAM4x16 = joint.shapes.mylib.HradloARAM416.extend({
               '.jm13': { text: 'q1', ref: 'rect', 'ref-dx': 10, 'ref-dy': -95 },
               '.jm14': { text: 'q0', ref: 'rect', 'ref-dx': 10, 'ref-dy': -57 },
         }                                 
-    }, joint.shapes.mylib.HradloARAM416.prototype.defaults)
-});
+    }, joint.shapes.mylib.HradloARAM416.prototype.defaults),
+    operation: function(p) {
+        var key = createRAMKey(p,['a3', 'a2', 'a1', 'a0']);
+        if (inputsAreInvalid(p)) {
+            return 1;
+        }
+        if (portIsHigh(p,'ce')){
+            if(portIsHigh(p,'we')){
+                this.get('memory')[key] = _.pick(p,['d0', 'd1', 'd2', 'd3']);
+            }
+        }
+        this.clk = !this.clk;
+        var index = 0;
+        var result =  _.mapKeys(this.get('memory')[key], function(value, key){
+            index++;
+            return 'q'+(index-1);
+        });
+        return result;
+    }
 
-//TODO: zkontrolovat
+    // operation: function(a0, a1, a2, a3, ce, d0, d1, d2, d3, we) {
+    //     var key = [a0, a1, a2, a3].join('');
+    //     var result = {
+    //         q0: 0,
+    //         q1: 0,
+    //         q2: 0,
+    //         q3: 0
+    //     };
+    //     if (ce === 1) {
+    //         if (we === 1){
+    //             this.memory[key] = [d0, d1, d2, d3];
+    //         }
+    //         if (this.memory[key]){
+    //             var data = this.memory[key];
+    //             result = {
+    //                 q0: data[0],
+    //                 q1: data[1],
+    //                 q2: data[2],
+    //                 q3: data[3]
+    //             }
+    //         }
+    //     }
+    //     return result;
+    // }
+});
 joint.shapes.mylib.RAM4x16 = joint.shapes.mylib.HradloRAM416.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.RAM4x16',
@@ -2544,22 +2510,28 @@ joint.shapes.mylib.RAM4x16 = joint.shapes.mylib.HradloRAM416.extend({
         }
         if (rising_edge(this.clk, p['clk'])){
             if(portIsHigh(p,'we')){
-                this.memory[key] = _.map(_.pick(p,['d3','d2','d1','d0']), function (x) {
-                    return x?1:0;
-                });
+                this.get('memory')[key] = _.pick(p,['d0', 'd1', 'd2', 'd3']);
             }
         }
         this.clk = !this.clk;
-        var result = this.memory[key];
-        return {
-            'q3': result[3],
-            'q2': result[2],
-            'q1': result[1],
-            'q0': result[0],
-        };
+        var index = 0;
+        if (this.get('memory')[key]) {
+            var result = _.mapKeys(this.get('memory')[key], function (value, key) {
+                index++;
+                return 'q' + (index - 1);
+            });
+        }
+        else{
+                var result = {
+                    'q3': 0,
+                    'q2': 0,
+                    'q1': 0,
+                    'q0': 0,
+                }
+            }
+        return result;
     }
 });
-
 joint.shapes.mylib.ARAM4x256 = joint.shapes.mylib.HradloARAM4256.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.ARAM4x256',
@@ -2584,10 +2556,38 @@ joint.shapes.mylib.ARAM4x256 = joint.shapes.mylib.HradloARAM4256.extend({
               '.jm16': { text: 'q2', ref: 'rect', 'ref-dx': 10, 'ref-dy': -138 },
               '.jm17': { text: 'q1', ref: 'rect', 'ref-dx': 10, 'ref-dy': -102 },
               '.jm18': { text: 'q0', ref: 'rect', 'ref-dx': 10, 'ref-dy': -62 },
-        }                                 
-    }, joint.shapes.mylib.HradloARAM4256.prototype.defaults)
+        },
+        memory: {}
+    }, joint.shapes.mylib.HradloARAM4256.prototype.defaults),
+    operation: function(p) {
+        var key = createRAMKey(p,['a7', 'a6', 'a5', 'a4', 'a3', 'a2', 'a1', 'a0']);
+        if (inputsAreInvalid(p)) {
+            return 1;
+        }
+        if(portIsHigh(p,'ce')){
+            if(portIsHigh(p,'we')){
+                this.get('memory')[key] = _.pick(p,['d0', 'd1', 'd2', 'd3']);
+            }
+        }
+        this.clk = !this.clk;
+        var index = 0;
+        if (this.get('memory')[key]) {
+            var result = _.mapKeys(this.get('memory')[key], function (value, key) {
+                index++;
+                return 'q' + (index - 1);
+            });
+        }
+        else{
+            var result = {
+                'q3': 0,
+                'q2': 0,
+                'q1': 0,
+                'q0': 0,
+            }
+        }
+        return result;
+    }
 });
-
 joint.shapes.mylib.RAM4x256 = joint.shapes.mylib.HradloRAM4256.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.RAM4x256',
@@ -2612,10 +2612,40 @@ joint.shapes.mylib.RAM4x256 = joint.shapes.mylib.HradloRAM4256.extend({
               '.jm16': { text: 'q2', ref: 'rect', 'ref-dx': 10, 'ref-dy': -138 },
               '.jm17': { text: 'q1', ref: 'rect', 'ref-dx': 10, 'ref-dy': -102 },
               '.jm18': { text: 'q0', ref: 'rect', 'ref-dx': 10, 'ref-dy': -62 },
-        }                                 
-    }, joint.shapes.mylib.HradloRAM4256.prototype.defaults)
+        },
+        memory: {}
+    }, joint.shapes.mylib.HradloRAM4256.prototype.defaults),
+    operation: function(p) {
+        var key = createRAMKey(p,['a7', 'a6', 'a5', 'a4', 'a3', 'a2', 'a1', 'a0']);
+        if (inputsAreInvalid(p)) {
+            return 1;
+        }
+        if (rising_edge(this.clk, p['clk'])){
+            if(portIsHigh(p,'we')){
+                this.get('memory')[key] = _.pick(p,['d0', 'd1', 'd2', 'd3']);
+            }
+        }
+        this.clk = !this.clk;
+        var index = 0;
+        if (this.get('memory')[key]) {
+            var result = _.mapKeys(this.get('memory')[key], function (value, key) {
+                index++;
+                return 'q' + (index - 1);
+            });
+        }
+        else{
+            var result = {
+                'q3': 0,
+                'q2': 0,
+                'q1': 0,
+                'q0': 0,
+            }
+        }
+        return result;
+    }
 });
 
+//TODO: implemetovat simulační funkci u DPRAM4x256
 joint.shapes.mylib.DPRAM4x256 = joint.shapes.mylib.HradloDPRAM4256.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.DPRAM4x256',
