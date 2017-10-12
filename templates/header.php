@@ -7,7 +7,7 @@
 		<ul class="dropdown-menu">
 			<li><a href="<?php echo $basepath ?>/#schemas" id="menu-file-open_new_schema">Nové / Otevřít</a></li>
 			<li class="divider"></li>
-			<li><a href="<?php echo $basepath ?>/#" id="menu-file-download_lib">Stáhnout lib.vdl</a></li>
+			<li><a href="<?php echo $basepath ?>/lib.vhd" download="lib.vhd" target="_blank" id="menu-file-download_lib">Stáhnout lib.vdl</a></li>
 		</ul>
 	</div>
 

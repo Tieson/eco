@@ -139,8 +139,15 @@ window.eco = {
                 {id:"47", id_category:"1",  name:"CLK",           label:"clock" },
                 ]);
         // entities.fetch();
-        var categories = new eco.Collections.Categories();
-        categories.fetch();
+        var categories = new eco.Collections.Categories([
+            {id:1, name: 'Vstupy a výstupy', active: 1},
+            {id:2, name: 'Základní kombinační', active: 1},
+            {id:3, name: 'Komplexní kombinační', active: 1},
+            {id:4, name: 'Sekvenční', active: 1},
+            {id:5, name: 'Matematické', active: 1},
+            {id:6, name: 'Komplexní sekvenční obvody', active: 1},
+        ]);
+        // categories.fetch();
 
         var activeSchemaView = null,
             openedSchemas = new eco.Collections.Schemas(null,{local: true}),
