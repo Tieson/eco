@@ -28,6 +28,7 @@ VhdExporter.prototype.exportSchema = function (c_name_en, c_name_arch, graph) {
     var ios = this.portsToVHDL(inputs, outputs); //back_ios(io);
     var sig = this.getSignals(graph, elements);
     var hrd = this.gatesToVHDL(graph, elements);
+    var out = this.getOutputMap(graph, outputs);
     //var positions = getAllEntities().join(";");
 
     // struktura vystupniho souboru - celkové spojení
@@ -40,6 +41,9 @@ VhdExporter.prototype.exportSchema = function (c_name_en, c_name_arch, graph) {
         "\r\n" +
         "begin" +
         hrd +
+        "\r\n\t"+
+        out.join(';\r\n\t') +
+        ((out.length > 0)?";":"") +
         "\r\nend architecture " + c_name_arch + ";\r\n" +
         "\r\n";
 
@@ -105,8 +109,8 @@ VhdExporter.prototype.getSignals = function(graph, elements) {
                 index = duplicitCounter.inc(sigName);
                 // console.log(sigName, index);
                 if (index < 1) {
-                    if (targetType === self.types.GATE) {
-                        sigs.push("\tsignal " + sig.get('source').port + '_' + custom.uniqueName + " : std_logic;\r\n");
+                    if (targetType === self.types.GATE || targetType === self.types.OUT) {
+                        sigs.push("\tsignal " + sigName + " : std_logic;\r\n");
                     }
                 } else {
                     console.log('Duplicit signal warning!');
@@ -159,6 +163,42 @@ VhdExporter.prototype.portsToVHDL = function(inputs, outputs) {
     return result.join("\r\n");
 };
 
+//TODO : dodělat tuto funkci
+
+VhdExporter.prototype.getOutputMap = function(graph, outputs) {
+    var portmap = [];
+    var self = this;
+    for (var j = 0, max_out = outputs.length; j < max_out; j++) {
+        var linksIn = graph.getConnectedLinks(outputs[j], {inbound: true});
+        console.log(linksIn, graph, outputs);
+        var sig,
+            target,
+            source,
+            other,
+            customOther;
+
+        for (var i = 0; i < linksIn.length; i++) {
+            sig = linksIn[i];
+            target = sig.get('target');
+            source = sig.get('source');
+            other = graph.getCell(source.id);
+            customOther = other.attr('custom');
+            switch (other.get('exportType')) {
+                case self.types.GATE:
+                    portmap.push(outputs[j].attr('custom').name + outputs[j].attr('custom').number + " <= " + source.port + '_' + customOther.uniqueName);
+                    break;
+                case self.types.IN:
+                    portmap.push(outputs[j].attr('custom').name + outputs[j].attr('custom').number +" <= " + customOther.name + customOther.number);
+                    break;
+                default :
+                    break;
+            }
+        }
+    }
+    return portmap;
+};
+
+
 VhdExporter.prototype.getPortMap = function(graph, gate) {
     var self= this;
     var sig, portmap = [],
@@ -200,10 +240,8 @@ VhdExporter.prototype.getPortMap = function(graph, gate) {
         if (duplicitCounter.inc(source.port) < 1) {
             switch (other.get('exportType')) {
                 case self.types.GATE:
-                    portmap.push(source.port + " => " + source.port + '_' + gCustom.uniqueName);
-                    break;
                 case self.types.OUT:
-                    portmap.push(source.port + " => " + customOther.name+customOther.number);
+                    portmap.push(source.port + " => " + source.port + '_' + gCustom.uniqueName);
                     break;
                 default :
                     break;
