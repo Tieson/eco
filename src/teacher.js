@@ -30,8 +30,21 @@ window.eco = {
             return this.items;
         }
     },
+    buttons: {
+        'saveSchema': ".saveSchemaButton",
+        'exportSchema': ".vhdlExportSchemaButton",
+        'libDownload': "#menu-file-download_lib",
+    },
+    selectors: {
+        'main': '#page_main_content',
+        'main_bar': '#main_bar',
+        'pages': '#container--pages',
+        'schemas': '#container--schemas',
+        'canvasWrapper': '#canvasWrapper',
+    }
+};
 
-    start: function(data) {
+    window.eco.start = function(data) {
         //Routes
         var router = new eco.Router();
 
@@ -69,7 +82,7 @@ window.eco = {
 
         //global Variables
         var main = $('#page_main_content'),
-            main_tab = $('#container--pages'),
+            main_tab = $(eco.selectors.pages),
             main_bar = $('#main_bar');
         var schemaContainer = $('#canvasWrapper'),
             schemas_tab = $('#container--schemas');
@@ -499,6 +512,7 @@ window.eco = {
          */
         function showGroups() {
             setPageTitle('Skupiny');
+            main_tab.show();
             main.empty();
             eco.ViewGarbageCollector.clear();
             var groupsView = new eco.Views.GroupsList({
@@ -574,8 +588,8 @@ window.eco = {
         }
 
         Backbone.history.start();
-    },
+    };
     /**konec router metod**/
 
-};
+
 

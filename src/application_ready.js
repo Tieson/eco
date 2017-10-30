@@ -4,20 +4,20 @@
 "use strict";
 eco.Router = Backbone.Router.extend({
     routes: {
-'': 'home',
+        '': 'home',
 
-'schemas': 'showSchemas', //seznam schémat uživatele
-'schemas/new': 'schemaCreateNew', //vytvoření nového schema
-'schemas/:id/vhdl': 'schemaExportVhdl', //exportuje schéma do hdl souboru
-'schemas/:id': 'openedSchema', //otevře schéma
-'schemas/:id/edit': 'showSchemaEdit', //upraví údaje schéma
+        'schemas': 'showSchemas', //seznam schémat uživatele
+        'schemas/new': 'schemaCreateNew', //vytvoření nového schema
+        'schemas/:id/vhdl': 'schemaExportVhdl', //exportuje schéma do hdl souboru
+        'schemas/:id': 'openedSchema', //otevře schéma
+        'schemas/:id/edit': 'showSchemaEdit', //upraví údaje schéma
 
-'students/groups': 'showUserGroups', //seznam skupin studenta
+        'students/groups': 'showUserGroups', //seznam skupin studenta
 
-'homeworks': 'showHwList', //seznam úkolů
-'homeworks/:id': 'showHwDetail', //detail úkolů
+        'homeworks': 'showHwList', //seznam úkolů
+        'homeworks/:id': 'showHwDetail', //detail úkolů
 
-'*path':  'defaultRoute', // defaultní: error 404
+        '*path':  'defaultRoute', // defaultní: error 404
     },
     route: function(route, name, callback) {
         var router = this;
@@ -25,11 +25,31 @@ eco.Router = Backbone.Router.extend({
 
         var f = function () {
             $(document).off('keydown');
+            beforeRoute();
             callback && callback.apply(router, arguments);
         };
         return Backbone.Router.prototype.route.call(this, route, name, f);
-    }
+    },
 });
+
+function hideButtons(btns) {
+    _.each(btns, function (item) {
+        $(item).hide();
+    });
+}
+
+function showButtons(btns) {
+    _.each(btns, function (item) {
+        $(item).show();
+    });
+}
+
+function beforeRoute() {
+    $(eco.selectors.main).empty();
+    $(eco.selectors.schemas).hide();
+    $(eco.selectors.pages).hide();
+    hideButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
+}
 
 
 $(document).ready(function() {

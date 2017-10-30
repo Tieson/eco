@@ -107,8 +107,8 @@
 
 <script type="text/template" id="homeworkListItem-template">
     <td class="list-name"><a href="#homeworks/<%- data.id %>" class="btn btn-xs button--default" data-id="<%- data.id %>"><%- data.name %></a></td>
-    <td class="list-termin"><%- data.deadline %></td>
-    <td class="list-predmet"><%- data.subject %> (<%- data.day %>, <%- data.block %>. blok, <%- data.weeks %> týden)</td>
+    <td class="list-termin"><%= data.deadline %></td>
+    <td class="list-predmet"><%= data.subject %> (<%- data.day %>, <%- data.block %>. blok, <%- data.weeks %> týden)</td>
     <td class="list-stav">
         <div class="badge badge-default"><%= data.status %></div>
     </td>
@@ -184,10 +184,14 @@
             <p><%= description %></p>
         </div>
     </div>
+    <h2>Odevzdání úkolu</h2>
+    <p class="text-info">Zvolte jeden ze způsobů:</p>
     <div class="row">
-        <div class="col-xs-12 col-sm-4 col-lg-3">
-            <h2>Odevzdání úkolu</h2>
-            <span class="btn btn-success btn-block showSubmitSolution">Vybrat řešení (Odevzdat úkol)</span>
+        <div class="col-xs-12 col-sm-6 col-lg-4">
+            <span class="btn btn-success btn-block showSubmitSolution"><i class="glyphicon glyphicon-list"></i> Vybrat schéma jako řešení</span>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-lg-4">
+            <span class="btn btn-default btn-block"><i class="glyphicon glyphicon-upload"></i> Nahrát VHDL soubor</span>
         </div>
     </div>
 
@@ -203,6 +207,24 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" data-dismiss="modal" id="homeworkSchemaModalSubmit">Odevzdat</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Zrušit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="homeworkVHDLModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Vyberte soubor vdl jako řešení</h4>
+                </div>
+                <div class="modal-body" id="homeworkVHDLModalBody">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal" id="homeworkSchemaVHDLSubmit">Nahrát a odevzdat</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Zrušit</button>
                 </div>
             </div>

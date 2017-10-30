@@ -262,6 +262,17 @@ eco.Models.VhdlExporter = Backbone.Model.extend({
         this.schema = opts.schema;
     },
 
+    getVHDL: function(){
+        var file_name;
+        var name = this.schema.get('name');
+        var architecture = this.schema.get('architecture');
+
+        var vhdEx = new VhdExporter();
+        var content = vhdEx.exportSchema(name, architecture, this.schema.get('graph'));
+
+        return content;
+    },
+
     saveVhdlToFile: function (a) {
         var file_name;
         var name = this.schema.get('name');

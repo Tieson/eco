@@ -16,7 +16,7 @@
 	<link rel="stylesheet" href="assets/js/libs/sweetalert/dist/sweetalert.css" type="text/css">
 	<link rel="stylesheet" href="assets/js/libs/bootstrap-datepicker/dist/css/bootstrap-datepicker.css" type="text/css">
 	<link rel="stylesheet" href="assets/js/libs/clockpicker/dist/bootstrap-clockpicker.min.css" type="text/css">
-	<link rel="stylesheet" href="assets/css/style.css">
+	<link rel="stylesheet" href="assets/css/style.css?<?php echo filemtime('assets/css/style.css'); ?>">
 
 	<!--TODO: stahnout jquery.hotkeys jako bower plugin	<script src="../scripts/jquery.hotkeys.js"></script>-->
 

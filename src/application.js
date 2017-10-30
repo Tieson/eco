@@ -30,10 +30,27 @@ window.eco = {
             return this.items;
         }
     },
+    buttons: {
+        'saveSchema': ".saveSchemaButton",
+        'exportSchema': ".vhdlExportSchemaButton",
+        'libDownload': "#menu-file-download_lib",
+    },
+    selectors: {
+        'main': '#page_main_content',
+        'main_bar': '#main_bar',
+        'pages': '#container--pages',
+        'schemas': '#container--schemas',
+        'canvasWrapper': '#canvasWrapper',
+    }
+};
 
-    start: function(data) {
+    window.eco.start = function (data) {
         //Routes
         var router = new eco.Router();
+
+        router.on('all', function () {
+
+        });
 
         router.on('route:home', showHome);
         router.on('route:showHwList', showStudentsHomeworkList);
@@ -69,11 +86,11 @@ window.eco = {
 
 
         //global Variables
-        var main = $('#page_main_content'),
-            main_tab = $('#container--pages'),
-            main_bar = $('#main_bar');
-        var schemaContainer = $('#canvasWrapper'),
-            schemas_tab = $('#container--schemas');
+        var main = $(eco.selectors.main),
+            main_tab = $(eco.selectors.pages),
+            main_bar = $(eco.selectors.main_bar);
+        var schemaContainer = $(eco.selectors.canvasWrapper),
+            schemas_tab = $(eco.selectors.schemas);
 
         var baseTitle = $('title').html();
 
@@ -82,8 +99,8 @@ window.eco = {
 
         var schemas = new eco.Collections.Schemas();
         schemas.fetch();
-        var groups = new eco.Collections.GroupCollection(null,{
-            url: eco.basedir+"/api/groups"
+        var groups = new eco.Collections.GroupCollection(null, {
+            url: eco.basedir + "/api/groups"
         });
 
         var entities = new eco.Collections.Entities([
@@ -140,18 +157,18 @@ window.eco = {
                 ]);
         // entities.fetch();
         var categories = new eco.Collections.Categories([
-            {id:1, name: 'Vstupy a výstupy', active: 1},
-            {id:2, name: 'Základní kombinační', active: 1},
-            {id:3, name: 'Komplexní kombinační', active: 1},
-            {id:4, name: 'Sekvenční', active: 1},
-            {id:5, name: 'Matematické', active: 1},
-            {id:6, name: 'Komplexní sekvenční obvody', active: 1},
+            {id: 1, name: 'Vstupy a výstupy', active: 1},
+            {id: 2, name: 'Základní kombinační', active: 1},
+            {id: 3, name: 'Komplexní kombinační', active: 1},
+            {id: 4, name: 'Sekvenční', active: 1},
+            {id: 5, name: 'Matematické', active: 1},
+            {id: 6, name: 'Komplexní sekvenční obvody', active: 1},
         ]);
         // categories.fetch();
 
         var activeSchemaView = null,
-            openedSchemas = new eco.Collections.Schemas(null,{local: true}),
-            openedSchemasPapers = {};
+        openedSchemas = new eco.Collections.Schemas(null, {local: true}), // seznam otevřených schémat.
+        openedSchemasPapers = {};
 
         var openedSchemasButtonsView = new eco.Views.SchemasListView({collection: openedSchemas, active: activeSchemaView});
 
@@ -161,7 +178,7 @@ window.eco = {
             get: function (key) {
                 console.log('%cMOCK user.get', 'color: white; backbround: red;', key);
                 //TODO: odstranit mock objekt
-                switch(key){
+                switch (key) {
                     case 'id':
                         return 1;
                     case 'student_id':
@@ -172,10 +189,12 @@ window.eco = {
             }
         };
 
-        var categoriesView = new eco.Views.CategoriesView({model: new eco.Models.EntityPanel({
-            entities: entities,
-            categories: categories,
-        })});
+        var categoriesView = new eco.Views.CategoriesView({
+            model: new eco.Models.EntityPanel({
+                entities: entities,
+                categories: categories,
+            })
+        });
 
         /**
          * Nastaví titulek stránky
@@ -184,29 +203,64 @@ window.eco = {
          */
         function setPageTitle(title, showBase) {
             showBase = typeof showBase !== 'undefined' ? showBase : true;
-            if (showBase)
-            {
+            if (showBase) {
                 $('title').html(title + ' | ' + baseTitle);
-            } else
-            {
+            } else {
                 $('title').html(title);
             }
         }
 
 
-        $("#saveSchema").on('click', function () {
+        /**
+         * Rychlé uložení schéma pomocí tlačítka
+         */
+        $(eco.buttons.saveSchema).on('click', function () {
             saveSchema(activeSchemaView);
         });
 
-        function saveSchema(schema){
-            if (schema){
+    /**
+     * rychlý export schéma do VHDL pomocí tlačítka v hlavičce
+     */
+    $(eco.buttons.exportSchema).on('click', function (e) {
+        exportActiveSchema();
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    });
+
+
+    function exportActiveSchema(){
+        var vhdlExporter = new eco.Models.VhdlExporter({
+            schema: activeSchemaView,
+        });
+        if (activeSchemaView) {
+            var a = $('<a href="#" target="_blank" style="display: none">');
+            var file_name = activeSchemaView.get('name') + ".vhd";
+            var data = vhdlExporter.getVHDL();
+            var uriContent = 'data:application/octet-stream,' + encodeURIComponent(data);
+            a.attr('href', uriContent);
+            a.attr('download', file_name);
+            a.attr('target', "_blank");
+            a.appendTo($('body'));
+            a[0].click(); // automatické stažení
+            a.remove();
+        }
+    }
+
+        /**
+         * Funkce pro uložení schéma - využívána různými původci požadavku pro uložení (tlačítko, kláv. zkratka)
+         * @param schema
+         */
+        function saveSchema(schema) {
+            if (schema) {
                 schema.saveGraph();
             }
         }
 
         function showSchema(schema) {
-            main_tab.hide();
+
             schemas_tab.show();
+            showButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
             console.log('%c showSchema ', 'background: yellow; color:white;', schema);
 
             //schovat posledně zobrazené schéma
@@ -233,7 +287,7 @@ window.eco = {
                 console.log('%c schema loaded graph!! ', 'background: yellow; color: red', schema.get('graph'));
 
                 var graph = schema.get('graph');
-                graph.set('counter',counter);
+                graph.set('counter', counter);
 
                 schema.set('opened', true); // nastavení indikátoru, že je otevřeno
                 openedSchemas.add(schema); //přidáme schéma do kolekce otevřených
@@ -303,7 +357,7 @@ window.eco = {
             console.log('%c hideSchemaPaper ', 'background: yellow', schema);
             if (schema) {
                 var paper = openedSchemasPapers[schema.get('id')];
-                if (paper){
+                if (paper) {
                     console.log('paper:', paper);
                     paper.$el.hide();
                 }
@@ -315,9 +369,9 @@ window.eco = {
         }
 
         function isSchemaOpen(schema) {
-            if (_.isNumber(schema)){
+            if (_.isNumber(schema)) {
                 return (!!openedSchemasPapers[schema]);
-            }else{
+            } else {
                 return (!!openedSchemasPapers[schema.get('id')]);
             }
         }
@@ -327,7 +381,7 @@ window.eco = {
             openedSchemasButtonsView.setActiveSchema(schema);
         }
 
-        function addOpenedPaper(schema, paper){
+        function addOpenedPaper(schema, paper) {
             openedSchemasPapers[schema.get('id')] = paper;
         }
 
@@ -339,7 +393,7 @@ window.eco = {
 
 
         /**
-         * Nsledují router metody
+         * Následují router metody
          */
 
         function defaultRoute() {
@@ -347,21 +401,21 @@ window.eco = {
             setPageTitle('404 Stránka nenalezena');
             main.html('<h1>404 Stránka nenalezena</h1>');
             main_tab.show();
-            schemas_tab.hide();
+
         }
 
 
-        function editTask(id){
+        function editTask(id) {
             setPageTitle('Seznam zadání');
             main.html('');
             main_tab.show();
-            schemas_tab.hide();
+
             eco.ViewGarbageCollector.clear();
 
             var vent = _.extend({}, Backbone.Events);
 
             var model = new eco.Models.Task({
-                url: eco.basedir+"/api/tasks/"+id,
+                url: eco.basedir + "/api/tasks/" + id,
             });
 
             var viewAddNew = new eco.Views.EditTask({
@@ -373,8 +427,8 @@ window.eco = {
             model.fetch();
             main.append(viewAddNew.$el);
 
-            var files = new eco.Collections.Files(null,{
-                url: eco.basedir+'/api/tasks/'+id+'/files',
+            var files = new eco.Collections.Files(null, {
+                url: eco.basedir + '/api/tasks/' + id + '/files',
             });
 
             console.log("FILES", files);
@@ -411,11 +465,10 @@ window.eco = {
             //TODO: omezit práva pouze pro vyučující (i na serrveru)
             setPageTitle('Seznam zadání');
             main_tab.show();
-            schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
 
             var collection = new eco.Collections.Tasks(null, {
-                url: eco.basedir+"/api/tasks",
+                url: eco.basedir + "/api/tasks",
             });
 
             var view = new eco.Views.GenericList({
@@ -428,11 +481,11 @@ window.eco = {
 
             collection.fetch();
         }
+
         function showTaskDetail(id) {
             //TODO: omezit práva pouze pro vyučující (i na serrveru)
             setPageTitle('Seznam zadání');
             main_tab.show();
-            schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
 
             var model = new eco.Models.Task({id: id});
@@ -449,7 +502,6 @@ window.eco = {
         }
 
         function showHome() {
-            main_tab.hide();
             schemas_tab.show();
 
             // openedSchemas.fetch();
@@ -460,9 +512,9 @@ window.eco = {
                     trigger: true,
                     replace: true
                 });
-            }else{
+            } else {
                 //přejít na poslední otevřené schéma
-                router.navigate('schemas/'+activeSchemaView.get('id'), {
+                router.navigate('schemas/' + activeSchemaView.get('id'), {
                     trigger: true,
                     replace: true
                 });
@@ -473,9 +525,12 @@ window.eco = {
         function showOpenSchema(id) {
             console.log('openedSchema', id);
 
-
             $(document).on('keydown', null, 'ctrl+s', function () {
                 saveSchema(activeSchemaView);
+                return false;
+            });
+            $(document).on('keydown', null, 'ctrl+e', function () {
+                exportActiveSchema();
                 return false;
             });
 
@@ -488,9 +543,7 @@ window.eco = {
             //     console.log(paper);
             // });
 
-            if(isSchemaOpen(parseInt(id))){
-                main_tab.hide();
-                schemas_tab.show();
+            if (isSchemaOpen(parseInt(id))) {
                 showSchema(openedSchemas.get(id));
             }
             else {
@@ -517,9 +570,9 @@ window.eco = {
          */
         function schemaExportVhdl(id) {
             setPageTitle('Domácí úkoly');
-            main.empty();
+
             main_tab.show();
-            schemas_tab.hide();
+
 
             var nSchema = new eco.Models.Schema({id: id});
             var vhdlExporter = new eco.Models.VhdlExporter({
@@ -529,7 +582,7 @@ window.eco = {
                 success: function () {
 
                     nSchema.loadGraph(function () {
-                        var $button = $("<a href='#' class='btn btn-success'>Stáhnout schéma <strong>"+ nSchema.get('name') +"</strong> ve VHDL</a>");
+                        var $button = $("<a href='#' target='_blank' class='btn btn-success'>Stáhnout schéma <strong>" + nSchema.get('name') + "</strong> ve VHDL</a>");
                         main.append($('<div class="alert alert-info mt20">Pokud stahování nezačne automaticky, použijte následující tlačítko</div>'));
                         main.append($button);
                         vhdlExporter.saveVhdlToFile($button);
@@ -544,13 +597,13 @@ window.eco = {
 
         function showStudentsHomeworkList() {
             setPageTitle('Domácí úkoly');
-            main.empty();
+
             main_tab.show();
-            schemas_tab.hide();
+
             eco.ViewGarbageCollector.clear();
             console.log('route:showHwList');
             var homeworsk = new eco.Collections.Homeworks(null,
-                {url: eco.basedir+'/api/students/hw'}
+                {url: eco.basedir + '/api/students/hw'}
             );
 
             var hwView = new eco.Views.GenericList({
@@ -585,9 +638,7 @@ window.eco = {
          */
         function showHomeworkDetail(id) {
             setPageTitle('Úkol');
-            main.empty();
             main_tab.show();
-            schemas_tab.hide();
             eco.ViewGarbageCollector.clear();
 
             var hw = new eco.Models.Homework({
@@ -604,9 +655,9 @@ window.eco = {
         function showUserGroups() {
             setPageTitle('Skupiny');
             main_tab.show();
-            schemas_tab.hide();
-            var groups = new eco.Collections.UserGroupCollection(null,{
-                url: eco.basedir+"/api/students/groups",
+
+            var groups = new eco.Collections.UserGroupCollection(null, {
+                url: eco.basedir + "/api/students/groups",
             });
             eco.ViewGarbageCollector.clear();
             var groupsView = new eco.Views.StudentAssignGroupsList({
@@ -624,9 +675,9 @@ window.eco = {
         function showUserAddGroups() {
             setPageTitle('Přidání do skupiny');
             main_tab.show();
-            schemas_tab.hide();
-            var groups = new eco.Collections.GroupCollection(null,{
-                url: eco.basedir+"/api/students/"+user.get('student_id')+"/groups",
+
+            var groups = new eco.Collections.GroupCollection(null, {
+                url: eco.basedir + "/api/students/" + user.get('student_id') + "/groups",
                 //TODO: odstranit mock objekt
             });
             eco.ViewGarbageCollector.clear();
@@ -643,8 +694,8 @@ window.eco = {
         function showUserGroupDetail(id) {
             setPageTitle('Detail skupiny');
             main_tab.show();
-            schemas_tab.hide();
-            var group = new eco.Models.Group({id:id});
+
+            var group = new eco.Models.Group({id: id});
             eco.ViewGarbageCollector.clear();
             var groupsView = new eco.Views.GroupDetail({
                 model: group,
@@ -655,9 +706,9 @@ window.eco = {
 
         function showGroups() {
             setPageTitle('Skupiny');
-            main.empty();
+
             main_tab.show();
-            schemas_tab.hide();
+
             eco.ViewGarbageCollector.clear();
             var groupsView = new eco.Views.GroupsList({
                 template: '#groupsList-template',
@@ -686,7 +737,7 @@ window.eco = {
                         'day': eco.Utils.inputParsers.byValue,
                         'weeks': eco.Utils.inputParsers.byValue,
                         'block': eco.Utils.inputParsers.byValue,
-                    }, "#nova_skupina-" , $element);
+                    }, "#nova_skupina-", $element);
                     return result;
                 },
                 model: newModel,
@@ -698,15 +749,16 @@ window.eco = {
 
             groups.fetch();
         }
+
         function showGroupDetail(id) {
             setPageTitle('Detail skupiny');
-            main.empty();
+
             main_tab.show();
-            schemas_tab.hide();
+
             // eco.ViewGarbageCollector.clear();
             // var students = new eco.Collections.Students();
             console.log('route:circleDetail', id);
-            var group = new eco.Models.Group({id:id});
+            var group = new eco.Models.Group({id: id});
             // students.url = 'api/groups/'+id+'/students';
             // console.log('route:circleDetail', id, students);
             var groupsDetailView = new eco.Views.GroupDetail({
@@ -720,12 +772,11 @@ window.eco = {
 
         function showSchemaEdit(id) {
             main_tab.show();
-            schemas_tab.hide();
 
             schemas.fetch({
                 success: function () {
                     var schema = schemas.get(id);
-                    setPageTitle('Editace schéma '+ schema.get('name'));
+                    setPageTitle('Editace schéma ' + schema.get('name'));
                     main.html("");
 
                     var view = new eco.Views.SchemasEdit({
@@ -751,7 +802,6 @@ window.eco = {
 
         function showSchemas() {
             main_tab.show();
-            schemas_tab.hide();
 
             var view = new eco.Views.SchemasOpenList({
                 template: "#schemasOpenList-template",
@@ -774,8 +824,6 @@ window.eco = {
          */
         function showNewSchemaForm() {
             main_tab.show();
-            schemas_tab.hide();
-            console.log('route:showSchemas');
 
             var view = new eco.Views.SchemasNew({
                 collection: schemas
@@ -783,16 +831,17 @@ window.eco = {
 
             main.append(view.render().$el);
         }
+
         function showSchemaListAndNew() {
             setPageTitle('Vaše schémata');
-            main.empty();
+
             showNewSchemaForm();
             showSchemas();
         }
 
         function showSchemaNew() {
             setPageTitle('Vaše schémata');
-            main.empty();
+
             showNewSchemaForm();
             showSchemas();
         }
@@ -802,7 +851,7 @@ window.eco = {
     /**konec router metod**/
 
 
-    createPaper: function (schema) {
+    window.eco.createPaper = function (schema) {
         console.log("%c createPaper ", "background:cornflowerblue; color: #fff");
 
         var graph = schema.get('graph');
@@ -864,5 +913,4 @@ window.eco = {
         // });
 
         return paper;
-    }
 };

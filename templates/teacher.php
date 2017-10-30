@@ -69,8 +69,39 @@
 //                'students/:id/homeworks': 'showStudentsHwList', // zobrazí všechny úkoly studenta
 
                 '*path':  'defaultRoute',
-            }
+            },
+            route: function(route, name, callback) {
+                var router = this;
+                if (!callback) callback = this[name];
+
+                var f = function () {
+                    $(document).off('keydown');
+                    beforeRoute();
+                    callback && callback.apply(router, arguments);
+                };
+                return Backbone.Router.prototype.route.call(this, route, name, f);
+            },
         });
+
+
+
+        function hideButtons(btns) {
+            _.each(btns, function (item) {
+                $(item).hide();
+            });
+        }
+
+        function showButtons(btns) {
+            _.each(btns, function (item) {
+                $(item).show();
+            });
+        }
+
+        function beforeRoute() {
+            $(eco.selectors.schemas).hide();
+            $(eco.selectors.pages).hide();
+            hideButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
+        }
 
 
         $(document).ready(function() {
