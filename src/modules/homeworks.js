@@ -254,14 +254,42 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         this.solutionsView;
         this.renderInit();
         this.selectedSchema = null;
+        this.selectedVhdl = null;
     },
     events: {
         'click .schemasSimpleListItem': 'hwSchemaItemClick',
         'click .showSubmitSolution': 'hwSolutionOpenClick',
+        'click #showSubmitVhdl': 'vhdlFileUploadOpen',
         'click #homeworkSchemaModalSubmit': 'hwSubmitClick',
+        'click #homeworkVhdlModalSubmit': 'hwVhdlSubmitClick',
         'click .downloadVHDL': 'downloadVHDL',
-        'click .delete-solution': 'deleteSolution'
+        'click .delete-solution': 'deleteSolution',
+        'change #vhdl_file_name': 'selectedVhdFileChanged'
     },
+
+    disableVhdlFileSubmit: function () {
+        this.$("#homeworkVhdlModalSubmit").attr("disabled", true);
+        $("#vhdlSchemaName").val("");
+        $("#vhdlSchemaArch").val("");
+    },
+
+    selectedVhdFileChanged: function (e) {
+        //TODO: načíst VHDL soubor a zpracovat ho
+
+        var file = e.currentTarget.files[0];
+        this.disableVhdlFileSubmit();
+        var self = this;
+        eco.Utils.getVhdlFileContent(file, function (name, arch, content) {
+            console.log(name, arch, content);
+            if (name && arch) {
+                $("#vhdlSchemaName").val(name);
+                $("#vhdlSchemaArch").val(arch);
+                self.selectedVhdl = {name:name, arch: arch, content: content};
+                this.$("#homeworkVhdlModalSubmit").attr("disabled", false);
+            }
+        });
+    },
+
     hwSchemaItemClick: function (e) {
         $('.itemSelected').removeClass('itemSelected');
         $(e.currentTarget).addClass('itemSelected');
@@ -291,6 +319,45 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         this.$el.find("#homeworkSchemaModalBody").html(schemasView.$el);
         $('#homeworkSchemaModal').modal('show');
         // $(e.currentTarget).hide();
+    },
+    vhdlFileUploadOpen: function (e) {
+        e.stopPropagation();
+        showSnackbar("Tato funkce bude brzy dostupná");
+        return false;
+        this.$("#vhdlFileForm")[0].reset();
+        this.disableVhdlFileSubmit();
+
+        // eco.ViewGarbageCollector.add(schemasView);
+        // this.$el.find("#homeworkSchemaModalBody").html(schemasView.$el);
+        $('#homeworkVHDLModal').modal('show');
+        // $(e.currentTarget).hide();
+    },
+    hwVhdlSubmitClick: function (e) {
+
+        //TODO: nutnost vytvořit schéma, nebo to nějak jinak obejít
+        var self = this;
+        var vhdlEdporter = new VhdExporter();
+
+        if (self.selectedVhdl !== null) {
+
+                self.solutions.create({
+                    homework_id: self.model.get('id'),
+                    schema_id: 0,
+                    vhdl: self.selectedVhdl.content,
+                }, {
+                    success: function () {
+                        showSnackbar('Hotovo, úkol byl odevzdán ze souboru');
+                    },
+                    error: function () {
+                        showSnackbar('Něco se pokazilo. Úkol nebyl odevzdán.');
+                    }
+                });
+        } else {
+            showSnackbar('Jejda, není vybrát soubor s VHDL.');
+            e.preventDefault();
+            return false;
+        }
+
     },
     hwSubmitClick: function (e) {
         var self = this;

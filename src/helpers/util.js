@@ -372,6 +372,25 @@ function getUtils() {
                 }
             });
         },
+
+        /**
+         * Kontrola importovaného VHDL souboru
+         * Naivní kontrola zda-li jde o vhd file
+         * @param {type} evt
+         * @returns {undefined}
+         */
+        getVhdlFileContent: function (file, callback) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var import_text = event.target.result;
+                var rxArchBlock = /architecture\s*(\w+)\s+of\s+(\w+)\s+is([\s\S]*)begin([\s\S]*)end\s+architecture/im,
+                    portTmp = rxArchBlock.exec(import_text),
+                    archName = portTmp[1],
+                    entityName = portTmp[2];
+                    callback(entityName, archName, import_text);
+            };
+            reader.readAsText(file, "UTF-8");
+        }
     };
 
     return namespace;

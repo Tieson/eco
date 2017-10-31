@@ -191,7 +191,7 @@
             <span class="btn btn-success btn-block showSubmitSolution"><i class="glyphicon glyphicon-list"></i> Vybrat schéma jako řešení</span>
         </div>
         <div class="col-xs-12 col-sm-6 col-lg-4">
-            <span class="btn btn-default btn-block"><i class="glyphicon glyphicon-upload"></i> Nahrát VHDL soubor</span>
+            <span class="btn btn-default btn-block disabled" id="showSubmitVhdl"><i class="glyphicon glyphicon-upload"></i> Nahrát VHDL soubor</span>
         </div>
     </div>
 
@@ -218,13 +218,32 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Vyberte soubor vdl jako řešení</h4>
+                    <h4 class="modal-title">Vyberte soubor s VHDL jako řešení</h4>
                 </div>
                 <div class="modal-body" id="homeworkVHDLModalBody">
-
+                    <form id="vhdlFileForm">
+                        <div class="form-group">
+                            <label for="vhdl_file_name">Soubor VHD s řešením</label>
+                            <input type="file" class="form-control" id="vhdl_file_name" name="vhdlSchema" accept=".vhd">
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label for="vhdlSchemaName">Název entity:</label>
+                                    <input type="text" class="form-control" readonly="readonly" id="vhdlSchemaName">
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label for="vhdlSchemaArch">Architektura:</label>
+                                    <input type="text" class="form-control" readonly="readonly" id="vhdlSchemaArch">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-dismiss="modal" id="homeworkSchemaVHDLSubmit">Nahrát a odevzdat</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal" id="homeworkVhdlModalSubmit">Nahrát a odevzdat</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Zrušit</button>
                 </div>
             </div>

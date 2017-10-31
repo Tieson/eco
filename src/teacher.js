@@ -435,6 +435,7 @@ window.eco = {
             setPageTitle('Seznam zadání');
             var main = $('#page_main_content');
             main.empty('');
+            main_tab.show();
             eco.ViewGarbageCollector.clear();
 
             var vent = _.extend({}, Backbone.Events);
@@ -489,7 +490,7 @@ window.eco = {
         function showTaskDetail(id) {
             //TODO: pro_studenty
             //TODO: Tento pohled nechat jen pro studenty a zobrazit zde soubory ke stažení (k zadání)
-            main.empty();
+            main_tab.show();
             setPageTitle('Seznam zadání');
 
             eco.ViewGarbageCollector.clear();
