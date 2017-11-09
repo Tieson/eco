@@ -79,6 +79,7 @@ eco.Formaters.FileFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
         type: eco.Utils.fileTypes[model.get('type')],
+        typeOriginal: model.get('type'),
         // name: model.get('name'),
         // file: model.get('file'),
     });

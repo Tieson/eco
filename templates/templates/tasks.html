@@ -78,7 +78,7 @@
 </script>
 
 <script type="text/template" id="tasksFilesItem-template">
-    <td class="list-file"><a href="<%=data.file%>" class="btn btn-xs button--default"><%=data.name%></a></td>
+    <td class="list-file"><% if (data.typeOriginal == 'normal') { %><a href="<%=data.file%>" target="_blank" class="btn btn-xs button--default"><%=data.name%></a><% }else { %><%=data.name%><% } %></td>
     <td class="list-type"><%=data.type%></td>
     <td>
         <button class="btn btn-xs btn-danger file_delete" data-cid="<%=data.cid%>">Smazat</button>

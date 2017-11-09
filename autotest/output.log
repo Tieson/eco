@@ -1,0 +1,121 @@
+#-----------------------------------------------------------
+# Vivado v2016.4 (64-bit)
+# SW Build 1756540 on Mon Jan 23 19:11:19 MST 2017
+# IP Build 1755317 on Mon Jan 23 20:30:07 MST 2017
+# Start of session at: Fri Nov  3 12:09:04 2017
+# Process ID: 19800
+# Current directory: /var/www/html/eco/vivado
+# Command line: vivado -mode batch -source ./test.tcl
+# Log file: /var/www/html/eco/vivado/vivado.log
+# Journal file: /var/www/html/eco/vivado/vivado.jou
+#-----------------------------------------------------------
+source ./test.tcl
+# open_project /var/www/html/eco/vivado/autovalidation/project_1.xpr
+Scanning sources...
+Finished scanning sources
+# add_files -norecurse -scan_for_includes {/var/www/html/eco/lib.vhd /var/www/html/eco/soubory/task_2/etalon/ProjektA.vhd /var/www/html/eco/soubory/task_2/test/ProjektATB.vhd /var/www/html/eco/soubory/task_2/test}
+WARNING: [filemgmt 56-12] File '/var/www/html/eco/lib.vhd' cannot be added to the project because it already exists in the project, skipping this file
+WARNING: [filemgmt 56-12] File '/var/www/html/eco/soubory/task_2/etalon/ProjektA.vhd' cannot be added to the project because it already exists in the project, skipping this file
+WARNING: [filemgmt 56-12] File '/var/www/html/eco/soubory/task_2/test/ProjektATB.vhd' cannot be added to the project because it already exists in the project, skipping this file
+# set_property SOURCE_SET sources_1 [get_filesets sim_1]
+# add_files -fileset sim_1 -norecurse -scan_for_includes /var/www/html/eco/soubory/task_2/test/ProjektATB.vhd
+WARNING: [filemgmt 56-12] File '/var/www/html/eco/soubory/task_2/test/ProjektATB.vhd' cannot be added to the project because it already exists in the project, skipping this file
+# set_property top ProjektATB [get_filesets sim_1]
+# launch_simulation
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [USF-XSim-37] Inspecting design source files for 'ProjektATB' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/var/www/html/eco/vivado/autovalidation/project_1.sim/sim_1/behav'
+xvhdl -m64 --relax -prj ProjektATB_vhdl.prj
+INFO: [VRFC 10-163] Analyzing VHDL file "/var/www/html/eco/lib.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity TUL_BUF
+INFO: [VRFC 10-307] analyzing entity TUL_INV
+INFO: [VRFC 10-307] analyzing entity TUL_AND
+INFO: [VRFC 10-307] analyzing entity TUL_OR
+INFO: [VRFC 10-307] analyzing entity TUL_NAND
+INFO: [VRFC 10-307] analyzing entity TUL_NOR
+INFO: [VRFC 10-307] analyzing entity TUL_XOR
+INFO: [VRFC 10-307] analyzing entity TUL_XNOR
+INFO: [VRFC 10-307] analyzing entity NAND3
+INFO: [VRFC 10-307] analyzing entity AND3
+INFO: [VRFC 10-307] analyzing entity OR3
+INFO: [VRFC 10-307] analyzing entity NAND4
+INFO: [VRFC 10-307] analyzing entity AND4
+INFO: [VRFC 10-307] analyzing entity NOR4
+INFO: [VRFC 10-307] analyzing entity MUX2
+INFO: [VRFC 10-307] analyzing entity MUX4
+INFO: [VRFC 10-307] analyzing entity MUX8
+INFO: [VRFC 10-307] analyzing entity DEC14
+INFO: [VRFC 10-307] analyzing entity DEC18
+INFO: [VRFC 10-307] analyzing entity PRIOCOD42
+INFO: [VRFC 10-307] analyzing entity PRIOCOD83
+INFO: [VRFC 10-307] analyzing entity RS
+INFO: [VRFC 10-307] analyzing entity DL1
+INFO: [VRFC 10-307] analyzing entity DL1AR
+INFO: [VRFC 10-307] analyzing entity JKFF
+INFO: [VRFC 10-307] analyzing entity JKFFAR
+INFO: [VRFC 10-307] analyzing entity JKFFSR
+INFO: [VRFC 10-307] analyzing entity DFF
+INFO: [VRFC 10-307] analyzing entity DFFAR
+INFO: [VRFC 10-307] analyzing entity DFFSR
+INFO: [VRFC 10-307] analyzing entity HALFADDER
+INFO: [VRFC 10-307] analyzing entity FULLADDER
+INFO: [VRFC 10-307] analyzing entity ADD4
+INFO: [VRFC 10-307] analyzing entity MUL8
+INFO: [VRFC 10-307] analyzing entity COMPARATORLEQ
+INFO: [VRFC 10-307] analyzing entity UPDOWNCOUNTER
+INFO: [VRFC 10-307] analyzing entity ARAM1x16
+INFO: [VRFC 10-307] analyzing entity ARAM4x16
+INFO: [VRFC 10-307] analyzing entity ARAM4x256
+INFO: [VRFC 10-307] analyzing entity RAM1x16
+INFO: [VRFC 10-307] analyzing entity RAM4x16
+INFO: [VRFC 10-307] analyzing entity RAM4x256
+INFO: [VRFC 10-307] analyzing entity DPRAM4x256
+INFO: [VRFC 10-163] Analyzing VHDL file "/var/www/html/eco/soubory/task_2/etalon/ProjektA.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity ProjektA
+INFO: [VRFC 10-163] Analyzing VHDL file "/var/www/html/eco/soubory/task_2/result/HomeWork.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity HomeWork
+INFO: [VRFC 10-163] Analyzing VHDL file "/var/www/html/eco/soubory/task_2/test/ProjektATB.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity ProjektATB
+INFO: [USF-XSim-69] 'compile' step finished in '1' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/var/www/html/eco/vivado/autovalidation/project_1.sim/sim_1/behav'
+Vivado Simulator 2016.4
+Copyright 1986-1999, 2001-2016 Xilinx, Inc. All Rights Reserved.
+Running: /opt/Xilinx/Vivado/2016.4/bin/unwrapped/lnx64.o/xelab -wto d4d3b14e9533408890640baa636fbb90 --debug typical --relax --mt 8 -L xil_defaultlib -L secureip --snapshot ProjektATB_behav xil_defaultlib.ProjektATB -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package std.standard
+Compiling package std.textio
+Compiling package ieee.std_logic_1164
+Compiling architecture behavioral of entity xil_defaultlib.ProjektA [projekta_default]
+Compiling architecture rtl of entity xil_defaultlib.TUL_BUF [tul_buf_default]
+Compiling architecture rtl of entity xil_defaultlib.TUL_AND [tul_and_default]
+Compiling architecture fasd of entity xil_defaultlib.HomeWork [homework_default]
+Compiling architecture behavioral of entity xil_defaultlib.projektatb
+Built simulation snapshot ProjektATB_behav
+INFO: [USF-XSim-69] 'elaborate' step finished in '0' seconds
+INFO: [USF-XSim-4] XSim::Simulate design
+INFO: [USF-XSim-61] Executing 'SIMULATE' step in '/var/www/html/eco/vivado/autovalidation/project_1.sim/sim_1/behav'
+INFO: [USF-XSim-98] *** Running xsim
+   with args "ProjektATB_behav -key {Behavioral:sim_1:Functional:ProjektATB} -tclbatch {ProjektATB.tcl} -log {simulate.log}"
+INFO: [USF-XSim-8] Loading simulator feature
+Vivado Simulator 2016.4
+Time resolution is 1 ps
+source ProjektATB.tcl
+## current_wave_config
+Error: failed @ 01
+Time: 2 ns  Iteration: 0  Process: /ProjektATB/tb  File: /var/www/html/eco/soubory/task_2/test/ProjektATB.vhd
+Error: failed @ 10
+Time: 3 ns  Iteration: 0  Process: /ProjektATB/tb  File: /var/www/html/eco/soubory/task_2/test/ProjektATB.vhd
+Error: failed @ 11
+Time: 4 ns  Iteration: 0  Process: /ProjektATB/tb  File: /var/www/html/eco/soubory/task_2/test/ProjektATB.vhd
+INFO: [USF-XSim-96] XSim completed. Design snapshot 'ProjektATB_behav' loaded.
+INFO: [USF-XSim-97] XSim simulation ran for 1000ns
+INFO: [Common 17-206] Exiting Vivado at Fri Nov  3 12:09:20 2017...

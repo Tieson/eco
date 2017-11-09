@@ -40,7 +40,32 @@ $app = new \Slim\Slim(array("settings" => $slim_config));
 
 $app->get('/', function() use($app) {
 	$app->response->setStatus(200);
-	echo "Welcome to Slim 3.0 based API";
+	?>
+<h1>ECO (Editor Cislicovych Obvodu) API</h1>
+	<h2>Public API</h2>
+	<table>
+		<thead>
+		<tr>
+			<th>Url</th>
+			<th>Description</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td><a href="students" target="_blank">api/students</a></td>
+			<td>List of registered students</td>
+		</tr>
+		<tr>
+			<td><a href="students/:id" target="_blank">api/students/:id</a></td>
+			<td>Detail of student with the :id</td>
+		</tr>
+		<tr>
+			<td><a href="students/:id/hw" target="_blank">api/students/:id/hw</a></td>
+			<td>List of homeworks of the student</td>
+		</tr>
+		</tbody>
+	</table>
+<?php
 });
 
 

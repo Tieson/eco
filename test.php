@@ -6,8 +6,13 @@ $tcl = file_get_contents($path);
 $cmd = "/opt/Xilinx/Vivado/2016.4/bin/vivado -mode batch -source vivado/test.tcl 2>&1";
 
 
-$output = exec($cmd);
-echo "<pre>$output</pre>";
+$output = array();
+
+exec($cmd, $output);
+
+foreach($output as $line) {
+	echo $line;
+}
 
 
 
