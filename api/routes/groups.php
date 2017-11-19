@@ -23,14 +23,14 @@ function groups() {
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-		if($items) {
+//		if($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
 			$db = null;
-		} else {
-			throw new PDOException('No records found.');
-		}
+//		} else {
+//			throw new PDOException('No records found.');
+//		}
 
 	} catch(PDOException $e) {
 		$app->response()->setStatus(404);

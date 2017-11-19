@@ -137,7 +137,6 @@ eco.Views.GroupDetail = Backbone.View.extend({
             url: eco.basedir+'/api/tasks'
         });
 
-        this.students.fetch();
 
         this.selectedStudents = {};
         this.selectedTasks = {};
@@ -162,6 +161,7 @@ eco.Views.GroupDetail = Backbone.View.extend({
             vent: this.vent,
             uniqueId: 'groupStudentsList',
         });
+
         this.allStudentsView = new eco.Views.GenericList({
             noRecordsMessage: 'Zatím nejsou načteni žádní uživatelé.',
             template: '#groupsDetailUsers-template',
@@ -187,6 +187,9 @@ eco.Views.GroupDetail = Backbone.View.extend({
             uniqueId: 'tasksList',
         });
 
+        this.students.fetch({
+            error: this.studentsView.render()
+        });
         this.renderInit();
         this.render();
     },
@@ -242,19 +245,26 @@ eco.Views.GroupDetail = Backbone.View.extend({
         var target = $(e.currentTarget);
         var cid = target.attr('data-cid');
         var item = this.allStudents.get(cid);
-        console.log('addStudentToGroup', cid, item);
-        // item.set('url', eco.basedir+'/api/groups/' + this.model.get('id') + '/students');
-        this.students.create({
-            student_id: item.get('id')
-        }, {
-            success: function () {
-                self.selectedStudents = {};
-                showSnackbar('hotovo, student byl přidán.');
-                self.studentsView.render();
-            }, error: function () {
-                showSnackbar('Studenta se nepodařilo přidat. Už tam nejspíš je.');
-            }
-        });
+
+        console.log('addStudentToGroup', cid, item, item.get('id'), this.students);
+
+        var student = new eco.Models.Student({student_id: item.get('id')});
+        if(!this.students.get(item.get('id'))){
+            this.students.create({
+                student_id: item.get('id')
+            }, {
+                success: function () {
+                    self.selectedStudents = {};
+                    showSnackbar('hotovo, student byl přidán.');
+                    self.studentsView.render();
+                }, error: function () {
+                    self.studentsView.render();
+                    showSnackbar('Studenta se nepodařilo přidat.');
+                }
+            });
+        }else{
+            showSnackbar('Student je již ve skupině.');
+        }
     },
     removeStudent: function (e) {
         var self = this;
@@ -272,7 +282,6 @@ eco.Views.GroupDetail = Backbone.View.extend({
                 var target = $(e.currentTarget);
                 var cid = target.attr('data-cid');
                 var item = self.students.get(cid);
-                // delete (self.selectedStudents[cid]);
                 self.selectedStudents = {};
 
                 item.destroy({
@@ -368,6 +377,10 @@ eco.Views.GroupDetail = Backbone.View.extend({
     }
 });
 
+eco.Views.GroupDetailSimple = Backbone.View.extend({
+
+});
+
 eco.Views.GroupAddForm = eco.Views.GenericForm.extend({
 
     initialize: function (opts) {
@@ -410,40 +423,11 @@ eco.Views.GroupAddForm = eco.Views.GenericForm.extend({
 
 eco.Views.GroupsList = eco.Views.GenericList.extend({
     events: {
-        'click .group-delete': 'groupDelete',
+        'click .group-delete': 'deleteItem',
     },
     afterInitialization: function () {
         this.listenTo(this.collection, 'add change', this.render);
     },
-    groupDelete: function (event) {
-        event.preventDefault();
-        var self = this;
-        swal({
-                title: "Opravdu chtete skupinu odstranit?",
-                text: "Odebrání nelze vzít zpět!",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Ano, smazat!",
-                cancelButtonText: "Ne",
-                closeOnConfirm: true
-            },
-            function () {
-                var cid = $(event.currentTarget).attr('data-cid'),
-                    model = self.collection.get(cid);
-                console.log(cid, self.collection, model);
-
-                model.destroy({
-                    success: function () {
-                        console.log("succes");
-                    }
-                });
-
-                self.render();
-                // swal("Smazáno!", "Skupina byla smazána.", "success");
-            });
-        return false;
-    }
 });
 
 

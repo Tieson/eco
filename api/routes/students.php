@@ -24,18 +24,18 @@ function students() {
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-		if($items) {
+//		if($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
 			$db = null;
-		} else {
-			throw new PDOException('No records found.');
-		}
+//		} else {
+//			throw new PDOException('No records found.');
+//		}
 
 	} catch(PDOException $e) {
 		$app->response()->setStatus(404);
-//		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
 		echo '[]';
 	}
 }
@@ -111,14 +111,14 @@ function studentHomeworkList($id) {
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-		if($items) {
+//		if($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
 			$db = null;
-		} else {
-			throw new PDOException('No records found.');
-		}
+//		} else {
+//			throw new PDOException('No records found.');
+//		}
 
 	} catch(PDOException $e) {
 		$app->response()->setStatus(404);
@@ -143,14 +143,14 @@ function studentHomeworkDetail($id, $hw_id) {
 		$sth->execute();
 		$items = $sth->fetchObject();
 
-		if($items) {
+//		if($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
 			$db = null;
-		} else {
-			throw new PDOException('No records found.');
-		}
+//		} else {
+//			throw new PDOException('No records found.');
+//		}
 
 	} catch(PDOException $e) {
 		$app->response()->setStatus(404);

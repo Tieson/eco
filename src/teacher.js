@@ -99,7 +99,7 @@ window.eco = {
         });
 
         var entities = new eco.Collections.Entities();
-        entities.fetch();
+        // entities.fetch();
         var categories = new eco.Collections.Categories();
         categories.fetch();
 
@@ -396,7 +396,7 @@ window.eco = {
             });
 
             var view = new eco.Views.Tasks({
-                title: "Seznam zadání",
+                title: "Vytvořené úlohy",
                 template: '#tasksList-template',
                 itemTemplate: '#tasksListItem-template',
                 formater: eco.Formaters.TasksFormater,
@@ -414,7 +414,7 @@ window.eco = {
 
             // část s formulářem pro nové zadání
             var viewAddNew = new eco.Views.GenericForm({
-                title: "Přidat nové zadání",
+                title: "Přidat novou úlohu",
                 template: '#taskForm-template',
                 mapper: function ($element) {
                     return {
@@ -464,6 +464,7 @@ window.eco = {
                 template: '#tasksFilesList-template',
                 itemTemplate: '#tasksFilesItem-template',
                 formater: eco.Formaters.FileFormater,
+                noRecordsMessage: "Zatím nebyly přidány žádné soubory",
                 collection: files,
                 searchNames: [
                     'list-file',
@@ -472,7 +473,6 @@ window.eco = {
                 vent: vent,
             });
 
-            files.fetch();
 
             // část s formulářem pro nové zadání
             var addFileView = new eco.Views.AddFileForm({
@@ -484,7 +484,8 @@ window.eco = {
 
             main.append(viewAddNew.$el);
             main.append(addFileView.render().$el);
-            main.append(filesView.render().$el);
+            main.append(filesView.$el);
+            files.fetch();
         }
 
         function showTaskDetail(id) {
@@ -520,6 +521,19 @@ window.eco = {
                 template: '#groupsList-template',
                 itemTemplate: '#groupsListItem-template',
                 formater: eco.Formaters.GroupFormater,
+                deleteConfirm: {
+                    needConfirm: false,
+                    swal: {
+                        title: "Opravdu chcete skupinu odstranit?",
+                        text: "Odebrání nelze vzít zpět!",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Ano, smazat!",
+                        cancelButtonText: "Ne",
+                        closeOnConfirm: false
+                    }
+                },
                 searchNames: [
                     'list-subject',
                     'list-day',
@@ -564,6 +578,7 @@ window.eco = {
         function showGroupDetail(id) {
             setPageTitle('Detail skupiny');
             main.empty();
+            main_tab.show();
             // eco.ViewGarbageCollector.clear();
             // var students = new eco.Collections.Students();
             var group = new eco.Models.Group({id:id});

@@ -13,6 +13,19 @@ eco.Views.GenericList = Backbone.View.extend({
         this.formater = opts.formater || eco.Formaters.GenericFormater;
         this.collection = opts.collection;
         this.searchNames = opts.searchNames || ['list-one'];
+        this.deleteConfirm = _.merge({}, {
+            needConfirm: true,
+            swal: {
+                title: "Opravdu chtete položku odstranit?",
+                text: "Odebrání nelze vzít zpět!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ano, smazat!",
+                cancelButtonText: "Ne",
+                closeOnConfirm: false
+            }
+        }, opts.deleteConfirm);
         this.renderLoading();
         this.listenTo(this.collection, 'sync', this.render);
         this.afterInitialization();
@@ -57,6 +70,41 @@ eco.Views.GenericList = Backbone.View.extend({
         }
 
         return this;
+    },
+    deleteItem: function (event) {
+        event.preventDefault();
+        var self = this;
+
+
+        function del(){
+
+            var cid = $(event.currentTarget).attr('data-cid'),
+                model = self.collection.get(cid);
+            model.destroy({
+                wait: true,
+                success: function (model, response) {
+                    swal.close();
+                    self.render();
+                    showSnackbar('Položka byla smazána.');
+                },
+                error: function (model, response) {
+                    self.collection.add(model);
+                    if (self.deleteConfirm.needConfirm) {
+                        swal("Chyba!", "Položku nelze smazat.", "error");
+                    }else{
+                        showSnackbar('Položku nelze smazat.');
+                    }
+                }
+            });
+
+            self.render();
+        }
+
+        if (this.deleteConfirm.needConfirm){
+            swal(this.deleteConfirm.swal, del);
+        }else{
+            del();
+        }
     }
 });
 

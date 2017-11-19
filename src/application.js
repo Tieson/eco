@@ -447,7 +447,7 @@ window.eco.start = function (data) {
             ],
             vent: vent,
         });
-        main.append(filesView.render().$el);
+        main.append(filesView.$el);
 
         files.fetch();
 

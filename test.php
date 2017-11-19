@@ -55,6 +55,28 @@ function getNextSolution($db){
 	return false;
 }
 
+function processSolution($db, $solution) {
+
+}
+
+function saveSolutionResult($db, $solution, $result){
+	$values = array(
+		"id" => $solution->id,
+		"result" => $result['result'],
+		"status" => $result['status'],
+		"message" => $result['message'],
+	);
+	$sth = $db->prepare("UPDATE solution
+			SET status = :status, test_result = :result, test_message = :message
+            WHERE id=:id"); //status='processing'
+
+	$result = $sth->execute($values);
+	if ($result) {
+		//TODO: its OK, refresh data (push notify)
+	}
+	return false;
+}
+
 function getEntityname($vhdlFileContent)
 {
 	preg_match("/entity ([^ ]*) is/", $vhdlFileContent, $m);
@@ -282,16 +304,22 @@ try
 
 
 	$outputLines = array();
-	exec($cmd, $outputLines);
-	echoLines($outputLines);
-	$output = implode("\n", $outputLines);
-//	$output = file_get_contents("./vivado.log");
-
-
+	if ($config["release"] && $config["release"] == "local"){
+		$output = file_get_contents("./vivado.log");
+	} else {
+		exec($cmd, $outputLines);
+		echoLines($outputLines);
+		$output = implode("\n", $outputLines);
+	}
 
 	saveToFile("output.log", $output);
 
 	$result = analyzeOutput($output);
+	saveSolutionResult($db, $solution, array(
+		"result" => (count($result) == 0)?1:0,
+		"status" => "done",
+		"message" => join("",$result)
+	));
 
 	echo "RESULT", (count($result) > 0) ? "Failed" : "Correct", "\n";
 	echoLines($result);
@@ -301,7 +329,7 @@ try
 	echo "OK";
 } catch(PDOException $e) {
 	//	$app->response()->setStatus(404);
-	//	echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	echo 'FAIL';
 }
 
