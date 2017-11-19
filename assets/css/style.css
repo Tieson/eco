@@ -69,18 +69,31 @@ body {
 
 .main_bar {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-content: center;
   background: #ccc;
   z-index: 99;
-  min-height: 32px; }
+  min-height: 32px;
+  justify-content: space-between;
+  flex-wrap: wrap; }
+  .main_bar .main_menu {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    background: #F58220; }
+  @media screen and (min-width: 300px) {
+    .main_bar {
+      flex-direction: row; } }
+  @media screen and (max-width: 500px) {
+    .main_bar .title {
+      display: none; } }
   .main_bar__menu {
     background: #F58220;
     color: #fff;
     padding: 0 0.5em;
     line-height: 32px;
     text-align: center;
-    min-width: 60px;
+    min-width: 20px;
     vertical-align: middle; }
   .main_bar__btn {
     background: #212121;
@@ -185,6 +198,10 @@ body {
       font-weight: bold;
       font-size: 30px;
       cursor: pointer; }
+    @media screen and (max-width: 767px) {
+      .main_bar .schema_list {
+        order: 1;
+        min-width: 100%; } }
 
 .main_content {
   flex: 1;
@@ -476,7 +493,7 @@ dl {
   padding-right: 50px; }
 
 /* The snackbar - position it at the bottom and in the middle of the screen */
-#snackbar {
+.snackbar {
   visibility: hidden;
   /* Hidden by default. Visible on click */
   min-width: 250px;
@@ -503,13 +520,14 @@ dl {
   /* 30px from the bottom */ }
 
 /* Show the snackbar when clicking on a button (class added with JavaScript) */
-#snackbar.show {
+.snackbar.show {
   visibility: visible;
   /* Show the snackbar */
   /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
   However, delay the fade out process for 2.5 seconds */
-  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+  -webkit-animation: fadein 0.25s, fadeout 0.25s 2.5s;
+  animation: fadein 0.25s, fadeout 0.25s 2.5s;
+  animation-fill-mode: forwards; }
 
 /* Animations to fade the snackbar in and out */
 @-webkit-keyframes fadein {
@@ -518,7 +536,7 @@ dl {
     opacity: 0; }
   to {
     bottom: 30px;
-    opacity: 1; } }
+    opacity: .8; } }
 
 @keyframes fadein {
   from {
@@ -526,12 +544,12 @@ dl {
     opacity: 0; }
   to {
     bottom: 30px;
-    opacity: 1; } }
+    opacity: .8; } }
 
 @-webkit-keyframes fadeout {
   from {
     bottom: 30px;
-    opacity: 1; }
+    opacity: .9; }
   to {
     bottom: 0;
     opacity: 0; } }
@@ -539,7 +557,7 @@ dl {
 @keyframes fadeout {
   from {
     bottom: 30px;
-    opacity: 1; }
+    opacity: .9; }
   to {
     bottom: 0;
     opacity: 0; } }
@@ -561,6 +579,9 @@ dl {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none; }
+
+.container {
+  max-width: 100%; }
 
 .center {
   display: flex; }

@@ -1,7 +1,7 @@
 
 <div id="modals"></div>
 
-<div id="snackbar">...</div>
+<div id="snackbar" class="snackbar">...</div>
 
 <div id="scripts">
     <script src="src/helpers/util.js?<?php echo(filemtime('./src/helpers/util.js')) ?>"></script>

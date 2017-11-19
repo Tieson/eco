@@ -45,11 +45,30 @@ body {
 
 .main_bar {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-content: center;
   background: $bar-bg;
   z-index:99;
   min-height: 32px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  .main_menu {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    background: $accent;
+  }
+
+  @media screen and (min-width: 300px) {
+    flex-direction: row;
+  }
+
+  @media screen and (max-width: 500px) {
+    .title {
+      display: none;
+    }
+  }
 
   &__menu {
     background: $accent;
@@ -57,7 +76,7 @@ body {
     padding: 0 0.5em;
     line-height: 32px;
     text-align: center;
-    min-width: 60px;
+    min-width: 20px;
     vertical-align: middle;
   }
   &__btn {
@@ -184,6 +203,11 @@ body {
       font-weight: bold;
       font-size: 30px;
       cursor: pointer;
+    }
+
+    @media screen and (max-width: 767px) {
+        order: 1;
+        min-width: 100%;
     }
   }
 

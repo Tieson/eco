@@ -2,26 +2,32 @@
  * Created by Tom on 25.08.2017.
  */
 
-var showSnackbar = createSnackbar(3000, $('#snackbar'));
+var showSnackbar = createSnackbar(3500, $('#snackbar'));
 
 function createSnackbar(time, $snackbar){
     // var snackbars = [];
-    var opened = false;
+    var opened = 0;
     
     function show(text) {
-        $snackbar.addClass('show');
-        $snackbar.text(text);
+        var clone = $snackbar.clone();
+        opened++;
+        clone.addClass('show');
+        clone.text(text);
+        clone.appendTo($("body"));
+        clone.attr("id","snackbar_"+opened);
         setTimeout(function(){
-            $snackbar.removeClass('show');
-            opened = false;
+            // if (opened <= 0){
+            //     clone.removeClass('show');
+            // }
+            clone.remove();
         }, time);
     }
 
     var _showSnackbar = function (text) {
         // snackbars.push(text);
         // if(!opened){
-            opened = true;
         //     var sbt = snackbars.pop();
+
             if (text) {
                 show(text);
             }
