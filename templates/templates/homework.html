@@ -126,6 +126,7 @@
             <th>Student</th>
             <th>Termín</th>
             <th>Stav</th>
+            <th title="Odevzdaných řešení">Řešení</th>
             <!--<th>Stav</th>-->
             <th>Akce</th>
             </thead>
@@ -142,6 +143,7 @@
     <td class="list-user"><strong><%- data.u_name %></strong> (<%-data.mail%>)</td>
     <td class="list-termin"><%- data.deadline %></td>
     <td class="list-status"><%= data.status %></td>
+    <td class=""><%= data.solutions_count %></td>
     <!--<td class="list-stav">-->
         <!--<div class="badge badge-default"><%= status %></div>-->
     <!--</td>-->
@@ -344,6 +346,7 @@
             <th>Odevzdáno</th>
             <th>Stav</th>
             <th>Výsledek</th>
+            <!--<th>Chybová zpráva</th>-->
             <th>Akce</th>
             </thead>
             <tbody class="items-container">
@@ -358,7 +361,15 @@
     <td class="list-name"><a href="<?php echo $basepath; ?>/#schemas/<%-data.schema_id%>" class="btn btn-xs btn btn-success"><i class="glyphicon glyphicon-open"></i> <%-data.name%> (<%-data.architecture%>)</a></td>
     <td class="list-created"><%-data.created%></td>
     <td class="list-status"><%=data.status%></td>
-    <td class="list-result"><%-data.test_message%></td>
+    <td class="list-result">
+        <div data-toggle="collapse" data-target="#test_error_msg_<%=data.id%>"><%=data.test_result_str%></div>
+        <% if(data.test_result==0) { %>
+        <div id="test_error_msg_<%=data.id%>" class="text-muted collapse">
+            <pre><%-data.test_message%></pre>
+        </div>
+        <% } %>
+    </td>
+    <!--<td class="list-message"></td>-->
     <td>
         <!--<span class="btn btn-default btn-xs downloadVHDL" data-cid="<%=data.cid%>"><i class="glyphicon glyphicon-download"></i> VHDL</span>-->
         <% if(data.statusTechnical=='waiting') { %>

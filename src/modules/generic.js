@@ -83,7 +83,9 @@ eco.Views.GenericList = Backbone.View.extend({
             model.destroy({
                 wait: true,
                 success: function (model, response) {
-                    swal.close();
+                    if (self.deleteConfirm.needConfirm) {
+                        swal.close();
+                    }
                     self.render();
                     showSnackbar('Položka byla smazána.');
                 },

@@ -124,7 +124,7 @@ function homeworkSolutionList($id) {
         	JOIN schema_base AS sch
             JOIN groups AS g
          	ON s.homework_id = hw.id AND s.schema_id=sch.id AND g.id=hw.group_id
-            WHERE hw.id = :id AND hw.student_id = :student_id");
+            WHERE hw.id = :id AND hw.student_id = :student_id ORDER BY s.id DESC");
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
 			$sth->bindParam(':student_id', $user['id'], PDO::PARAM_INT);
 		} else if (isTeacher($user)) {
@@ -134,7 +134,7 @@ function homeworkSolutionList($id) {
         	JOIN schema_base AS sch
             JOIN groups AS g
          	ON s.homework_id = hw.id AND s.schema_id=sch.id AND g.id=hw.group_id
-            WHERE hw.id = :id");
+            WHERE hw.id = :id ORDER BY s.id DESC");
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		}
 
@@ -379,17 +379,17 @@ function homeworkSolutionDelete($hw_id,$id) {
 			$prepare->bindParam(':id', $id, PDO::PARAM_INT);
 			$result = $prepare->execute();
 
-			if ($result) {
+			if ($result && $prepare->rowCount()>0) {
 				$app->response()->setStatus(200);
 				$app->response()->headers->set('Content-Type', 'application/json');
 				echo json_encode(array('response' => 'success'));
 
 				$db = null;
 			} else {
-				throw new PDOException('No group was deleted.');
+				throw new PDOException('No solution was deleted.');
 			}
 		}else {
-
+			throw new PDOException('No solution was deleted.');
 		}
 
 	} catch(PDOException $e) {
@@ -414,9 +414,10 @@ function groupHomeworks($id){
 	try
 	{
 		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, u.name AS u_name, u.mail, hw.group_id, hw.status, g.subject, g.day, g.weeks, g.block
+				,(SELECT COUNT(*) FROM solution WHERE homework_id=hw.id) AS solutions_count
             FROM hw_assigment AS hw
             JOIN task AS t
-            JOIN user AS u
+            JOIN `user` AS u
             JOIN groups AS g
             ON hw.task_id = t.id AND u.id = hw.student_id AND g.id=hw.group_id
             WHERE hw.group_id = :id");
@@ -435,6 +436,6 @@ function groupHomeworks($id){
 		}
 	} catch(PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '[]';
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 }

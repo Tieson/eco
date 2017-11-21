@@ -13,7 +13,8 @@ eco.Models.Homework = Backbone.Model.extend({
         deadline: null,
         status: "open",
         name: "",
-        description: ""
+        description: "",
+        solutions_count: ""
     },
     statuses: {
         open: 'Nové / zadáno',
@@ -231,7 +232,7 @@ eco.Models.Solution = Backbone.Model.extend({
         created: null,
         status: 'waiting',
         test_result: null,
-        test_message: null,
+        test_message: '',
     }
 });
 eco.Collections.Solutions = Backbone.Collection.extend({
@@ -398,33 +399,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         var item = this.solutions.get(cid);
     },
     deleteSolution: function (e) {
-        var self = this;
-        swal({
-                title: "Opravdu chtete odevzdané řešení odstranit?",
-                text: "Akci nelze vzít zpět!",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Ano, smazat!",
-                cancelButtonText: "Ne",
-                closeOnConfirm: true
-            },
-            function () {
-                var cid = $(e.currentTarget).attr('data-cid');
-                var model = self.solutions.get(cid);
-                model.destroy({
-                    success: function () {
-                        self.solutions.remove(model);
-                        (self.solutionsView && self.solutionsView.render());
-                        console.log(self.solutions);
-                        showSnackbar('Řešenbí bylo navždy ztaceno.');
-                    },
-                    error: function () {
-                        showSnackbar('Řešení nešlo smazat z neznámého důvodu.');
-                    }
-                });
-
-            });
+        this.solutionsView.deleteItem(e);
     },
     renderInit: function () {
         var self = this;
@@ -481,7 +456,7 @@ eco.Views.HomeworkTeacherDetail = eco.Views.HomeworkDetail.extend({
 
         this.solutionsView = new eco.Views.GenericList({
             title: "Odevzdaná řešení k tomuto úkolu",
-            noRecordsMessage: 'Zatím nic nebylo odevzdáno.',
+            noRecordsMessage: 'Zatím nebylo nic odevzdáno.',
             template: '#solutionsList-template',
             itemTemplate: '#solutionsListItem-template',
             formater: eco.Formaters.SolutionsFormater,

@@ -321,21 +321,28 @@ function getUtils() {
         },
         taskStates: {
             open: '<span class="label label-warning">Zatím neodevzdáno</span>',
-            ok: '<span class="label label-success">Úspěšně odevzdané</span>',
-            nok: '<span class="label label-warning">Zatím neúspěšné</span>',
-            closed: '<span class="label label-danger">Neúspěšné</span>'
+            done: '<span class="label label-success">Úspěšně odevzdané</span>',
+            // nok: '<span class="label label-warning">Zatím neúspěšné</span>',
+            failed: '<span class="label label-danger">Neúspěšné</span>'
         },
         solutionStatuses: {
             waiting: '<span class="label label-warning">Čeká na kontrolu</span>',
-            done: '<span class="label label-success">Zkontrolováno</span>',
+            done: '<span class="label label-default">Zkontrolováno</span>',
             storno: '<span class="label label-default">Zrušeno</span>'
         },
         solutionResults: {
-            ok: '<span class="label label-success">V pořádku</span>',
+            ok: '<span class="label label-success">Správné řešení</span>',
             nok: '<span class="label label-danger">Chybné řešení</span>',
         },
         getSolutionStatus: function (key) {
             return getTranslate(key, this.solutionStatuses);
+        },
+        getSolutionResults: function (key) {
+            var keys= {
+                0:'nok',
+                1:'ok'
+            };
+            return getTranslate(keys[key], this.solutionResults);
         },
         getTaskStatus: function (key) {
             return getTranslate(key, this.taskStates);

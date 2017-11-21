@@ -522,7 +522,7 @@ window.eco = {
                 itemTemplate: '#groupsListItem-template',
                 formater: eco.Formaters.GroupFormater,
                 deleteConfirm: {
-                    needConfirm: false,
+                    needConfirm: true,
                     swal: {
                         title: "Opravdu chcete skupinu odstranit?",
                         text: "Odebrání nelze vzít zpět!",
