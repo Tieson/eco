@@ -322,13 +322,12 @@ function getUtils() {
         taskStates: {
             open: '<span class="label label-warning">Zatím neodevzdáno</span>',
             done: '<span class="label label-success">Úspěšně odevzdané</span>',
-            // nok: '<span class="label label-warning">Zatím neúspěšné</span>',
-            failed: '<span class="label label-danger">Neúspěšné</span>'
+            failed: '<span class="label label-danger">Neúspěšně odevzdané</span>',
         },
         solutionStatuses: {
             waiting: '<span class="label label-warning">Čeká na kontrolu</span>',
             done: '<span class="label label-default">Zkontrolováno</span>',
-            storno: '<span class="label label-default">Zrušeno</span>'
+            processing: '<span class="label label-info">Probíhá simulace</span>',
         },
         solutionResults: {
             ok: '<span class="label label-success">Správné řešení</span>',

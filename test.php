@@ -34,19 +34,24 @@ $db = getDB();
  * @param $db Připojení k DB
  * @return bool Objekt řešení načtený z DB, nebo FALSE pokud nebylo nic nalezeno
  */
-function getNextSolution($db){
-	$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, hw.task_id, s.vhdl
+function getNextSolution($db, $config){
+	$selectNextSolution = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, hw.task_id, s.vhdl
             FROM solution AS s 
             JOIN `hw_assigment` AS hw
             ON s.homework_id = hw.id
             WHERE s.status='waiting'
             ORDER BY s.created DESC 
             LIMIT 1");
-	$result = $sth->execute();
+	$result = $selectNextSolution->execute();
 	if ($result) {
-		$responseResult = $sth->fetchAll(PDO::FETCH_OBJ);
+		$responseResult = $selectNextSolution->fetchAll(PDO::FETCH_OBJ);
 		if ($responseResult) {
 			foreach($responseResult as $object) {
+				$markSelectedSolution = $db->prepare("UPDATE solution SET status=:status WHERE id=:id");
+				$markSelectedSolution->execute(array(
+					'status' => $config['data']['solutionStatuses']['processing'],
+					'id' => (int)$object->id,
+				));
 				return $object;
 			}
 //			echo json_encode($responseResult);
@@ -70,8 +75,8 @@ function saveSolutionResult($db, $solution, $result){
 			SET status = :status, test_result = :result, test_message = :message
             WHERE id=:id"); //status='processing'
 
-	$result = $sth->execute($values);
-	if ($result) {
+	$response = $sth->execute($values);
+	if ($response) {
 		//TODO: its OK, refresh data (push notify)
 	}
 	return false;
@@ -268,9 +273,14 @@ try
 	date_default_timezone_set('Europe/Prague');
 	//TODO: zabezpečit uživatelské vstupy, názvy souborů atp. Vzít v potaz vše, co může uživatel ovlivnit.
 
-	$solution = getNextSolution($db);
+	$solution = getNextSolution($db, $config);
 
-	print "SOLUTION\n";
+	if (!$solution){
+		echo ("Není co testovat, vše je již otestováno");
+		exit();
+	}
+
+	print "SOLUTION__\n";
 	echoObject($solution);
 	print "END SOLUTION\n";
 
@@ -312,9 +322,10 @@ try
 		$output = implode("\n", $outputLines);
 	}
 
-	saveToFile("output.log", $output);
+//	saveToFile("output.log", $output);
 
 	$result = analyzeOutput($output);
+
 	saveSolutionResult($db, $solution, array(
 		"result" => (count($result) == 0)?1:0,
 		"status" => "done",

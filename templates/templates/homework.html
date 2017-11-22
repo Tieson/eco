@@ -110,7 +110,7 @@
     <td class="list-termin"><%= data.deadline %></td>
     <td class="list-predmet"><%= data.subject %> (<%- data.day %>, <%- data.block %>. blok, <%- data.weeks %> týden)</td>
     <td class="list-stav">
-        <div class="badge badge-default"><%= data.status %></div>
+        <%= data.status %>
     </td>
 </script>
 
@@ -170,7 +170,7 @@
         <div class="col-xs-12 col-sm-4">
             <dl>
                 <dt>Stav</dt>
-                <dd><%-status %></dd>
+                <dd><%=status %></dd>
             </dl>
         </div>
         <div class="col-xs-12 col-sm-4">
@@ -280,7 +280,7 @@
                 <div class="col-xs-12 col-sm-3">
                     <dl>
                         <dt>Stav</dt>
-                        <dd><%- status %></dd>
+                        <dd><%=status %></dd>
                     </dl>
                 </div>
                 <div class="col-xs-12 col-sm-3">
