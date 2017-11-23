@@ -1,16 +1,9 @@
 
-DROP TRIGGER IF EXISTS `update_hw_on_done`;
-DELIMITER $$
-CREATE TRIGGER `update_hw_on_done`
-AFTER UPDATE ON `solution` FOR EACH ROW
-BEGIN
-    DECLARE spravnychReseni integer;
-    SET @spravnychReseni := (SELECT COUNT(*) FROM solution WHERE homework_id=NEW.homework_id AND status='done' AND test_result=1);
 
-    IF ((NEW.status='done' AND NEW.test_result=1) OR spravnychReseni>0) THEN
-        UPDATE hw_assigment SET status='done' WHERE id=NEW.homework_id;
-    ELSE
-        UPDATE hw_assigment SET status='failed' WHERE id=NEW.homework_id;
-    END IF;
-END$$
-DELIMITER ;
+DROP TABLE IF EXISTS `autotest_status`||
+CREATE TABLE `autotest_status` ( `status` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `start` ENUM('idle','running') NOT NULL DEFAULT 'idle' ) ENGINE=InnoDB DEFAULT CHARSET=utf8||
+ALTER TABLE `autotest_status` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`)||
+ALTER TABLE `autotest_status` CHANGE `start` `start` BIGINT NOT NULL||
+ALTER TABLE `autotest_status` CHANGE `status` `status` ENUM('running','idle','done') CHARACTER SET latin2 COLLATE latin2_czech_cs NOT NULL DEFAULT 'idle'||
+
+UPDATE `version` SET version=5, updated=NOW()||

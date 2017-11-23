@@ -256,6 +256,12 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         this.renderInit();
         this.selectedSchema = null;
         this.selectedVhdl = null;
+
+        var self = this;
+        //TODO: testovat jestli došlo ke změně dat a jestli není zobrazen popup pro potvrzení smazání.
+        // setInterval(function(){
+        //     self.solutions.fetch();
+        // }, 5000);
     },
     events: {
         'click .schemasSimpleListItem': 'hwSchemaItemClick',
@@ -265,7 +271,12 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         'click #homeworkVhdlModalSubmit': 'hwVhdlSubmitClick',
         'click .downloadVHDL': 'downloadVHDL',
         'click .delete-solution': 'deleteSolution',
+        'click .refresh-solutions': 'refreshSolutionsList',
         'change #vhdl_file_name': 'selectedVhdFileChanged'
+    },
+
+    refreshSolutionsList: function() {
+        this.solutions.fetch();
     },
 
     disableVhdlFileSubmit: function () {
@@ -378,6 +389,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
                     schema_id: self.selectedSchema.get('id'),
                     vhdl: vhdl,
                 }, {
+                    at: 0,
                     success: function () {
                         showSnackbar('Hotovo, úkol byl odevzdán.');
                     },

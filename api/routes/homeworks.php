@@ -249,6 +249,21 @@ function homeworkSolutionCreate($id) {
 					$app->response()->setStatus(200);
 					$app->response()->headers->set('Content-Type', 'application/json');
 					echo json_encode($responseResult);
+
+
+					$descriptorspec = array(
+						array('pipe', 'r'),               // stdin
+						array('file', 'test.log.txt', 'a'), // stdout
+						array('pipe', 'w'),               // stderr
+					);
+//					exec("php ../test.php > test.log.txt 2>&1 &");
+					$proc = proc_open('php ../test.php', $descriptorspec, $pipes);
+
+//					shell_exec("../cgi-bin/test.sh $");
+//					json_encode($output);
+
+//					require('../test.php');
+
 				} else {
 					throw new PDOException('Getting inserted values was unsuccessful');
 				}

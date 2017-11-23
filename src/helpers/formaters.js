@@ -100,7 +100,7 @@ eco.Formaters.SolutionsFormater = function (model) {
         created: moment(model.get('created')).format('LLL'),
         statusTechnical: model.get('status'),
         status: eco.Utils.getSolutionStatus(model.get('status')),
-        test_message: model.get('test_message')?model.get('test_message').replace(/\n/g,"<br>"):"",
+        test_message: model.get('test_message')?model.get('test_message'):"",
         test_result_str: eco.Utils.getSolutionResults(model.get('test_result')),
     });
     return result;

@@ -216,6 +216,21 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
 		}
 	}
 
+	function db_mysql_multi_query($link, $query, $die_on_error = true)
+	{
+
+			$result = mysqli_multi_query($link, $query);
+
+			if (!$result) {
+				$query = htmlspecialchars($query);
+				if ($die_on_error) {
+					die("Query <p class='alert alert-danger'>$query</p> failed: " . ($link ? mysqli_error($link) : "No connection"));
+				}
+			}
+
+			return $result;
+	}
+
 	function is_server_https()
 	{
 		return (!empty($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] != 'off')) || $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https';
@@ -614,13 +629,20 @@ define('_INSTALLER_IGNORE_CONFIG_CHECK', true);
 							}else{
 								print_notice('Aktuální verze databáze: ' . $row['version'] . ' počet souborů s updatem: ' . $files_count);
 
+								//Pro všechny soubory s názvem podle další nenainstalované verze
                                 for ($i = (int)($row['version']) + 1; $i <= $files_count; $i++) {
-                                    $lines = explode(";", preg_replace("/[\r\n]/", "", file_get_contents("schemas/versions/" . $i . '.sql')));
 
-                                    print_notice('Soubor ' . $i . '.sql' . ' počet příkazů: ' . count($lines));
-                                    foreach ($lines as $line) {
-                                        if (strpos($line, "--") !== 0 && $line) {
-                                            db_query($link, $line, $DB_TYPE);
+//                                    $statements = explode("||", preg_replace("/[\r\n]/", " ", file_get_contents("schemas/versions/" . $i . '.sql')));
+                                    $statements = explode("||", file_get_contents("schemas/versions/" . $i . '.sql'));
+//                                    $statements = file_get_contents("schemas/versions/" . $i . '.sql');
+
+//	                                db_query($link, $statements, $DB_TYPE);
+
+
+                                    print_notice('Soubor ' . $i . '.sql' . ' počet příkazů: ' . count($statements));
+                                    foreach ($statements as $statement) {
+                                        if (strpos($statement, "--") !== 0 && $statement) {
+	                                        db_query($link, $statement, $DB_TYPE);
                                         }
                                     }
                                 }
