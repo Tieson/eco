@@ -257,7 +257,7 @@ function homeworkSolutionCreate($id) {
 						array('pipe', 'w'),               // stderr
 					);
 //					exec("php ../test.php > test.log.txt 2>&1 &");
-					$proc = proc_open('php ../test.php', $descriptorspec, $pipes);
+					$proc = proc_open('php ../test.php &', $descriptorspec, $pipes);
 
 //					shell_exec("../cgi-bin/test.sh $");
 //					json_encode($output);
