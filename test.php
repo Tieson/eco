@@ -3,16 +3,14 @@
 <?php
 session_cache_limiter(false);
 //session_start();
+date_default_timezone_set("Europe/Prague");
 
 $config = require('./config/config.php');
 $basedir = $config['basepath'];
 
 require $config['vendor'].'/autoload.php';
 
-/*
- * Získání spojení s DB
- */
-function getDB()
+function getDB($config)
 {
 	global $config;
 	$dbhost = $config['db']['host'];
@@ -27,7 +25,11 @@ function getDB()
 	return $dbConnection;
 }
 
-$db = getDB();
+$db = getDB($config);
+
+// Start
+main($db, $config);
+
 
 /**
  * Získání Dalšího dosud nezkontrolovaného řešení
@@ -47,6 +49,7 @@ function getNextSolution($db, $config){
 		$responseResult = $selectNextSolution->fetchAll(PDO::FETCH_OBJ);
 		if ($responseResult) {
 			foreach($responseResult as $object) {
+				// Change state of selected solution TODO: shoul be as TRANSACTION
 				$markSelectedSolution = $db->prepare("UPDATE solution SET status=:status WHERE id=:id");
 				$markSelectedSolution->execute(array(
 					'status' => $config['data']['solutionStatuses']['processing'],
@@ -54,14 +57,9 @@ function getNextSolution($db, $config){
 				));
 				return $object;
 			}
-//			echo json_encode($responseResult);
 		}
 	}
 	return false;
-}
-
-function processSolution($db, $solution) {
-
 }
 
 function saveSolutionResult($db, $solution, $result){
@@ -82,7 +80,60 @@ function saveSolutionResult($db, $solution, $result){
 	return false;
 }
 
-function getEntityname($vhdlFileContent)
+function canStartProcessing($db, $ignoreId, $start){
+	$selectNextSolution = $db->prepare("SELECT count(*) as pocet
+			FROM autotest_status
+            WHERE status='running' AND id!=:id AND start < :start
+            ");
+	$result = $selectNextSolution->execute(array(
+		'id' => $ignoreId,
+		'start' => $start
+	));
+	if ($result) {
+		$responseResult = $selectNextSolution->fetch(PDO::FETCH_OBJ);
+		$output =  ((int)($responseResult->pocet) == 0);
+		return $output;
+	}
+	return false;
+}
+
+function startProcessingStatus($db){
+	$start = round(microtime(true) * 1000); //$date->getTimestamp();
+
+//	$db->beginTransaction();
+	$markRuning_sql = $db->prepare("INSERT INTO autotest_status (status, start) VALUES(:status, :start)");
+	$result = $markRuning_sql->execute(array(
+		'status' => 'running',
+		'start' => $start
+	));
+	$canRun = false;
+	$recordId = $db->lastInsertId();
+	if($result){
+		$canRun = canStartProcessing($db, $recordId, $start);
+	}
+//	$db->commit();
+
+	return array(
+		'canRun' => $canRun,
+		'recordId' => $recordId,
+		'start' => $start
+	);
+}
+
+
+function stopProcessingStatus($db, $id){
+	$sth = $db->prepare("UPDATE autotest_status
+			SET status = :status
+            WHERE id=:id"); //status='processing'
+
+	$response = $sth->execute(array(
+		'id'=> $id,
+		'status' => 'done'
+	));
+	return $response;
+}
+
+function getEntityNameFromVhdl($vhdlFileContent)
 {
 	preg_match("/entity ([^ ]*) is/", $vhdlFileContent, $m);
 	if ($m[1])
@@ -127,12 +178,10 @@ function makeTclContent($projectId,
                         $subject,
                         $lib = "/eco/lib.vhd",
                         $ecoBaseDir = "/var/www/html",
-						$projectsPath = "/var/www/cgi-bin/vivado/projects/"
-){
-
-	print "<pre>TCL paths\n";
-	echo "ProjId: ",$projectId, "\nEtalon: ", $etalon, "\nTestbn: ", $testbench, "\nSubjec:  ", $subject, "\nLib:    ", $lib, "\nEcoDir: ", $ecoBaseDir, "\nPrPath: ", $projectsPath;
-	print "</pre>";
+						$projectsPath = "/var/www/cgi-bin/vivado/projects/"){
+//	print "<pre>TCL paths\n";
+//	echo "ProjId: ",$projectId, "\nEtalon: ", $etalon, "\nTestbn: ", $testbench, "\nSubjec:  ", $subject, "\nLib:    ", $lib, "\nEcoDir: ", $ecoBaseDir, "\nPrPath: ", $projectsPath;
+//	print "</pre>";
 	//TODO: upozornit na to, že entita se musí jemnovat stejně jako soubor
 
 	$info = pathinfo($testbench);
@@ -147,9 +196,9 @@ function makeTclContent($projectId,
 		launch_simulation";
 
 
-	print "<pre>TCL\n";
-	echo $tcl;
-	print "</pre>";
+//	print "<pre>TCL\n";
+//	echo $tcl;
+//	print "</pre>";
 
 	return $tcl;
 }
@@ -166,6 +215,7 @@ function getFileOfType($files, $type) {
 			return $file;
 		}
 	}
+	return false;
 }
 
 /**
@@ -176,7 +226,6 @@ function getFileOfType($files, $type) {
  * @return array Found files.
  */
 function getSolutionsFiles($db, $config, $taskId){
-	echo "<br>\n".$taskId."<br>\n<br>\n";
 	$test = "";
 	$etalon = "";
 
@@ -189,9 +238,9 @@ function getSolutionsFiles($db, $config, $taskId){
 	if ($result) {
 		$responseResult = $sth->fetchAll(PDO::FETCH_OBJ);
 		if ($responseResult) {
-			foreach($responseResult as $object) {
-				echoObject($object);
-			}
+//			foreach($responseResult as $object) {
+//				echoObject($object);
+//			}
 			$test = getFileOfType($responseResult, $config['filetypes']['test']);
 			$etalon = getFileOfType($responseResult, $config['filetypes']['etalon']);
 //			echo json_encode($responseResult);
@@ -260,7 +309,14 @@ function analyzeOutput($result) {
 	$pattern = "/^.*$pattern(.*)\$/mi";
 // search, and store all matching occurences in $matches
 	if(preg_match_all($pattern, $result, $matches)){
-		return $matches[1];
+
+		$errors = $matches[1];
+
+		for($i = 0; $i < count($errors); $i++){
+//			$errors[$i] = preg_replace('/\[[\s\S]+?\]/g', '', $errors[$i]);
+		}
+
+		return $errors;
 	}
 	else{
 		return array();
@@ -268,82 +324,93 @@ function analyzeOutput($result) {
 
 }
 
-try
+/**
+ * Main function executing simulation on server and validate solutions, using queue for serial processing.
+ * @param $db Connection for DB
+ * @param $config Configuration values
+ * @throws Exception
+ */
+function main($db, $config)
 {
-	date_default_timezone_set('Europe/Prague');
-	//TODO: zabezpečit uživatelské vstupy, názvy souborů atp. Vzít v potaz vše, co může uživatel ovlivnit.
+	try {
 
-	$solution = getNextSolution($db, $config);
+		$runningStatus = startProcessingStatus($db);
 
-	if (!$solution){
-		echo ("Není co testovat, vše je již otestováno");
-		exit();
-	}
-
-	print "SOLUTION__\n";
-	echoObject($solution);
-	print "END SOLUTION\n";
-
-	$projectId = "project_".$solution->task_id;
-
-	$files = getSolutionsFiles($db, $config, $solution->task_id);
-
-	// Uložení VHDL řešení do souboru, aby mohlo být simulováno
-	$solutionVhdlPath = generateVhdlFileFolder($solution,"/var/www/html/eco/")."/test.vhd";
-	saveToFile($solutionVhdlPath, $solution->vhdl);
-
-	$testedFileInfo = pathinfo($files['test']);
-
-	echo "<br>\nTEST: ".$files['test']."<br>\nETALON: ".$files['etalon']."<br>\nSOLUTION: $solutionVhdlPath";
+		if(!$runningStatus['canRun']){
+			header('HTTP/1.1 500 Internal Server Error');
+			echo "Another instance of validation is running.\n";
+			stopProcessingStatus($db, $runningStatus['recordId']);
+			exit();
+		}
 
 
-	$entityName = getEntityname($solution->vhdl);
-	if(!$entityName){
-		throw new  Exception("Invalid VHDL, no entity found");
-	}
+		//TODO: zabezpečit uživatelské vstupy, názvy souborů atp. Vzít v potaz vše, co může uživatel ovlivnit.
 
-	$tclScript = makeTclContent($projectId, $files['etalon'].'', $files['test'].'', $solutionVhdlPath);
+		for($i=0;$i<10;$i++){
+			$solution = getNextSolution($db, $config);
+			echo "Testing solution \n", json_encode($solution), "\n";
 
-	$tclScriptPath = "/var/www/html/eco/test.tcl";
-	saveToFile( $tclScriptPath, $tclScript);
+			if (!$solution) {
+				stopProcessingStatus($db, $runningStatus['recordId']);
+				echo "There is no more solution to verify. \n";
+				exit();
+			}
+
+			$projectId = "project_" . $solution->task_id;
+
+			$files = getSolutionsFiles($db, $config, $solution->task_id);
+
+			// Uložení VHDL řešení do souboru, aby mohlo být simulováno
+			$solutionVhdlPath = generateVhdlFileFolder($solution, "/var/www/html/eco/") . "/test.vhd";
+			saveToFile($solutionVhdlPath, $solution->vhdl);
+
+//		echo "<br>\nTEST: " . $files['test'] . "<br>\nETALON: " . $files['etalon'] . "<br>\nSOLUTION: $solutionVhdlPath";
 
 
+			$entityName = getEntityNameFromVhdl($solution->vhdl);
+			if (!$entityName) {
+				throw new  Exception("Invalid VHDL, no entity found.");
+			}
 
-    $cmd = "/var/www/cgi-bin/eco.sh 2>&1";
+			$tclScript = makeTclContent($projectId, $files['etalon'] . '', $files['test'] . '', $solutionVhdlPath);
+
+			$tclScriptPath = "/var/www/html/eco/test.tcl";
+			saveToFile($tclScriptPath, $tclScript);
 
 
+			$cmd = "/var/www/cgi-bin/eco.sh 2>&1";
 
-	$outputLines = array();
-	if ($config["release"] && $config["release"] == "local"){
-		$output = file_get_contents("./vivado.log");
-	} else {
-		exec($cmd, $outputLines);
-		echoLines($outputLines);
-		$output = implode("\n", $outputLines);
-	}
+
+			$outputLines = array();
+			if ($config["release"] && $config["release"] == "local") {
+				$output = file_get_contents($config["rootpath"] . "vivado.log");
+				sleep(5);
+			} else {
+				exec($cmd, $outputLines);
+				$output = implode("\n", $outputLines);
+			}
 
 //	saveToFile("output.log", $output);
 
-	$result = analyzeOutput($output);
+			$result = analyzeOutput($output);
 
-	saveSolutionResult($db, $solution, array(
-		"result" => (count($result) == 0)?1:0,
-		"status" => "done",
-		"message" => join("",$result)
-	));
+			$resultData = array(
+				"result" => (count($result) == 0) ? 1 : 0,
+				"status" => "done",
+				"message" => join("\n", $result)
+			);
 
-	echo "RESULT", (count($result) > 0) ? "Failed" : "Correct", "\n";
-	echoLines($result);
+			saveSolutionResult($db, $solution, $resultData);
 
-	//TODO save results to DB and change status etc.
+			stopProcessingStatus($db, $runningStatus['recordId']);
 
-	echo "OK";
-} catch(PDOException $e) {
-	//	$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	echo 'FAIL';
+			echo json_encode($resultData), "\n---------------------------------\n\n";
+		}
+	} catch (PDOException $e) {
+		stopProcessingStatus($db, $runningStatus['recordId']);
+		//	$app->response()->setStatus(404);
+//		header('HTTP/1.1 500 Internal Server Error');
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
+		exit;
+	}
 }
-
-
-
-echo '_DONE';
