@@ -2755,6 +2755,7 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
             var nodes = V(toolMarkup);
             V(this.el).append(nodes);
         }
+        this.$el.find(".element-tool-remove").attr("data-id", this.model.get('id'));
         return this;
     },
     pointerup: function (evt, x, y) {
@@ -2765,12 +2766,15 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
         var className = evt.target.parentNode.getAttribute('class');
         switch (className) {
             case 'element-tool-remove':
-                console.log("remove click");
-                var graph = this.model.graph;
-                var counter = graph.get('counter');
-                counter.removeOne(this.model.attr('custom').type, this.model.attr('custom').number);
-                this.model.remove();
-                return;
+                var id = $(evt.target.parentNode).attr("data-id");
+                if (id==this.model.get('id')){
+                    console.log("remove click");
+                    var graph = this.model.graph;
+                    var counter = graph.get('counter');
+                    counter.removeOne(this.model.attr('custom').type, this.model.attr('custom').number);
+                    this.model.remove();
+                    return;
+                }
                 break;
             default:
         }
