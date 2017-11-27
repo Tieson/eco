@@ -35,6 +35,9 @@ eco.Models.File = Backbone.Model.extend({
             this.task_id = options.task_id;
         }
     },
+    getFilename: function () {
+        return this.get('file').replace(/^.*[\\\/]/, '');
+    }
 });
 
 eco.Collections.Files = Backbone.Collection.extend({
