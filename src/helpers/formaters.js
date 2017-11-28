@@ -40,6 +40,7 @@ eco.Formaters.TasksFormater = function (model) {
         description: model.get('description'),
         // etalon_file: model.escape('etalon_file'),
         // test_file: model.escape('test_file'),
+        entity: model.get('entity'),
         created: moment(model.get('created')).format('LLL')
     });
     return result;

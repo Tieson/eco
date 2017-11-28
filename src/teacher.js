@@ -420,6 +420,7 @@ window.eco = {
                     return {
                         'name': $element.find('#task_name').val(),
                         'description': $element.find('#task_description').val(),
+                        'entity': $element.find('#task_entity').val(),
                     }
                 },
                 model: new eco.Models.Task(),

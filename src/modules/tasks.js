@@ -5,6 +5,7 @@ eco.Mappers.TaskEditMapper = function ($element) {
     return {
         'name': $element.find('#task_name').val(),
         'description': $element.find('#task_description').val(),
+        'entity': $element.find('#task_entity').val(),
     }
 };
 
@@ -19,6 +20,7 @@ eco.Models.Task = Backbone.Model.extend({
         teacher_id: null,
         name: "",
         description: "",
+        entity: "",
         created: null,
         // etalon_file: null,
         // test_file: null,
@@ -55,7 +57,6 @@ eco.Views.Task = Backbone.View.extend({
     },
     taskDelete: function (e) {
         e.preventDefault();
-        console.log('taskDelete');
         return false;
         // this.model.delete();
         // Backbone.history.navigate('teacher/circles/'+this.model.get('id'), {trigger: true, replace: true});
@@ -147,9 +148,7 @@ eco.Views.EditTask = eco.Views.GenericForm.extend({
        'submit form': 'formSubmit',
    },
     render: function () {
-        console.log("render", this.title);
         var data = this.formater(this.model);
-        console.log("DATA", data, this.model);
         var html = this.template({error: this.error, title: this.title, model: data});
         this.$el.html(html);
 

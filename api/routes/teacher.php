@@ -181,7 +181,7 @@ function teacherTasks($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT id, teacher_id, name, description, created
+		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created
             FROM task WHERE teacher_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
@@ -217,7 +217,7 @@ function showTasks() {
 	{
 
 		$db = getDB();
-		$sth = $db->prepare("SELECT id, teacher_id, name, description, created
+		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created
             FROM task WHERE teacher_id = :id");
 		$sth->bindParam(':id', $teacher['id'], PDO::PARAM_INT);
 		$sth->execute();
@@ -254,7 +254,7 @@ function task($id) {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("SELECT id, teacher_id, name, description, created
+		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created
             FROM task WHERE id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
@@ -293,6 +293,7 @@ function taskCreate() {
 		"teacher_id" => $teacher['user_id'],
 		"name" => $allPostVars['name'],
 		"description" => $allPostVars['description'],
+		"entity" => $allPostVars['entity'],
 //		"created" => $allPostVars['created'],
 //		"etalon_file" => $allPostVars['etalon_file'],
 //		"test_file" => $allPostVars['test_file'],
@@ -301,8 +302,8 @@ function taskCreate() {
 	try
 	{
 		$db = getDB();
-		$sth = $db->prepare("INSERT INTO task (id, teacher_id, name, description)
-            VALUES(:id,:teacher_id,:name,:description)");
+		$sth = $db->prepare("INSERT INTO task (id, teacher_id, name, entity, description)
+            VALUES(:id,:teacher_id,:name,:entity, :description)");
 
 		$result = $sth->execute($values);
 
@@ -351,13 +352,14 @@ function taskUpdate($id) {
 		"description" => $allPostVars['description'],
 		"id" => $id,
 		"teacher_id" => $teacher['user_id'],
+		"entity" => $allPostVars['entity'],
 //		"etalon_file" => $allPostVars['etalon_file'],
 //		"test_file" => $allPostVars['test_file'],
 	);
 	try
 	{
 		$db = getDB();
-		$request = $db->prepare("UPDATE task SET name=:name, description=:description, teacher_id=:teacher_id WHERE id=:id AND teacher_id=:teacher_id");
+		$request = $db->prepare("UPDATE task SET name=:name, description=:description, teacher_id=:teacher_id, entity=:entity WHERE id=:id AND teacher_id=:teacher_id");
 
 		if ($request->execute($values)){
 			$app->response()->setStatus(200);
