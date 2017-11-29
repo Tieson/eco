@@ -14,7 +14,8 @@ eco.Models.Homework = Backbone.Model.extend({
         status: "open",
         name: "",
         description: "",
-        solutions_count: ""
+        solutions_count: "",
+        entity: ""
     },
     statuses: {
         open: 'Nové / zadáno',
@@ -96,7 +97,8 @@ eco.Models.TaskStudent = Backbone.Model.extend({
     defaults: {
         task_id: null,
         student_id: null,
-        deadline:null
+        deadline: null,
+        entity: "",
         // user_id: null,
     },
     validate: function () {
@@ -365,7 +367,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
                     }
                 });
         } else {
-            showSnackbar('Jejda, není vybrát soubor s VHDL.');
+            showSnackbar('Jejda, není vybrán soubor s VHDL.');
             e.preventDefault();
             return false;
         }
@@ -378,12 +380,12 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         if (self.selectedSchema !== null) {
             this.selectedSchema.loadGraph(function () {
                 var vhdl = vhdlEdporter.exportSchema(
-                    self.selectedSchema.get('name'),
+                    self.model.get('entity')?self.model.get('entity'):self.selectedSchema.get('name'),
                     self.selectedSchema.get('architecture'),
                     self.selectedSchema.get('graph')
                 );
 
-                console.log("Odevzdávám", self.selectedSchema, vhdl);
+                console.log("Odevzdávám", self.selectedSchema, vhdl, self.model.get('entity'));
                 self.solutions.create({
                     homework_id: self.model.get('id'),
                     schema_id: self.selectedSchema.get('id'),
@@ -399,7 +401,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
                 });
             });
         } else {
-            showSnackbar('Jejda, nevybrali jste žádné schéma. Zkuste to znovu.');
+            showSnackbar('Vyberte prosím schéma. Žádné jsem neoznačili.');
             e.preventDefault();
             return false;
         }
