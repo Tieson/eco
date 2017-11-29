@@ -134,7 +134,7 @@ eco.Views.GroupDetail = Backbone.View.extend({
             url: eco.basedir+'/api/students'
         });
         this.tasks = new eco.Collections.Tasks(null, {
-            url: eco.basedir+'/api/tasks'
+            url: eco.basedir+'/api/tasks/valid'
         });
 
 
@@ -211,6 +211,7 @@ eco.Views.GroupDetail = Backbone.View.extend({
         this.tasks.fetch();
         this.selectedTasks = {};
         $("#taskToStudentModal .modal-body").html(this.tasksView.$el);
+        $("#taskToStudentModal .modal-body").append('<div class="alert alert-info">Zde jsou k dispozici pouze validní zadání.</div>');
         $("#taskToStudentModal").modal('show');
     },
     groupStudentClick: function (e) {

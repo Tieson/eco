@@ -139,6 +139,7 @@ $app->get('/teachers/:id/hw', 'teacherHomeworks');
 $app->get('/teachers/:id/tasks', 'teacherTasks');
 
 $app->get('/tasks', 'showTasks');
+$app->get('/tasks/valid', 'showValidTasks');
 $app->post('/tasks', 'taskCreate');
 $app->get('/tasks/:id', 'task');
 $app->put('/tasks/:id', 'taskUpdate');

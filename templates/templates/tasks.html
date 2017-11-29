@@ -9,6 +9,7 @@
                 <th>Název</th>
                 <th>Vytvořeno</th>
                 <th>Název Entity</th>
+                <th>Validita</th>
                 <!--<th>Správné řešení</th>-->
                 <!--<th>Testovací soubor</th>-->
                 <th>Akce</th>
@@ -25,6 +26,7 @@
     <td class="list-name"><a href="#tasks/<%=data.id%>" class="btn btn-xs button--default"><%=data.name%></a></td>
     <td class="list-created"><%=data.created%></td>
     <td class="list-entity"><%=data.entity%></td>
+    <td class="list-entity"><%=data.valid%></td>
     <td>
         <button class="btn btn-xs btn-danger task_delete" data-cid="<%=data.cid%>">Smazat</button>
         <a href="#tasks/<%=data.id%>/edit" class="btn btn-xs btn-default">Upravit</a>
@@ -81,7 +83,7 @@
 
 <script type="text/template" id="tasksFilesItem-template">
     <td class="list-file"><% if (data.typeOriginal == 'normal') { %><a href="<%=data.file%>" target="_blank" class="btn btn-xs button--default"><%=data.filename%></a><% }else { %><%=data.filename%><% } %></td>
-    <td class="list-type"><%=data.type%></td>
+    <td class="list-type"><% if (data.typeOriginal == 'normal') { %><div class="label label-default"><%=data.type%></div><% } else { %><div class="label label-warning"><%=data.type%></div><% } %></td>
     <td>
         <button class="btn btn-xs btn-danger file_delete" data-cid="<%=data.cid%>">Smazat</button>
     </td>
@@ -197,6 +199,16 @@
 
 <script type="text/template" id="taskEditForm-template">
     <h1><%-title%></h1>
+    <%if(model.valid==1){%>
+        <div class="alert alert-success mt20 mb20">Zadání je validní</div>
+    <%}else {%>
+    <div class="alert alert-danger mt20 mb20" title="">
+        <h4>Nevalidní zadání</h4>
+        Zadání musí mít právě 1 testovací VHDL soubor,
+        právě 1 VHDL soubor se správným řešením a zadaný název entity musí být shodný s entitou v testovacím VHDL.
+    </div>
+    <%}%>
+
     <form action="#">
         <div class="row">
             <div class="col-xs-12 col-sm-3">

@@ -433,7 +433,7 @@ window.eco = {
         }
 
         function editTask(id){
-            setPageTitle('Seznam zadání');
+            setPageTitle('Editace a detail zadání');
             var main = $('#page_main_content');
             main.empty('');
             main_tab.show();
@@ -457,7 +457,6 @@ window.eco = {
                 url: eco.basedir+'/api/tasks/'+id+'/files',
             });
 
-            console.log("FILES", files);
 
             // část pro výpis souborů
             var filesView = new eco.Views.Files({
@@ -475,7 +474,7 @@ window.eco = {
             });
 
 
-            // část s formulářem pro nové zadání
+            // část s formulářem pro nový soubor
             var addFileView = new eco.Views.AddFileForm({
                 template: '#taskFilleAddForm-template',
                 vent: vent,

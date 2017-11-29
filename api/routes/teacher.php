@@ -10,27 +10,26 @@
  */
 
 
-function teachers() {
+function teachers()
+{
 	$app = \Slim\Slim::getInstance();
 
 	try {
 		$teacher = requestLoggedTeacher();
-	}
-	catch(Exception $e){
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit();
 	}
 
-	try
-	{
+	try {
 		$db = getDB();
 		$sth = $db->prepare("SELECT teacher.id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
             FROM `teacher` JOIN `user` ON user.id = teacher.user_id");
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-		if($items) {
+		if ($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
@@ -39,9 +38,9 @@ function teachers() {
 			throw new PDOException('No records found.');
 		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
 }
 
@@ -49,20 +48,19 @@ function teachers() {
  * Používá se???
  * @param $id
  */
-function teacher($id) {
+function teacher($id)
+{
 	$app = \Slim\Slim::getInstance();
 
 	try {
 		$teacher = requestLoggedTeacher();
-	}
-	catch(Exception $e){
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit();
 	}
 
-	try
-	{
+	try {
 		$db = getDB();
 		$sth = $db->prepare("SELECT t.id AS `id`, u.id AS `user_id`, u.mail AS mail, u.name AS name 
             FROM `teacher` AS t JOIN `user` AS u
@@ -72,7 +70,7 @@ function teacher($id) {
 		$sth->execute();
 		$items = $sth->fetch(PDO::FETCH_OBJ);
 
-		if($items) {
+		if ($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
@@ -81,25 +79,25 @@ function teacher($id) {
 			throw new PDOException('No records found.');
 		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
 }
-function teacherGroups($id) {
+
+function teacherGroups($id)
+{
 	$app = \Slim\Slim::getInstance();
 
 	try {
 		$teacher = requestLoggedTeacher();
-	}
-	catch(Exception $e){
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit();
 	}
 
-	try
-	{
+	try {
 		$db = getDB();
 		$sth = $db->prepare("SELECT group_id, teacher_id, subject, day, weeks, block
             FROM group_teaching AS gt JOIN `group` ON gt.group_id=`group`.id WHERE teacher_id = :id");
@@ -107,7 +105,7 @@ function teacherGroups($id) {
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-		if($items) {
+		if ($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
@@ -116,27 +114,27 @@ function teacherGroups($id) {
 			throw new PDOException('No records found.');
 		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
 }
-function teacherHomeworks($id) {
+
+function teacherHomeworks($id)
+{
 	$app = \Slim\Slim::getInstance();
 
 	try {
 		$teacher = requestLoggedTeacher();
-	}
-	catch(Exception $e){
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit();
 	}
 
-	try
-	{
+	try {
 		$db = getDB();
-		$sth = $db->prepare("SELECT hw.id as id, t.name as name, hw.status, task_id, hw.student_id, t.teacher_id, deadline, hw.created, u.name AS student_name, u.mail AS student_mail
+		$sth = $db->prepare("SELECT hw.id as id, t.name as name, t.valid, hw.status, task_id, hw.student_id, t.teacher_id, deadline, hw.created, u.name AS student_name, u.mail AS student_mail
         	FROM hw_assigment AS hw
         	JOIN task AS t
         	JOIN `user` AS u
@@ -146,7 +144,7 @@ function teacherHomeworks($id) {
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-		if($items) {
+		if ($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
@@ -155,9 +153,9 @@ function teacherHomeworks($id) {
 			throw new PDOException('No records found.');
 		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
 }
 
@@ -166,64 +164,63 @@ function teacherHomeworks($id) {
  * pouze pro vyučující
  * @param $id
  */
-function teacherTasks($id) {
+function teacherTasks($id)
+{
 	$app = \Slim\Slim::getInstance();
 
 	try {
 		$teacher = requestLoggedTeacher();
-	}
-	catch(Exception $e){
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit();
 	}
 
-	try
-	{
+	try {
 		$db = getDB();
-		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created
+		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created, valid
             FROM task WHERE teacher_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
 //		if($items) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($items);
-			$db = null;
+		$app->response->setStatus(200);
+		$app->response()->headers->set('Content-Type', 'application/json');
+		echo json_encode($items);
+		$db = null;
 //		} else {
 //			throw new PDOException('No records found.');
 //		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
 }
 
-function showTasks() {
+function showTasks()
+{
 	$app = \Slim\Slim::getInstance();
 
 	try {
 		$teacher = requestLoggedTeacher();
 
-	} catch(Exception $e) {
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit;
 	}
-	try
-	{
+	try {
 
 		$db = getDB();
-		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created
+		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created, valid
             FROM task WHERE teacher_id = :id");
 		$sth->bindParam(':id', $teacher['id'], PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-		if($items) {
+		if ($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
@@ -232,35 +229,70 @@ function showTasks() {
 			throw new PDOException('No records found.');
 		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit;
 	}
 }
-
-function task($id) {
+function showValidTasks()
+{
 	$app = \Slim\Slim::getInstance();
 
 	try {
 		$teacher = requestLoggedTeacher();
-	}
-	catch(Exception $e){
+
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
+		exit;
+	}
+	try {
+
+		$db = getDB();
+		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created, valid
+            FROM task WHERE teacher_id = :id AND valid=1");
+		$sth->bindParam(':id', $teacher['id'], PDO::PARAM_INT);
+		$sth->execute();
+		$items = $sth->fetchAll(PDO::FETCH_OBJ);
+
+		if ($items) {
+			$app->response->setStatus(200);
+			$app->response()->headers->set('Content-Type', 'application/json');
+			echo json_encode($items);
+			$db = null;
+		} else {
+			throw new PDOException('No records found.');
+		}
+
+	} catch (PDOException $e) {
+		$app->response()->setStatus(404);
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
+		exit;
+	}
+}
+
+function task($id)
+{
+	$app = \Slim\Slim::getInstance();
+
+	try {
+		$teacher = requestLoggedTeacher();
+	} catch (Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit();
 	}
 
-	try
-	{
+	try {
 		$db = getDB();
-		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created
+		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created, valid
             FROM task WHERE id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
 		$items = $sth->fetch(PDO::FETCH_OBJ);
 
-		if($items) {
+		if ($items) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($items);
@@ -269,21 +301,21 @@ function task($id) {
 			throw new PDOException('No records found.');
 		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
 }
 
-function taskCreate() {
+function taskCreate()
+{
 	$app = \Slim\Slim::getInstance();
 
 	try {
 		$teacher = requestLoggedTeacher();
-	}
-	catch(Exception $e){
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit();
 	}
 
@@ -299,50 +331,50 @@ function taskCreate() {
 //		"test_file" => $allPostVars['test_file'],
 	);
 
-	try
-	{
+	try {
 		$db = getDB();
 		$sth = $db->prepare("INSERT INTO task (id, teacher_id, name, entity, description)
             VALUES(:id,:teacher_id,:name,:entity, :description)");
 
 		$result = $sth->execute($values);
 
-		if ($result){
+		if ($result) {
 			$id = $db->lastInsertId();
-				$sth = $db->prepare("SELECT * FROM `task` WHERE id = :id");
-				$sth->bindParam(":id", $id, PDO::PARAM_INT);
-				$sth->execute();
+			$sth = $db->prepare("SELECT * FROM `task` WHERE id = :id");
+			$sth->bindParam(":id", $id, PDO::PARAM_INT);
+			$sth->execute();
 
-				$item = $sth->fetch(PDO::FETCH_OBJ);
+			$item = $sth->fetch(PDO::FETCH_OBJ);
 
-				if($item) {
-					$app->response()->setStatus(200);
-					$app->response()->headers->set('Content-Type', 'application/json');
-					echo json_encode($item);
+			if ($item) {
+				$app->response()->setStatus(200);
+				$app->response()->headers->set('Content-Type', 'application/json');
+				echo json_encode($item);
 
-					$db = null;
-				} else {
-					throw new PDOException('Getting inserted values was unsuccessful');
-				}
+				$db = null;
+			} else {
+				throw new PDOException('Getting inserted values was unsuccessful');
+			}
 		} else {
 			throw new PDOException('No task was created.');
 		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
 }
 
-function taskUpdate($id) {
+function taskUpdate($id)
+{
 	$app = \Slim\Slim::getInstance();
 
 	try {
 		$teacher = requestLoggedTeacher();
 
-	} catch(Exception $e) {
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit;
 	}
 
@@ -356,23 +388,55 @@ function taskUpdate($id) {
 //		"etalon_file" => $allPostVars['etalon_file'],
 //		"test_file" => $allPostVars['test_file'],
 	);
-	try
-	{
+	try {
 		$db = getDB();
 		$request = $db->prepare("UPDATE task SET name=:name, description=:description, teacher_id=:teacher_id, entity=:entity WHERE id=:id AND teacher_id=:teacher_id");
 
-		if ($request->execute($values)){
+		if ($request->execute($values)) {
 			$app->response()->setStatus(200);
-			echo json_encode(array( 'response' => 'success' ));
+
+			$isValid = isTaskValid($id);
+			if ($isValid===TRUE){
+				taskUpdateValidity($id, 1, $db);
+			}else{
+				taskUpdateValidity($id, 0, $db);
+			}
+			task($id);
 		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(400);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
 }
 
-function taskDelete($id) {
+/**
+ * Actualize validity state for task
+ * @param $id
+ * @param $valid
+ * @return bool
+ */
+function taskUpdateValidity($id, $valid, $db)
+{
+
+	try {
+		$request = $db->prepare("UPDATE task SET valid=:valid WHERE id=:id");
+
+		$values = array(
+			"id" => $id,
+			"valid" => $valid,
+		);
+		if ($request->execute($values)) {
+			return true;
+		}
+
+	} catch (PDOException $e) {
+		return false;
+	}
+}
+
+function taskDelete($id)
+{
 	$app = \Slim\Slim::getInstance();
 
 	//TODO: kontrola oprávnění (skupina a student)
@@ -380,14 +444,13 @@ function taskDelete($id) {
 	try {
 		$teacher = requestLoggedTeacher();
 
-	} catch(Exception $e) {
+	} catch (Exception $e) {
 		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 		exit;
 	}
 
-	try
-	{
+	try {
 		$db = getDB();
 //		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE group_id=:group_id");
 		$prepare = $db->prepare("DELETE FROM `task` WHERE id=:id AND teacher_id=:teacher_id");
@@ -398,15 +461,81 @@ function taskDelete($id) {
 		if ($result) {
 			$app->response()->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode(array( 'response' => 'success' ));
+			echo json_encode(array('response' => 'success'));
 
 			$db = null;
 		} else {
 			throw new PDOException('No group was deleted.');
 		}
 
-	} catch(PDOException $e) {
+	} catch (PDOException $e) {
 		$app->response()->setStatus(400);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		echo '{"error":{"text":' . $e->getMessage() . '}}';
 	}
+}
+
+
+function isTaskValid($id)
+{
+	$require_etalon = FALSE;
+	$require_test = FALSE;
+
+	try {
+		$db = getDB();
+		$sth = $db->prepare("SELECT file, type, count(type) AS count FROM `task_files` WHERE task_id=:id GROUP BY type");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->execute();
+		$items = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+		foreach ($items as $key => $value) {
+			if ($value['type'] == 'etalon' && $value['count'] == 1) {
+				$require_etalon = $value['file'];
+			} else if ($value['type'] == 'test' && $value['count'] == 1) {
+				$require_test = $value['file'];
+			}
+		}
+
+		//test jestli je přidát soubor se správným řešením
+		if ($require_etalon === FALSE) {
+			throw new Exception("There is no required etalon file for simulation.");
+		}
+		//test jestli je přidán testbench
+		if ($require_test === FALSE) {
+			throw new Exception("There is no required testbench file for simulation.");
+		}
+
+		// zjištění názvu entity a jestli je obsažěna v testbenchi
+		$sth = $db->prepare("SELECT entity FROM `task` WHERE id=:id");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->execute();
+		$result = $sth->fetch(PDO::FETCH_OBJ);
+		$entity = $result->entity;
+
+		// test jestli testbench obsahuje entitu uvedenou u zadání
+
+		$fullPath_etalon =  $_SERVER['DOCUMENT_ROOT'].$require_etalon;
+
+		$etalonVhdl = file_get_contents($fullPath_etalon);
+		if ($etalonVhdl === FALSE) {
+			throw new Exception("Can not read etalon file.");
+		}
+		$fullPath_test =  $_SERVER['DOCUMENT_ROOT'].$require_test;
+		$testVhdl = file_get_contents($fullPath_test);
+		if ($testVhdl === FALSE) {
+			throw new Exception("Can not read testbench file.");
+		}
+		//Test jestli testbench obsahuje entitu uvedenou v testbenchi
+		$entityCorrect = strpos($testVhdl, $entity);
+		if ($entityCorrect === FALSE) {
+			throw new Exception("Uvedená entita nebyla nalezena v souboru " . basename($require_test));
+		}
+
+		return TRUE;
+
+	} catch (PDOException $e) {
+		return array("error PDO"=>$e->getMessage());
+	} catch (Exception $e) {
+		return array("error"=>$e->getMessage());
+	}
+
 }

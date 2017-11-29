@@ -405,6 +405,7 @@ window.eco.start = function (data) {
     }
 
 
+    //Deprecated - needitovat a nerozvýjet používá se verze ze souboru teacher.js
     function editTask(id) {
         setPageTitle('Seznam zadání');
         main.html('');

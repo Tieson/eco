@@ -290,6 +290,10 @@ function getUtils() {
             CLK: 'mylib.CLK',
             VODIC: 'mylib.Vodic',
         },
+        taskValidity: {
+            0: '<span class="label label-warning">Není validní</span>',
+            1: '<span class="label label-success">Validní</span>',
+        },
         hradla: {
             INPUT: 'X',
             OUTPUT: 'Z',
@@ -355,10 +359,14 @@ function getUtils() {
         getType: function(key) {
             return getTranslate(key, this.types);
         },
+        getTaskValid: function (key) {
+            return getTranslate(key, this.taskValidity);
+        },
 
         getElementLabel: function (type) {
             return this.hradla[type];
         },
+
 
         mapValues: function (names, prefix, $element) {
             var result = {};

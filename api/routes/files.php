@@ -151,11 +151,11 @@ function uploadFile () {
 	$file_name = $files['name'];
 	$file_tempname = $files['tmp_name'];
 
-	$title = $data['filename'];
 	$type = $data['fileAddType'];
 	$task_id = $data['task_id'];
 
 	$name = basename($file_name);
+	$title = $name;
 
 	$base_path = $basedir."/soubory/task_".$task_id."/".$type;
 	$uploads_dir =  $_SERVER['DOCUMENT_ROOT'].$base_path;
@@ -177,6 +177,8 @@ function uploadFile () {
 			$sth = $db->prepare("INSERT INTO task_files 	(task_id,	name, 	file, 	type)
 														VALUES	(:task_id,	:name, 	:file, 	:type)");
 
+
+
 			$result = $sth->execute($values);
 
 			if ($result) {
@@ -191,6 +193,14 @@ function uploadFile () {
 					$app->response()->setStatus(200);
 					$app->response()->headers->set('Content-Type', 'application/json');
 					echo json_encode($item);
+
+					$isValid = isTaskValid($task_id);
+					if ($isValid===TRUE){
+						taskUpdateValidity($task_id, 1, $db);
+					}else{
+						taskUpdateValidity($task_id, 0, $db);
+					}
+
 					$db = null;
 				} else {
 					throw new PDOException('Getting inserted values was unsuccessful');
@@ -217,7 +227,12 @@ function fileDelete($id) {
 	try
 	{
 		$db = getDB();
-//		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE group_id=:group_id");
+		$task_file_query = $db->prepare("SELECT * FROM `task_files` WHERE id = :id");
+		$task_file_query->bindParam(":id", $id, PDO::PARAM_INT);
+		$task_file_query->execute();
+		$task_file = $task_file_query->fetch(PDO::FETCH_OBJ);
+		$task_id = $task_file->task_id;
+
 		$prepare = $db->prepare("DELETE FROM `task_files` WHERE id=:id");
 		$prepare->bindParam(':id', $id, PDO::PARAM_INT);
 		$result = $prepare->execute();
@@ -225,6 +240,14 @@ function fileDelete($id) {
 		if ($result) {
 			$app->response()->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
+
+			$isValid = isTaskValid($task_id);
+			if ($isValid===TRUE){
+				taskUpdateValidity($task_id, 1, $db);
+			}else{
+				taskUpdateValidity($task_id, 0, $db);
+			}
+			
 			echo json_encode(array( 'response' => 'success' ));
 
 			$db = null;
