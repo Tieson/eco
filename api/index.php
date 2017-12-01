@@ -3,7 +3,7 @@ session_cache_limiter(false);
 session_start();
 
 $config = require('./config/config.php');
-$basedir = $config['basepath'];
+$basedir = $config['projectDir'];
 
 require $config['vendor'].'/autoload.php';
 require_once $config['base'].'/common/database.php';

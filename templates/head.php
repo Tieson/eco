@@ -54,7 +54,7 @@
 
     <script>
         var config = {
-            basedir: '<?php echo $basepath ?>'
+            basedir: '<?php echo $projectDir ?>'
         }
     </script>
 

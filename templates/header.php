@@ -10,30 +10,30 @@
                 <i class=" glyphicon glyphicon-file"></i> <span class="title">Schéma</span>
             </a>
             <ul class="dropdown-menu">
-                <li><a href="<?php echo $basepath ?>/#schemas" id="menu-file-open_new_schema"><i class="glyphicon glyphicon-open-file"></i> Nové / Otevřít</a></li>
+                <li><a href="<?php echo $projectDir ?>/#schemas" id="menu-file-open_new_schema"><i class="glyphicon glyphicon-open-file"></i> Nové / Otevřít</a></li>
                 <li class="divider"></li>
                 <li><a href="#" id="saveSchema" class="saveSchemaButton" title="Uložit schéma (Ctrl + s)"><i class="glyphicon glyphicon-floppy-disk"></i> Uložit schéma <small>(Ctrl + S)</small></a></li>
                 <li><a href="#" id="vhdlExportSchema" class="vhdlExportSchemaButton" title="Exportovat do souboru VHD"><i class="glyphicon glyphicon-cloud-download"></i> Export VHDL <small>(Ctrl + E)</small></a></li>
-                <li><a href="<?php echo $basepath ?>/lib.vhd" download="lib.vhd" target="_blank" id="menu-file-download_lib"><i class="glyphicon glyphicon-cloud-download"></i> Stáhnout lib.vdl</a></li>
+                <li><a href="<?php echo $projectDir ?>/lib.vhd" download="lib.vhd" target="_blank" id="menu-file-download_lib"><i class="glyphicon glyphicon-cloud-download"></i> Stáhnout lib.vdl</a></li>
             </ul>
         </div>
 
         <?php if (!empty($user_role) && $user_role=="student"): ?>
-            <a href="<?php echo $basepath ?>/#homeworks" id="menu-task-show" class="button button--primary main_bar__menu noselect">
+            <a href="<?php echo $projectDir ?>/#homeworks" id="menu-task-show" class="button button--primary main_bar__menu noselect">
                 <i class=" glyphicon glyphicon-tasks"></i>
                 <span class="title">Úkoly</span>
             </a>
-            <a href="<?php echo $basepath ?>/#students/groups" id="menu-task-show" class="button button--primary main_bar__menu noselect">
+            <a href="<?php echo $projectDir ?>/#students/groups" id="menu-task-show" class="button button--primary main_bar__menu noselect">
                 <i class="glyphicon glyphicon-record"></i>
                 <span class="title">Skupiny</span>
             </a>
         <?php endif; ?>
         <?php if(!empty($user_role) && $user_role=="teacher"): ?>
-            <a href="<?php echo $basepath ?>/teacher#groups" class="button button--primary main_bar__menu noselect">
+            <a href="<?php echo $projectDir ?>/teacher#groups" class="button button--primary main_bar__menu noselect">
                 <i class=" glyphicon glyphicon-record"></i>
                 <span class="title">Skupiny</span>
             </a>
-            <a href="<?php echo $basepath ?>/teacher#tasks" class="button button--primary main_bar__menu noselect">
+            <a href="<?php echo $projectDir ?>/teacher#tasks" class="button button--primary main_bar__menu noselect">
                 <i class=" glyphicon glyphicon-briefcase"></i>
                 <span class="title">Úlohy</span>
             </a>
@@ -41,7 +41,7 @@
     </div>
 	<div class="schema_list">
 		<div class="schema_list__items" id="schema_list_container"></div>
-		<a class="schema_list__add" id="addSchema" href="<?php echo $basepath ?>/#schemas/new"> + </a>
+		<a class="schema_list__add" id="addSchema" href="<?php echo $projectDir ?>/#schemas/new"> + </a>
 	</div>
 
 	<div id='usermenu' class="main_bar__usermenu">
@@ -57,9 +57,9 @@
 			</div>
 			<ul class="dropdown-menu dropdown-menu-right">
 				<?php if (!empty($user_name)): ?>
-                    <li><a href="<?php echo $basepath ?>/logout">Odhlásit se</a></li>
+                    <li><a href="<?php echo $projectDir ?>/logout">Odhlásit se</a></li>
 				<?php else: ?>
-                    <li><a href="<?php echo $basepath ?>/login">Přihlásit se</a></li>
+                    <li><a href="<?php echo $projectDir ?>/login">Přihlásit se</a></li>
 				<?php endif; ?>
 			</ul>
 		</div>

@@ -128,8 +128,9 @@ function addTaskFile($id) {
 
 function uploadFile () {
 	$app = \Slim\Slim::getInstance();
-	$config = require('./config/config.php');
-	$basedir = $config['basepath'];
+//	$config = require('./config/config.php');
+	global $config;
+	$basedir = $config['projectDir'];
 
 	try {
 		$teacher = requestLoggedTeacher();
@@ -194,7 +195,7 @@ function uploadFile () {
 					$app->response()->headers->set('Content-Type', 'application/json');
 					echo json_encode($item);
 
-					$isValid = isTaskValid($task_id);
+					$isValid = isTaskValid($task_id, $config["absoluthPathBase"]);
 					if ($isValid===TRUE){
 						taskUpdateValidity($task_id, 1, $db);
 					}else{
@@ -221,8 +222,15 @@ function uploadFile () {
 
 function fileDelete($id) {
 	$app = \Slim\Slim::getInstance();
+	global $config;
 
-	//TODO: kontrola oprávnění (skupina a student)
+	try {
+		$teacher = requestLoggedTeacher();
+	} catch(Exception $e) {
+		$app->response()->setStatus(401);
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		exit;
+	}
 
 	try
 	{
@@ -241,7 +249,7 @@ function fileDelete($id) {
 			$app->response()->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 
-			$isValid = isTaskValid($task_id);
+			$isValid = isTaskValid($task_id, $config["absoluthPathBase"]);
 			if ($isValid===TRUE){
 				taskUpdateValidity($task_id, 1, $db);
 			}else{

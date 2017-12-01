@@ -5,9 +5,9 @@ session_start();
 
 $config = require('./config/config.php');
 
-$basedir = $config['basepath'];
+$basedir = $config['projectDir'];
 
-require $config['vendor'].'autoload.php';
+require $config['vendor'].'/autoload.php';
 
 $slim_config = array(
 	'displayErrorDetails' => true,
@@ -82,7 +82,7 @@ $app->hook('slim.before.dispatch', function() use ($app) {
 
 	global $basedir;
 
-	$app->view()->setData('basepath', $basedir); //TODO: toto implementovat v masteru
+	$app->view()->setData('projectDir', $basedir); //TODO: toto implementovat v masteru
 });
 
 $app->get('/', function() use($app) {
