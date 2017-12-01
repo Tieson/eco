@@ -54,6 +54,8 @@ eco.Formaters.HwTeacherFormater = function (model) {
         status: eco.Utils.getTaskStatus(model.escape('status')),
         created: moment(model.get('created')).format('LLL'),
         deadline: moment(model.get('deadline')).format('LLL'),
+        valid: model.get('valid'),
+        validFormated: eco.Utils.getTaskValid(model.get('valid')),
     });
     return result;
 };
@@ -73,7 +75,9 @@ eco.Formaters.HomeworkFormater = function (model) {
         dayKey: model.escape('day'),
         day: eco.Utils.getDay(model.get('day')),
         weeks: eco.Utils.getWeeks(model.get('weeks')),
-        block: model.escape('block')
+        block: model.escape('block'),
+        valid: model.get('valid'),
+        validFormated: eco.Utils.getTaskValid(model.get('valid')),
     });
     return result;
 };

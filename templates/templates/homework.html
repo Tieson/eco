@@ -94,6 +94,7 @@
             <th>Název</th>
             <th>Termín</th>
             <th>Skupina</th>
+            <!--<th>Validita</th>-->
             <th>Stav</th>
             <!--<th>Akce</th>-->
             </thead>
@@ -109,9 +110,8 @@
     <td class="list-name"><a href="#homeworks/<%- data.id %>" class="btn btn-xs button--default" data-id="<%- data.id %>"><%- data.name %></a></td>
     <td class="list-termin"><%= data.deadline %></td>
     <td class="list-predmet"><%= data.subject %> (<%- data.day %>, <%- data.block %>. blok, <%- data.weeks %> týden)</td>
-    <td class="list-stav">
-        <%= data.status %>
-    </td>
+    <!--<td class="list-validity"><%= data.validFormated %></td>-->
+    <td class="list-stav"><%= data.status %></td>
 </script>
 
 
@@ -125,6 +125,7 @@
             <th>Název</th>
             <th>Student</th>
             <th>Termín</th>
+            <th>Validita</th>
             <th>Stav</th>
             <th title="Odevzdaných řešení">Řešení</th>
             <!--<th>Stav</th>-->
@@ -142,6 +143,7 @@
     <td class="list-name"><a href="#homeworks/<%- data.id %>" class="btn btn-xs button--default" data-id="<%- data.id %>"><%- data.name %></a></td>
     <td class="list-user"><strong><%- data.u_name %></strong> (<%-data.mail%>)</td>
     <td class="list-termin"><%- data.deadline %></td>
+    <td class="list-validity"><%= data.validFormated %></td>
     <td class="list-status"><%= data.status %></td>
     <td class=""><%= data.solutions_count %></td>
     <!--<td class="list-stav">-->
@@ -187,15 +189,23 @@
         </div>
     </div>
     <h2>Odevzdání úkolu</h2>
-    <p class="text-info">Zvolte jeden ze způsobů:</p>
-    <div class="row">
-        <div class="col-xs-12 col-sm-6 col-lg-4">
-            <span class="btn btn-success btn-block showSubmitSolution"><i class="glyphicon glyphicon-list"></i> Vybrat schéma jako řešení</span>
+    <%if(valid==1) {%>
+        <p class="text-info">Zvolte jeden ze způsobů:</p>
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-lg-4">
+                <span class="btn btn-success btn-block showSubmitSolution"><i class="glyphicon glyphicon-list"></i> Vybrat schéma jako řešení</span>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-lg-4">
+                <span class="btn btn-default btn-block disabled" id="showSubmitVhdl"><i class="glyphicon glyphicon-upload"></i> Nahrát VHDL soubor</span>
+            </div>
         </div>
-        <div class="col-xs-12 col-sm-6 col-lg-4">
-            <span class="btn btn-default btn-block disabled" id="showSubmitVhdl"><i class="glyphicon glyphicon-upload"></i> Nahrát VHDL soubor</span>
-        </div>
+    <% } else { %>
+    <div class="alert alert-warning">
+        Úkol nelze momentálně odevzdat, protože nemá nastaveny všechny náležitosti pro simulaci a automatické testování.
+        <br>
+        Pro vyřešení kontaktujte vyučujícího (úkol není validní).
     </div>
+    <% } %>
 
     <div id="homeworkSchemaModal" class="modal fade" role="dialog">
         <div class="modal-dialog">

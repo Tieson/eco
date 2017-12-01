@@ -64,12 +64,12 @@ function studentsHomeworks(){
 	$db = getDB();
 	try {
 		$student = requestLoggedStudent();
-		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, g.subject, g.day, g.weeks, g.block
+		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, g.subject, g.day, g.weeks, g.block, t.valid
             FROM hw_assigment AS hw
             JOIN task AS t
             JOIN groups AS g
             ON hw.task_id = t.id AND g.id=hw.group_id
-            WHERE student_id = :id");
+            WHERE student_id = :id AND t.valid=1");
 		$sth->bindParam(':id', $student['id'], PDO::PARAM_INT);
 	} catch (Exception $e) {
 		$app->response()->setStatus(401);
@@ -256,13 +256,15 @@ function homeworkSolutionCreate($id) {
 						array('file', 'test.log.txt', 'a'), // stdout
 						array('pipe', 'w'),               // stderr
 					);
-//					exec("php ../test.php > test.log.txt 2>&1 &");
-					$proc = proc_open('php ../test.php &', $descriptorspec, $pipes);
 
+					// spuštění testování schéma
+					$proc = proc_open('php ../common/test.php &', $descriptorspec, $pipes);
+
+//					exec("php ../test.php > test.log.txt 2>&1 &");
 //					shell_exec("../cgi-bin/test.sh $");
 //					json_encode($output);
-
 //					require('../test.php');
+
 
 				} else {
 					throw new PDOException('Getting inserted values was unsuccessful');
@@ -429,7 +431,7 @@ function groupHomeworks($id){
 	try
 	{
 		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, u.name AS u_name, u.mail, hw.group_id, hw.status, g.subject, g.day, g.weeks, g.block
-				,(SELECT COUNT(*) FROM solution WHERE homework_id=hw.id) AS solutions_count
+				,(SELECT COUNT(*) FROM solution WHERE homework_id=hw.id) AS solutions_count, t.valid
             FROM hw_assigment AS hw
             JOIN task AS t
             JOIN `user` AS u

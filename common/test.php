@@ -5,25 +5,13 @@ session_cache_limiter(false);
 //session_start();
 date_default_timezone_set("Europe/Prague");
 
-$config = require('./config/config.php');
+$config = require('../config/config.php');
 $basedir = $config['basepath'];
 
-require $config['vendor'].'/autoload.php';
+require ".".$config['vendor'].'/autoload.php';
+require 'database.php';
+require 'task_validation.php';
 
-function getDB($config)
-{
-	global $config;
-	$dbhost = $config['db']['host'];
-	$dbuser = $config['db']['user'];
-	$dbpass = $config['db']['password'];
-	$dbname = $config['db']['database'];
-
-	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
-	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
-	$dbConnection->exec("set names utf8");
-	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	return $dbConnection;
-}
 
 $db = getDB($config);
 
@@ -37,6 +25,8 @@ main($db, $config);
  * @return bool Objekt řešení načtený z DB, nebo FALSE pokud nebylo nic nalezeno
  */
 function getNextSolution($db, $config){
+
+	$db = getDB();
 	$selectNextSolution = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, hw.task_id, s.vhdl
             FROM solution AS s 
             JOIN `hw_assigment` AS hw
@@ -98,37 +88,48 @@ function canStartProcessing($db, $ignoreId, $start){
 }
 
 function startProcessingStatus($db){
-	$start = round(microtime(true) * 1000); //$date->getTimestamp();
 
-//	$db->beginTransaction();
-	$markRuning_sql = $db->prepare("INSERT INTO autotest_status (status, start) VALUES(:status, :start)");
-	$result = $markRuning_sql->execute(array(
-		'status' => 'running',
-		'start' => $start
-	));
-	$canRun = false;
-	$recordId = $db->lastInsertId();
-	if($result){
-		$canRun = canStartProcessing($db, $recordId, $start);
+	try {
+		$db = getDB();
+		$start = round(microtime(true) * 1000); //$date->getTimestamp();
+
+			$db->beginTransaction();
+		$markRuning_sql = $db->prepare("INSERT INTO autotest_status (status, start) VALUES(:status, :start)");
+		$result = $markRuning_sql->execute(array(
+			'status' => 'running',
+			'start' => $start
+		));
+		$canRun = false;
+		$recordId = $db->lastInsertId();
+		if ($result) {
+			$canRun = canStartProcessing($db, $recordId, $start);
+		}
+			$db->commit();
+
+		return array(
+			'canRun' => $canRun,
+			'recordId' => $recordId,
+			'start' => $start
+		);
+		$db = null;
+	} catch (PDOException $e) {
+		$db = null;
+		print "Error!: " . $e->getMessage() . "<br/>";
+		die();
 	}
-//	$db->commit();
-
-	return array(
-		'canRun' => $canRun,
-		'recordId' => $recordId,
-		'start' => $start
-	);
 }
 
 
 function stopProcessingStatus($db, $id){
-	$sth = $db->prepare("UPDATE autotest_status
-			SET status = :status
+//	$sth = $db->prepare("UPDATE autotest_status
+//			SET status = :status
+//            WHERE status='running'"); //status='processing'
+	$sth = $db->prepare("DELETE FROM autotest_status
             WHERE id=:id"); //status='processing'
 
 	$response = $sth->execute(array(
 		'id'=> $id,
-		'status' => 'done'
+//		'status' => 'done'
 	));
 	return $response;
 }
@@ -223,7 +224,7 @@ function getFileOfType($files, $type) {
  * @param $db DB connection
  * @param $config Configuration object
  * @param $taskId The ID of Task with files we require
- * @return array Found files.
+ * @return array|bool Found files od FALSE if at least one is missing.
  */
 function getSolutionsFiles($db, $config, $taskId){
 	$test = "";
@@ -247,6 +248,9 @@ function getSolutionsFiles($db, $config, $taskId){
 		}
 	}
 
+//	if(empty($test) || empty($etalon)){
+//		return FALSE;
+//	}
 	$files = array(
 		"test" => $test->file,
 		"etalon" => $etalon->file,
@@ -287,12 +291,13 @@ function parseDatetime($datestring, $format = 'Y-m-d H:i:s'){
  * @param string $prefix
  * @return string
  */
-function generateVhdlFileFolder($solution, $prefix = "./"){
-	$path = $prefix . $solution->id . "_" . (parseDatetime($solution->created)->getTimestamp());
+function generateVhdlFileFolder($solution, $entityName, $prefix = "./"){
+	$path = $prefix . 'solutions/';
 	if (!file_exists($path)) {
 		mkdir($path, 0777, true);
 	}
-	return $path;
+	$result = $path . $entityName . '_' . $solution->id . ".vhd";
+	return $result;
 }
 
 /**
@@ -332,10 +337,45 @@ function analyzeOutput($result) {
  */
 function main($db, $config)
 {
+	$maxSimulationCount = isset($config['maxSimulationCount'])?$config['maxSimulationCount']:30;
+
+	/**
+	 * Nastavení stavu probíhající simulace, žádná další tak nemůže být spuštěna.
+	 */
+	global $runningStatus;
+	$runningStatus = startProcessingStatus($db);
+
+	global $runningSolution;
+	$runningSolution = null;
+
+	function shutdown()
+	{
+		$db = getDB();
+
+		global $runningSolution;
+		if ($runningSolution != null){
+			var_dump($runningSolution);
+			$resultData = array(
+				"result" => 0,
+				"status" => "waiting",
+				"message" => "Simulaci se nepodařilo spustit"
+			);
+			saveSolutionResult($db, $runningSolution, $resultData);
+			echo 'Running simulation failed.';
+			$runningSolution = null;
+		}
+
+		global $runningStatus;
+		stopProcessingStatus($db, $runningStatus['recordId']);
+	}
+
+	register_shutdown_function('shutdown');
+
 	try {
-
-		$runningStatus = startProcessingStatus($db);
-
+		/*
+		 * Otestovat jestli je možné spustit momentálně simulaci, jestli žádná jiná právě neběží.
+		 * TODO: pokud nalezneme další řešení k simulování po dokončení již nějakého, bylo by dobré mezi tím nerušit stav, že simulace běží, mohlo by dojít k chybě běhu dvou najednou.
+		 */
 		if(!$runningStatus['canRun']){
 			header('HTTP/1.1 500 Internal Server Error');
 			echo "Another instance of validation is running.\n";
@@ -343,70 +383,135 @@ function main($db, $config)
 			exit();
 		}
 
-
 		//TODO: zabezpečit uživatelské vstupy, názvy souborů atp. Vzít v potaz vše, co může uživatel ovlivnit.
 
-		for($i=0;$i<10;$i++){
+		/*
+		 * Smyčka pro spuštění několika simulací
+		 */
+		for ($i = 0; $i < $maxSimulationCount; $i++) {
+			/**
+			 * Získání dalšího řešení
+			 */
 			$solution = getNextSolution($db, $config);
-			echo "Testing solution \n", json_encode($solution), "\n";
+			$runningSolution = $solution;
 
+			/**
+			 * Kontrola jestli existuje další řešení pro simulaci
+			 */
 			if (!$solution) {
 				stopProcessingStatus($db, $runningStatus['recordId']);
 				echo "There is no more solution to verify. \n";
 				exit();
 			}
 
+			/**
+			 * Kontrola validity zadání.
+			 * Pokud nemá veštekré náležitosti, nemůže být simulace spuštěna
+			 * A je pokračováno dalším řešením
+			 */
+			$validityResult = isTaskValid($solution->task_id, $config["absoluthPathBase"]."");
+			if ($validityResult!==TRUE) {
+				$resultData = array(
+					"result" => 0,
+					"status" => "waiting",
+					"message" => $validityResult["error"]
+				);
+				saveSolutionResult($db, $solution, $resultData);
+				echo "The task is invalid, therefore simulation can't run. \n";
+				continue;
+			}
+
+
+			/**
+			 * Umělý identifikátor projektu Vivada - název složky je podle něj
+			 * Pro každé zadání je vytvořen jeden projekt  s jeho ID, Projekty jsou přemazávány a znovu vytvářeny při simulaci řešení.
+			 * TODO: mazat projekty po simulaci?  Budou pouze polde počtu zadání.
+			 */
 			$projectId = "project_" . $solution->task_id;
+			echo "prj:";
 
-			$files = getSolutionsFiles($db, $config, $solution->task_id);
+			/**
+			 * Získání souborů řešení
+			 * správného řešení a
+			 * testbenche
+			 */
+			$files =  getSolutionsFiles($db, $config, $solution->task_id);
 
-			// Uložení VHDL řešení do souboru, aby mohlo být simulováno
-			$solutionVhdlPath = generateVhdlFileFolder($solution, "/var/www/html/eco/") . "/test.vhd";
-			saveToFile($solutionVhdlPath, $solution->vhdl);
 
-//		echo "<br>\nTEST: " . $files['test'] . "<br>\nETALON: " . $files['etalon'] . "<br>\nSOLUTION: $solutionVhdlPath";
+			//echo "<br>\nTEST: " . $files['test'] . "<br>\nETALON: " . $files['etalon'] . "<br>\nSOLUTION: $solutionVhdlPath";
 
 
+			/**
+			 * Získání názvu entity ze souboru.
+			 * Teoreticky to není potřeba dělat a šlo by
+			 */
 			$entityName = getEntityNameFromVhdl($solution->vhdl);
 			if (!$entityName) {
 				throw new  Exception("Invalid VHDL, no entity found.");
 			}
 
+			/**
+			 * Uložení VHDL řešení do souboru, aby mohlo být simulováno
+			 * TODO: brát cestu z configu
+			 */
+			$solutionVhdlPath = generateVhdlFileFolder($solution, $entityName,"/var/www/html/eco/");
+			saveToFile($solutionVhdlPath, $solution->vhdl);
+
+
+			//TODO: parametrizovat cestu k test.tcl a předávat ji i do funkce pro tvorbu TCL
 			$tclScript = makeTclContent($projectId, $files['etalon'] . '', $files['test'] . '', $solutionVhdlPath);
 
 			$tclScriptPath = "/var/www/html/eco/test.tcl";
 			saveToFile($tclScriptPath, $tclScript);
 
 
-			$cmd = "/var/www/cgi-bin/eco.sh 2>&1";
+			/**
+			 * Cesta ke spouštěcímu scriptu
+			 */
+			$cmd = $config["cgipath"]."eco.sh 2>&1";
 
 
+			/**
+			 * Spuštění samotné simulace a čekání na výstup, který je uložen do pole řádků.
+			 * Je zde také testovací větev podmínky, která nespouští simulaci a výstup načítá z připraveného souboru (pro lokální tetování)
+			 */
 			$outputLines = array();
 			if ($config["release"] && $config["release"] == "local") {
 				$output = file_get_contents($config["rootpath"] . "vivado.log");
-				sleep(5);
+				sleep(5); // umělá doba čekání napodobující samotnou simulaci
 			} else {
 				exec($cmd, $outputLines);
 				$output = implode("\n", $outputLines);
 			}
 
-//	saveToFile("output.log", $output);
+			/**
+			 * Vyčištění souborů, které byly vytvořeny
+			 */
+			unlink($solutionVhdlPath);
+			unlink($tclScriptPath);
 
+			/**
+			 * Analýza a příprava výsledků simulace
+			 */
 			$result = analyzeOutput($output);
-
 			$resultData = array(
 				"result" => (count($result) == 0) ? 1 : 0,
 				"status" => "done",
 				"message" => join("\n", $result)
 			);
 
+			/**
+			 * Uložení výsledků simulace do DB
+			 */
 			saveSolutionResult($db, $solution, $resultData);
-
-			stopProcessingStatus($db, $runningStatus['recordId']);
-
-			echo json_encode($resultData), "\n---------------------------------\n\n";
+			$runningSolution = null;
 		}
-	} catch (PDOException $e) {
+
+		/**
+		 * Nastavení přínaku pro ukončení simulace
+		 */
+
+	} catch (Exception $e) {
 		stopProcessingStatus($db, $runningStatus['recordId']);
 		//	$app->response()->setStatus(404);
 //		header('HTTP/1.1 500 Internal Server Error');

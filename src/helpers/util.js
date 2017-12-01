@@ -291,7 +291,7 @@ function getUtils() {
             VODIC: 'mylib.Vodic',
         },
         taskValidity: {
-            0: '<span class="label label-warning">Není validní</span>',
+            0: '<span class="label label-danger">Není validní</span>',
             1: '<span class="label label-success">Validní</span>',
         },
         hradla: {

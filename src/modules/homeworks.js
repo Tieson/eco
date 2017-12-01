@@ -7,7 +7,7 @@ eco.Models.Homework = Backbone.Model.extend({
     defaults: {
         id: null,
         task_id: null,
-        student_id: null, /* odkaz ado tabulky user*/
+        student_id: null, /* odkaz do tabulky user*/
         teacher_id: null,
         created: null,
         deadline: null,

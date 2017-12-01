@@ -6,24 +6,26 @@ $config = require('./config/config.php');
 $basedir = $config['basepath'];
 
 require $config['vendor'].'/autoload.php';
+require_once $config['base'].'/common/database.php';
+require_once $config['base'].'/common/task_validation.php';
 
 $slim_config['displayErrorDetails'] = true;
 $slim_config['addContentLengthHeader'] = false;
 
-function getDB()
-{
-	global $config;
-	$dbhost = $config['db']['host'];
-	$dbuser = $config['db']['user'];
-	$dbpass = $config['db']['password'];
-	$dbname = $config['db']['database'];
-
-	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
-	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
-	$dbConnection->exec("set names utf8");
-	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	return $dbConnection;
-}
+//function getDB()
+//{
+//	global $config;
+//	$dbhost = $config['db']['host'];
+//	$dbuser = $config['db']['user'];
+//	$dbpass = $config['db']['password'];
+//	$dbname = $config['db']['database'];
+//
+//	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
+//	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
+//	$dbConnection->exec("set names utf8");
+//	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+//	return $dbConnection;
+//}
 
 $authenticate = function ($app) {
 	return function () use ($app) {
