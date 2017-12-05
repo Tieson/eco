@@ -118,22 +118,26 @@ function homeworkSolutionList($id) {
 	try
 	{
 		if (isStudent($user)) {
-			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, s.schema_id, s.vhdl, g.subject, g.day, g.weeks, g.block, sch.name, sch.architecture
+			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, s.schema_id, s.vhdl, g.subject, g.day, g.weeks, g.block, sch.name, sch.architecture, s.name AS entity
             FROM solution AS s
+        	LEFT JOIN schema_base AS sch
+            ON s.schema_id=sch.id
         	JOIN hw_assigment AS hw
-        	JOIN schema_base AS sch
+            ON s.homework_id = hw.id
             JOIN groups AS g
-         	ON s.homework_id = hw.id AND s.schema_id=sch.id AND g.id=hw.group_id
+         	ON g.id=hw.group_id
             WHERE hw.id = :id AND hw.student_id = :student_id ORDER BY s.id DESC");
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
 			$sth->bindParam(':student_id', $user['id'], PDO::PARAM_INT);
 		} else if (isTeacher($user)) {
 			$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, s.schema_id, s.vhdl, g.subject, g.day, g.weeks, g.block, sch.name, sch.architecture
             FROM solution AS s
+        	LEFT JOIN schema_base AS sch
+            ON s.schema_id=sch.id
         	JOIN hw_assigment AS hw
-        	JOIN schema_base AS sch
+            ON s.homework_id = hw.id
             JOIN groups AS g
-         	ON s.homework_id = hw.id AND s.schema_id=sch.id AND g.id=hw.group_id
+         	ON g.id=hw.group_id
             WHERE hw.id = :id ORDER BY s.id DESC");
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		}
@@ -234,12 +238,10 @@ function homeworkSolutionCreate($id) {
 			if ($result){
 				$id = $db->lastInsertId();
 
-				$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message,
-			sch.name, sch.architecture
+				$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message
             FROM solution AS s
         	JOIN hw_assigment AS hw
-        	JOIN schema_base AS sch
-         	ON s.homework_id = hw.id AND s.schema_id=sch.id
+         	ON s.homework_id = hw.id
             WHERE s.id = :id AND hw.student_id = :student_id");
 				$sth->bindParam(":id", $id, PDO::PARAM_INT);
 				$sth->bindParam(":student_id", $student['id'], PDO::PARAM_INT);

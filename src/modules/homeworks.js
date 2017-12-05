@@ -58,7 +58,7 @@ eco.Models.HomeworkTeacher = Backbone.Model.extend({
         name: "",
         description: "",
         student_name: "",
-        student_mail: "",
+        student_mail: ""
     },
     statuses: {
         open: 'Nové / zadáno',
@@ -271,9 +271,11 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         'click #showSubmitVhdl': 'vhdlFileUploadOpen',
         'click #homeworkSchemaModalSubmit': 'hwSubmitClick',
         'click #homeworkVhdlModalSubmit': 'hwVhdlSubmitClick',
-        'click .downloadVHDL': 'downloadVHDL',
+        // 'click .downloadVHDL': 'downloadVHDL',
         'click .delete-solution': 'deleteSolution',
         'click .refresh-solutions': 'refreshSolutionsList',
+        'click .showVHDL': 'showVHDL',
+        'click .showErrorMessage': 'showErrorMessage',
         'change #vhdl_file_name': 'selectedVhdFileChanged'
     },
 
@@ -283,21 +285,18 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
 
     disableVhdlFileSubmit: function () {
         this.$("#homeworkVhdlModalSubmit").attr("disabled", true);
-        $("#vhdlSchemaName").val("");
-        $("#vhdlSchemaArch").val("");
+        $("#vhdlSchemaName").text("");
+        $("#vhdlSchemaArch").text("");
     },
 
     selectedVhdFileChanged: function (e) {
-        //TODO: načíst VHDL soubor a zpracovat ho
-
         var file = e.currentTarget.files[0];
         this.disableVhdlFileSubmit();
         var self = this;
         eco.Utils.getVhdlFileContent(file, function (name, arch, content) {
-            console.log(name, arch, content);
             if (name && arch) {
-                $("#vhdlSchemaName").val(name);
-                $("#vhdlSchemaArch").val(arch);
+                $("#vhdlSchemaName").text(name);
+                $("#vhdlSchemaArch").text(arch);
                 self.selectedVhdl = {name:name, arch: arch, content: content};
                 this.$("#homeworkVhdlModalSubmit").attr("disabled", false);
             }
@@ -336,8 +335,8 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
     },
     vhdlFileUploadOpen: function (e) {
         e.stopPropagation();
-        showSnackbar("Tato funkce bude brzy dostupná");
-        return false;
+        // showSnackbar("Tato funkce bude brzy dostupná");
+        // return false;
         this.$("#vhdlFileForm")[0].reset();
         this.disableVhdlFileSubmit();
 
@@ -356,9 +355,12 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
 
                 self.solutions.create({
                     homework_id: self.model.get('id'),
-                    schema_id: 0,
+                    schema_id: null,
                     vhdl: self.selectedVhdl.content,
+                    name: self.selectedVhdl.name,
+                    architecture: self.selectedVhdl.architecture,
                 }, {
+                    at: 0,
                     success: function () {
                         showSnackbar('Hotovo, úkol byl odevzdán ze souboru');
                     },
@@ -407,10 +409,27 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         }
 
     },
-    downloadVHDL:function (e) {
-      console.log("downloadVHDL", this.solutions);
+    showVHDL:function (e) {
         var cid = $(e.currentTarget).attr('data-cid');
         var item = this.solutions.get(cid);
+        var vhdl = item.get('vhdl');
+
+        var name = item.get('name') || item.get('entity');
+
+        this.$el.find("#vhdlViewModalBody").text(vhdl);
+        $('#vhdlViewModal').find('.modal-title').text("VHDL odevzdaného schéma: " + name);
+        $('#vhdlViewModal').modal('show');
+
+    },
+    showErrorMessage:function (e) {
+        var cid = $(e.currentTarget).attr('data-cid');
+        var item = this.solutions.get(cid);
+        var message = item.get('test_message');
+
+        this.$el.find("#vhdlViewModalBody").text(message);
+        $('#vhdlViewModal').find('.modal-title').text("Chybová zpráva (ze simulace Vivado)");
+        $('#vhdlViewModal').modal('show');
+
     },
     deleteSolution: function (e) {
         this.solutionsView.deleteItem(e);

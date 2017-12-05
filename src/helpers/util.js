@@ -334,8 +334,8 @@ function getUtils() {
             processing: '<span class="label label-info">Probíhá simulace</span>',
         },
         solutionResults: {
-            ok: '<span class="label label-success">Správné řešení</span>',
-            nok: '<span class="label label-danger">Chybné řešení</span>',
+            ok: 'Správné řešení',
+            nok: 'Chybné řešení',
         },
         getSolutionStatus: function (key) {
             return getTranslate(key, this.solutionStatuses);

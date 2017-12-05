@@ -196,7 +196,7 @@
                 <span class="btn btn-success btn-block showSubmitSolution"><i class="glyphicon glyphicon-list"></i> Vybrat schéma jako řešení</span>
             </div>
             <div class="col-xs-12 col-sm-6 col-lg-4">
-                <span class="btn btn-default btn-block disabled" id="showSubmitVhdl"><i class="glyphicon glyphicon-upload"></i> Nahrát VHDL soubor</span>
+                <span class="btn btn-default btn-block" id="showSubmitVhdl"><i class="glyphicon glyphicon-upload"></i> Nahrát VHDL soubor</span>
             </div>
         </div>
     <% } else { %>
@@ -236,19 +236,19 @@
                     <form id="vhdlFileForm">
                         <div class="form-group">
                             <label for="vhdl_file_name">Soubor VHD s řešením</label>
-                            <input type="file" class="form-control" id="vhdl_file_name" name="vhdlSchema" accept=".vhd">
+                            <input type="file" class="" id="vhdl_file_name" name="vhdlSchema" accept=".vhd">
                         </div>
                         <div class="row">
                             <div class="col-xs-6">
                                 <div class="form-group">
                                     <label for="vhdlSchemaName">Název entity:</label>
-                                    <input type="text" class="form-control" readonly="readonly" id="vhdlSchemaName">
+                                    <div id="vhdlSchemaName">Nenačtena</div>
                                 </div>
                             </div>
                             <div class="col-xs-6">
                                 <div class="form-group">
                                     <label for="vhdlSchemaArch">Architektura:</label>
-                                    <input type="text" class="form-control" readonly="readonly" id="vhdlSchemaArch">
+                                    <div id="vhdlSchemaArch">Nenačtena</div>
                                 </div>
                             </div>
                         </div>
@@ -363,7 +363,6 @@
             <th>Odevzdáno</th>
             <th>Stav</th>
             <th>Výsledek</th>
-            <!--<th>Chybová zpráva</th>-->
             <th>Akce</th>
             </thead>
             <tbody class="items-container">
@@ -371,23 +370,56 @@
             </tbody>
         </table>
     </div>
+
+    <div id="vhdlViewModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Odevzdané VHDL</h4>
+                </div>
+                <div class="modal-body" id="">
+<pre id="vhdlViewModalBody"></pre>
+                </div>
+                <div class="modal-footer">
+                    <!--<button type="button" class="btn btn-success" data-dismiss="modal" id="vhdlViewModalDownload">Stáhnout</button>-->
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Zavřít</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </script>
 
 
 <script type="text/template" id="solutionsListItem-template">
-    <td class="list-name"><a href="<?php echo $projectDir; ?>/#schemas/<%-data.schema_id%>" class="btn btn-xs btn btn-success"><i class="glyphicon glyphicon-open"></i> <%-data.name%> (<%-data.architecture%>)</a></td>
+    <td class="list-name">
+        <% if(data.schema_id!=null) { %>
+        <a href="<?php echo $projectDir; ?>/#schemas/<%-data.schema_id%>" class="btn btn-xs btn-success">
+            <i class="glyphicon glyphicon-open"></i>
+            <%-data.name%> (<%-data.architecture%>)
+        </a>
+        <% } else { %>
+
+        <span class="label label-default" title="Načteno ze souboru">
+            <i class="glyphicon glyphicon-file"></i>
+            Ze souboru (<%-data.entity%>)
+        </span>
+        <% } %>
+    </td>
     <td class="list-created"><%-data.created%></td>
     <td class="list-status"><%=data.status%></td>
     <td class="list-result">
-        <div data-toggle="collapse" data-target="#test_error_msg_<%=data.id%>"><%=data.test_result_str%></div>
         <% if(data.test_result==0) { %>
-        <div id="test_error_msg_<%=data.id%>" class="text-muted collapse">
-            <pre><%-data.test_message%></pre>
-        </div>
+            <div class="btn btn-xs btn-danger showErrorMessage" data-cid="<%=data.cid%>" title="Zobrazit chybovou zprávu"><%=data.test_result_str%></div>
+        <% } else { %>
+            <div class="label label-success"><%=data.test_result_str%></div>
         <% } %>
     </td>
     <!--<td class="list-message"></td>-->
     <td>
+        <div class="btn btn-xs btn-default showVHDL" data-cid="<%=data.cid%>" title="Zobrazit odevzdané VHDL">
+            <i class="glyphicon glyphicon-file"></i> VHDL
+        </div>
         <!--<span class="btn btn-default btn-xs downloadVHDL" data-cid="<%=data.cid%>"><i class="glyphicon glyphicon-download"></i> VHDL</span>-->
         <% if(data.statusTechnical=='waiting') { %>
             <span class="btn btn-danger btn-xs delete-solution" data-cid="<%=data.cid%>"><i class="glyphicon glyphicon-trash"></i> smazat</span>
