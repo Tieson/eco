@@ -364,8 +364,8 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
                     success: function () {
                         showSnackbar('Hotovo, úkol byl odevzdán ze souboru');
                     },
-                    error: function () {
-                        showSnackbar('Něco se pokazilo. Úkol nebyl odevzdán.');
+                    error: function (err) {
+                        showSnackbar('Úkol nebyl odevzdán. '+ err.error.text);
                     }
                 });
         } else {
@@ -397,8 +397,8 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
                     success: function () {
                         showSnackbar('Hotovo, úkol byl odevzdán.');
                     },
-                    error: function () {
-                        showSnackbar('Něco se pokazilo. Úkol nebyl odevzdán.');
+                    error: function (obj,result) {
+                        showSnackbar('Úkol nebyl odevzdán. '+result.responseJSON.error.text);
                     }
                 });
             });

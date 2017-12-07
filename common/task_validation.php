@@ -1,5 +1,28 @@
 <?php
 
+//function getUsedUserSimulations($user_id, $second = 3600, $deleteTimespan = 3600) {
+//	$db = getDB();
+//	$query_delete = $db->prepare("DELETE FROM `user_limits` WHERE time < NOW() - ?;");
+//	$query_delete->bindParam(1, $deleteTimespan, PDO::PARAM_INT);
+//	$query_delete->execute();
+//
+//	$query = $db->prepare("SELECT COUNT(*) AS pocet FROM user_limits WHERE user_id=? AND time >= NOW() - ?;");
+//	$query->bindParam(1, $user_id, PDO::PARAM_INT);
+//	$query->bindParam(2, $second, PDO::PARAM_INT);
+//	$query->execute();
+//	$result = $query->fetchObject();
+//	$db = null;
+//	return $result->pocet;
+//}
+
+function getWaitingCount($user_id) {
+	$db = getDB();
+	$query = $db->prepare("SELECT COUNT(*) AS pocet FROM solution WHERE user_id=:user_id AND status='waiting'");
+	$query->bindParam('user_id', $user_id, PDO::PARAM_INT);
+	$query->execute();
+	$result = $query->fetchObject();
+	return $result->pocet;
+}
 
 function isTaskValid($id, $absoluthPathBase = "")
 {

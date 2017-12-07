@@ -33,6 +33,8 @@ function getNextSolution($db, $config)
             WHERE s.status='waiting'
             ORDER BY s.created ASC 
             LIMIT 1");
+	//TODO, simuluje se vše, jen nejde vše odevzdat - možná zvolit jiný přístup, odevzdávat jak che, ale simulovat jen určité množství uživatele za hodinu
+	// AND (SELECT COUNT(*) FROM user_limits WHERE user_id=sch.user_id AND time >= NOW() - 3600) <= 10
 	$result = $selectNextSolution->execute();
 	if ($result) {
 		$responseResult = $selectNextSolution->fetchAll(PDO::FETCH_OBJ);
@@ -328,7 +330,6 @@ function main($db, $config)
 	try {
 		/*
 		 * Otestovat jestli je možné spustit momentálně simulaci, jestli žádná jiná právě neběží.
-		 * TODO: pokud nalezneme další řešení k simulování po dokončení již nějakého, bylo by dobré mezi tím nerušit stav, že simulace běží, mohlo by dojít k chybě běhu dvou najednou.
 		 */
 		if (!$runningStatus['canRun']) {
 			header('HTTP/1.1 500 Internal Server Error');
@@ -358,6 +359,12 @@ function main($db, $config)
 				exit();
 			}
 
+//			if (!canSim($solution->user_id)){
+//				stopProcessingStatus($db, $runningStatus['recordId']);
+//				echo "Uživatel vyčerpal limit simulací za daný čas. \n";
+//				exit();
+//			}
+
 			/**
 			 * Kontrola validity zadání.
 			 * Pokud nemá veštekré náležitosti, nemůže být simulace spuštěna
@@ -378,7 +385,6 @@ function main($db, $config)
 			/**
 			 * Umělý identifikátor projektu Vivada - název složky je podle něj
 			 * Pro každé zadání je vytvořen jeden projekt  s jeho ID, Projekty jsou přemazávány a znovu vytvářeny při simulaci řešení.
-			 * TODO: mazat projekty po simulaci?  Budou pouze polde počtu zadání.
 			 */
 			$projectId = "project_" . $solution->task_id;
 
@@ -400,13 +406,11 @@ function main($db, $config)
 
 			/**
 			 * Uložení VHDL řešení do souboru, aby mohlo být simulováno
-			 * TODO: brát cestu z configu
 			 */
 			$solutionVhdlPath = generateVhdlFileFolder($solution, $entityName, $config['absoluthPathBase'] . $config['projectDir']);
 			saveToFile($solutionVhdlPath, $solution->vhdl);
 
 
-			//TODO: parametrizovat cestu k test.tcl a předávat ji i do funkce pro tvorbu TCL
 			$tclScript = makeTclContent($projectId, $files['etalon'], $files['test'], $solutionVhdlPath,
 				$config['libPath'], //'/eco/lib.vhd',
 				$config['absoluthPathBase'], //'/var/www/html',

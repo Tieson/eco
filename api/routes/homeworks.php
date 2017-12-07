@@ -205,7 +205,17 @@ function homeworkSolutionCreate($id) {
 	}catch(Exception $e) {
 		$app->response()->setStatus(401);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
-		exit();
+		return;
+	}
+
+	/*
+	 * Kontrola maximálního počtu čekajících řešení
+	 */
+	$pocetReseni = 3;
+	if(getWaitingCount($student['id'])>=$pocetReseni) {
+		$app->response()->setStatus(429);
+		echo '{"error":{"text":"Překročili jste max. '.$pocetReseni.' čekajících řešení."}}';
+		return;
 	}
 
 	$allPostVars = json_decode($app->request->getBody(), true);
@@ -215,6 +225,7 @@ function homeworkSolutionCreate($id) {
 		'name' => $allPostVars['name'],
 		'architecture' => $allPostVars['architecture'],
 		'vhdl' => $allPostVars['vhdl'],
+		'student_id' => $student['id'],
 	);
 
 	try
@@ -231,18 +242,19 @@ function homeworkSolutionCreate($id) {
 			//OK úkol existuje a je studenta
 
 			$sth = $db->prepare("INSERT INTO solution 
-			(homework_id,schema_id,created, `name`, architecture, vhdl)
-			VALUES(:homework_id, :schema_id, NOW(), :name, :architecture, :vhdl)");
+				  (homework_id, schema_id, user_id, created, `name`, architecture, vhdl )
+			VALUES(:homework_id, :schema_id, :student_id, NOW(), :name, :architecture, :vhdl)");
 			$result = $sth->execute($values);
 
 			if ($result){
 				$id = $db->lastInsertId();
 
 				$sth = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message
+			  , sch.name, sch.architecture
             FROM solution AS s
-        	JOIN hw_assigment AS hw
-         	ON s.homework_id = hw.id
-            WHERE s.id = :id AND hw.student_id = :student_id");
+        	LEFT JOIN schema_base AS sch
+        	ON s.schema_id=sch.id
+            WHERE s.id = :id AND s.user_id = :student_id");
 				$sth->bindParam(":id", $id, PDO::PARAM_INT);
 				$sth->bindParam(":student_id", $student['id'], PDO::PARAM_INT);
 				$sth->execute();

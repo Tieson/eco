@@ -35,7 +35,6 @@ function requestLoggedTeacher(){
 	return $teacher;
 }
 function requestLoggedStudent(){
-	$app = \Slim\Slim::getInstance();
 	$student = null;
 	if (isset($_SESSION['user_role']) && $_SESSION['user_role']=='student'){
 		$student = array(
