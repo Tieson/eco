@@ -188,22 +188,25 @@
             <p><%= description %></p>
         </div>
     </div>
-    <h2>Odevzdání úkolu</h2>
-    <%if(valid==1) {%>
-        <div class="row">
-            <div class="col-xs-12 col-sm-6 col-lg-4">
-                <span class="btn btn-success btn-block showSubmitSolution"><i class="glyphicon glyphicon-list"></i> Vybrat schéma jako řešení</span>
+    <%if(statusTechnical!='done') {%>
+        <h2>Odevzdání úkolu</h2>
+        <%if(valid==1) {%>
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-lg-4">
+                    <span class="btn btn-success btn-block showSubmitSolution"><i class="glyphicon glyphicon-list"></i> Vybrat schéma jako řešení</span>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-lg-4">
+                    <span class="btn btn-default btn-block" id="showSubmitVhdl"><i class="glyphicon glyphicon-upload"></i> Nahrát VHDL soubor</span>
+                </div>
             </div>
-            <div class="col-xs-12 col-sm-6 col-lg-4">
-                <span class="btn btn-default btn-block" id="showSubmitVhdl"><i class="glyphicon glyphicon-upload"></i> Nahrát VHDL soubor</span>
-            </div>
+        <% } else { %>
+        <div class="alert alert-warning">
+            Úkol nelze momentálně odevzdat, protože nemá nastaveny všechny náležitosti pro simulaci a automatické testování.
+            <br>
+            Pro vyřešení kontaktujte vyučujícího (úkol není validní).
         </div>
+        <% } %>
     <% } else { %>
-    <div class="alert alert-warning">
-        Úkol nelze momentálně odevzdat, protože nemá nastaveny všechny náležitosti pro simulaci a automatické testování.
-        <br>
-        Pro vyřešení kontaktujte vyučujícího (úkol není validní).
-    </div>
     <% } %>
 
     <div id="homeworkSchemaModal" class="modal fade" role="dialog">

@@ -232,7 +232,26 @@ function homeworkSolutionCreate($id) {
 	{
 		$db = getDB();
 
-		// Kontrola jestli schéma patří studentovi!
+		// test jestli je řešení již odevzdané
+		$isDoneQuery = $db->prepare("SELECT status 
+			FROM hw_assigment WHERE id=:hw_id");
+		$isDoneQuery->bindParam(":hw_id", $id, PDO::PARAM_INT);
+		if($isDoneQuery->execute()){
+			$hw = $isDoneQuery->fetchObject();
+			if ($hw->status=="done"){
+				$app->response()->setStatus(400);
+				$app->response()->headers->set('Content-Type', 'application/json');
+				echo json_encode(array(
+					'error' => array(
+						'text' => 'Úkol je správně odevzdaný, nelze odevzdávat další řešení.'
+					)
+				));
+				return;
+			}
+		}
+
+
+		// Kontrola jestli úkol patří studentovi!
 		$homework = $db->prepare("SELECT id 
 			FROM hw_assigment WHERE id=:hw_id AND student_id=:student_id");
 		$homework->bindParam(":hw_id", $id, PDO::PARAM_INT);
@@ -284,14 +303,14 @@ function homeworkSolutionCreate($id) {
 					throw new PDOException('Getting inserted values was unsuccessful');
 				}
 			} else {
-				throw new PDOException('Inserting new Values was unsuccessful');
+				throw new PDOException('Nepodařilo se uložit řešení do databáze.');
 			}
 		} else {
-			throw new PDOException('Adding solution was unsuccessful. You do not own requested homework.');
+			throw new PDOException('Nelze přidávat řešení k cizímu úkolu. Tento úkol vám patrně nepatří.');
 		}
 		$db = null;
 
-	} catch(PDOException $e) {
+	} catch(Exception $e) {
 		$app->response()->setStatus(400);
 		echo json_encode(array(
 			'error' => array(

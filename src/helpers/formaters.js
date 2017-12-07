@@ -70,6 +70,7 @@ eco.Formaters.HomeworkFormater = function (model) {
         // id: model.get('id'),
         subject: model.escape('subject'),
         status: eco.Utils.getTaskStatus(model.get('status')),
+        statusTechnical: model.get('status'),
         created: moment(model.get('created')).format('LLL'),
         deadline: moment(model.get('deadline')).format('LLL'),
         dayKey: model.escape('day'),
