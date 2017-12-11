@@ -19,8 +19,8 @@ class Config
 		'basepathApi' => '/eco/api',		//cesta k API
 		'dir' => __DIR__,
 
-		'absoluthPathBase' => '/',
-		'base' => '',
+		'absoluthPathBase' => 'C:\Users\Tom\TUL\ING\semestr-2\DipProjekt\EditorObvodu\source/',
+		'base' => '.',
 		'cgipath' => 'cgi-bin/',
 		'projectDir' => '',
 		'datapath' => '',  //cesta k datům aplikace - využívána pro vivado
@@ -40,9 +40,9 @@ class Config
 		),
 		'settings' => array(
 			'check' => array(
-				'isHomeworkDone' => TRUE,
+				'isHomeworkDone' => FALSE,
 				'checkSolutionsLimit' => TRUE,
-				'disableAfterDeadline' => TRUE,
+				'disableAfterDeadline' => FALSE,
 			),
 			'limits' => array(
 				'maxWaitingSolutions' => 3,

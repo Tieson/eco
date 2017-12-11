@@ -340,7 +340,7 @@ function homeworkSolutionCreate($id) {
 		$db = null;
 
 	} catch (Exception $e) {
-		responseError($e->getMessage());
+		Util::responseError($e->getMessage());
 	}
 
 }

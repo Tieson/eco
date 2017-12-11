@@ -436,8 +436,8 @@ function main()
 			 */
 			$outputLines = array();
 			if ($config["release"] && $config["release"] == "local") {
-				$output = file_get_contents("vivado.log");
-				sleep(5); // umělá doba čekání napodobující samotnou simulaci
+				$output = 'error: failed @ file test.php - Local developer testing!!'; //file_get_contents("vivado.log");
+				sleep(3); // umělá doba čekání napodobující samotnou simulaci
 			} else {
 				exec($cmd, $outputLines);
 				$output = implode("\n", $outputLines);

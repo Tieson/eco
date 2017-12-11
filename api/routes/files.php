@@ -26,30 +26,24 @@ function filesList() {
 	}
 }
 
-function filesDetail($id) {
-	$app = \Slim\Slim::getInstance();
-
+function fileDetail($id) {
 	try
 	{
 		$db = Database::getDB();
-		$sth = $db->prepare("SELECT * FROM files WHERE id=:id");
+		$sth = $db->prepare("SELECT * FROM task_files WHERE id=:id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 
 		$sth->execute();
 		$schemas = $sth->fetchAll(PDO::FETCH_OBJ);
 
 		if($schemas) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($schemas);
-			$db = null;
+			Util::response($schemas);
 		} else {
 			throw new PDOException('No records found.');
 		}
 
 	} catch(PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		Util::responseError($e->getMessage(), 404);
 	}
 }
 
@@ -128,7 +122,7 @@ function addTaskFile($id) {
 function uploadFile () {
 	$app = \Slim\Slim::getInstance();
 
-	global $config;
+	$config = Config::getConfig();
 	$basedir = $config['projectDir'];
 
 	try {
@@ -222,7 +216,7 @@ function uploadFile () {
 
 function fileDelete($id) {
 	$app = \Slim\Slim::getInstance();
-	global $config;
+	$config = Config::getConfig();
 
 	try {
 		$teacher = requestLoggedTeacher();
@@ -266,5 +260,41 @@ function fileDelete($id) {
 	} catch(PDOException $e) {
 		$app->response()->setStatus(400);
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+}
+
+
+
+function fileDownload($id)
+{
+	try
+	{
+		$db = Database::getDB();
+		$sth = $db->prepare("SELECT * FROM task_files WHERE id=:id");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+
+		$sth->execute();
+		$file = $sth->fetch(PDO::FETCH_ASSOC);
+
+		if ($file) {
+			if($file['type'] != 'normal'){
+				$teacher = requestLoggedTeacher();
+				$content = file_get_contents(Config::getKey('absoluthPathBase').$file['file']);
+				$content = preg_replace('~\R~u', "\r\n", $content); // nahrazení nl za crlf pro zobrazení na windows
+				$name = basename($file['file']);
+				Util::serveFile($name, $content);
+			}else{
+				header("Location: ".$file['file']); /* Redirect browser */
+				exit();
+			}
+
+		} else {
+			throw new PDOException('File not found.');
+		}
+
+	} catch(PDOException $e) {
+		Util::responseError($e->getMessage(), 404);
+	} catch (Exception $e) {
+		Util::responseError($e->getMessage());
 	}
 }

@@ -142,7 +142,8 @@ $app->get('/tasks/:id/files', 'tasksFiles'); //získá seznam souborů pro dané
 $app->put('/tasks/:id/files', 'addTaskFile'); //Přidá soubor k zadání
 
 $app->get('/files', 'filesList'); //Zobrazí všechny soubory //TODO: omezit práva
-$app->get('/files/:id', 'filesDetail'); //Vrátí pouze konkrétní subor
+$app->get('/files/:id', 'fileDetail'); //Vrátí pouze konkrétní subor
+$app->get('/files/:id/download', 'fileDownload'); //Vrátí pouze konkrétní subor
 $app->delete('/files/:id', 'fileDelete');
 $app->post('/files', 'uploadFile');
 
