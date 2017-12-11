@@ -188,7 +188,6 @@
             <p><%= description %></p>
         </div>
     </div>
-    <%if(statusTechnical!='done') {%>
         <h2>Odevzdání úkolu</h2>
         <%if(valid==1) {%>
             <div class="row">
@@ -206,8 +205,6 @@
             Pro vyřešení kontaktujte vyučujícího (úkol není validní).
         </div>
         <% } %>
-    <% } else { %>
-    <% } %>
 
     <div id="homeworkSchemaModal" class="modal fade" role="dialog">
         <div class="modal-dialog">

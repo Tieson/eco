@@ -4,7 +4,7 @@
 function groups() {
 	$app = \Slim\Slim::getInstance();
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$teacher = requestLoggedTeacher();
 	}catch(Exception $e) {
@@ -42,7 +42,7 @@ function group($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher_id, u.name AS name, u.mail
             FROM `groups` AS g
             JOIN `user` AS u
@@ -71,7 +71,7 @@ function groupStudents($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT u.id AS id, group_id, ga.entered AS group_entered, mail, name, approved
             FROM `user` AS u 
             JOIN group_assigment AS ga 
@@ -119,7 +119,7 @@ function groupCreate() {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$result = $db->prepare("INSERT INTO `groups` (subject, day, weeks, block, teacher_id) VALUES (:subject, :day, :weeks, :block, :teacher_id)")
 			->execute($values);
 
@@ -177,7 +177,7 @@ function groupAddStudent($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$prepare = $db->prepare("INSERT INTO `group_assigment` (student_id, group_id) VALUES (:student_id, :id)");
 		$prepare->bindParam(':id', $id, PDO::PARAM_INT);
 		$prepare->bindParam(':student_id', $allPostVars['student_id'], PDO::PARAM_INT);
@@ -229,7 +229,7 @@ function groupRemoveStudent($group_id, $student_id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE student_id=:student_id AND group_id=:group_id");
 		$prepare->bindParam(':group_id', $group_id, PDO::PARAM_INT);
 		$prepare->bindParam(':student_id', $student_id, PDO::PARAM_INT);
@@ -266,7 +266,7 @@ function groupDelete($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 //		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE group_id=:group_id");
 		$prepare = $db->prepare("DELETE FROM `groups` WHERE id=:id AND teacher_id = :teacher_id");
 		$prepare->bindParam(':id', $id, PDO::PARAM_INT);

@@ -6,7 +6,7 @@ function filesList() {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT * FROM files");
 
 		$sth->execute();
@@ -16,7 +16,6 @@ function filesList() {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($schemas);
-			$db = null;
 //		} else {
 //			throw new PDOException('No records found.');
 //		}
@@ -32,7 +31,7 @@ function filesDetail($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT * FROM files WHERE id=:id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 
@@ -59,7 +58,7 @@ function tasksFiles($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT tf.id, tf.task_id, tf.file, tf.name, tf.type FROM task_files AS tf WHERE task_id=:id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
@@ -93,7 +92,7 @@ function addTaskFile($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("INSERT INTO task_files 	(task_id,	name, 	file, 	type) 
 														VALUES	(:task_id,	:name, 	:file, 	:type)");
 
@@ -128,7 +127,7 @@ function addTaskFile($id) {
 
 function uploadFile () {
 	$app = \Slim\Slim::getInstance();
-//	$config = require('./config/config.php');
+
 	global $config;
 	$basedir = $config['projectDir'];
 
@@ -174,7 +173,8 @@ function uploadFile () {
 				"file" => $base_path . '/' . $name,
 				"type" => $type,
 			);
-			$db = getDB();
+
+			$db = Database::getDB();
 			$sth = $db->prepare("INSERT INTO task_files 	(task_id,	name, 	file, 	type)
 														VALUES	(:task_id,	:name, 	:file, 	:type)");
 
@@ -234,7 +234,7 @@ function fileDelete($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$task_file_query = $db->prepare("SELECT * FROM `task_files` WHERE id = :id");
 		$task_file_query->bindParam(":id", $id, PDO::PARAM_INT);
 		$task_file_query->execute();

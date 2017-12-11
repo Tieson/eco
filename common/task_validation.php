@@ -16,7 +16,7 @@
 //}
 
 function getWaitingCount($user_id) {
-	$db = getDB();
+	$db = Database::getDB();
 	$query = $db->prepare("SELECT COUNT(*) AS pocet FROM solution WHERE user_id=:user_id AND status='waiting'");
 	$query->bindParam('user_id', $user_id, PDO::PARAM_INT);
 	$query->execute();
@@ -30,7 +30,7 @@ function isTaskValid($id, $absoluthPathBase = "")
 	$require_test = FALSE;
 
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT file, type, count(type) AS count FROM `task_files` WHERE task_id=:id GROUP BY type");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();

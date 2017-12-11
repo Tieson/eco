@@ -3,11 +3,13 @@
 session_cache_limiter(false);
 session_start();
 
-$config = require('./config/config.php');
+require_once('./config/config.php');
+require_once './vendor/autoload.php';
+require_once './common/database.php';
+
+$config = Config::getConfig();
 
 $basedir = $config['projectDir'];
-
-require $config['vendor'].'/autoload.php';
 
 $slim_config = array(
 	'displayErrorDetails' => true,
@@ -15,20 +17,6 @@ $slim_config = array(
 	'cookies.encrypt' => true,
 );
 
-function getDB()
-{
-	global $config;
-	$dbhost = $config['db']['host'];
-	$dbuser = $config['db']['user'];
-	$dbpass = $config['db']['password'];
-	$dbname = $config['db']['database'];
-
-	$mysql_conn_string = "mysql:host=$dbhost;dbname=$dbname;charset=utf8";
-	$dbConnection = new PDO($mysql_conn_string, $dbuser, $dbpass);
-	$dbConnection->exec("set names utf8");
-	$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	return $dbConnection;
-}
 $app = new \Slim\Slim(array("settings" => $slim_config));
 
 $authenticate = function ($app) {
@@ -143,7 +131,7 @@ $app->post("/login", function () use ($app) {
 //		$app->redirect($basedir.'/login');
 //	}
 
-	$db = getDB();
+	$db = Database::getDB();
 
 	$user_prepare = $db->prepare("SELECT * FROM user WHERE mail = :mail LIMIT 1");
 	$user_prepare->bindParam(':mail', $email, PDO::PARAM_STR);

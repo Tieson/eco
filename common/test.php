@@ -1,20 +1,20 @@
 <?php
 session_cache_limiter(false);
-//session_start();
-date_default_timezone_set("Europe/Prague");
+session_start();
+date_default_timezone_set('Europe/Berlin');
 
-$config = require('../config/config.php');
+require_once('../config/config.php');
+require_once '../vendor/autoload.php';
+require_once 'utils.php';
+require_once 'database.php';
+require_once 'task_validation.php';
+
+
+$config = Config::getConfig();
 $basedir = $config['projectDir'];
 
-require $config['vendor'] . '/autoload.php';
-require 'database.php';
-require 'task_validation.php';
-
-
-$db = getDB($config);
-
 // Start
-main($db, $config);
+main();
 
 
 /**
@@ -25,7 +25,7 @@ main($db, $config);
 function getNextSolution($db, $config)
 {
 
-	$db = getDB();
+	$db = Database::getDB();
 	$selectNextSolution = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, hw.task_id, s.vhdl
             FROM solution AS s 
             JOIN `hw_assigment` AS hw
@@ -291,8 +291,11 @@ function analyzeOutput($result)
  * @param $config Configuration values
  * @throws Exception
  */
-function main($db, $config)
+function main()
 {
+	$db = Database::getDB();
+	$config = Config::getConfig();
+
 	$maxSimulationCount = isset($config['maxSimulationCount']) ? $config['maxSimulationCount'] : 30;
 
 	/**
@@ -306,7 +309,7 @@ function main($db, $config)
 
 	function shutdown()
 	{
-		$db = getDB();
+		$db = Database::getDB();
 
 		global $runningSolution;
 		if ($runningSolution != null) {

@@ -12,7 +12,9 @@
 function schemas() {
 	$app = \Slim\Slim::getInstance();
 
-	$db = getDB();
+
+	$db = Database::getDB();
+
 	try {
 		$user = requestLoggedAny();
 	}
@@ -48,7 +50,7 @@ function schemas() {
 function schemaCreate() {
 	$app = \Slim\Slim::getInstance();
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$user = requestLoggedAny();
 	}
@@ -104,7 +106,7 @@ function schemaUpdate($id) {
 	);
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$request = $db->prepare("UPDATE schema_base SET name=:name, architecture=:architecture WHERE id=:id");
 
 		if ($request->execute($values)){
@@ -121,7 +123,7 @@ function schemaUpdate($id) {
 function schemaDelete($id) {
 	$app = \Slim\Slim::getInstance();
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$user = requestLoggedAny();
 	}
@@ -183,7 +185,7 @@ function schemaDelete($id) {
 function schemaDetail($id) {
 	$app = \Slim\Slim::getInstance();
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$user = requestLoggedAny();
 	}
@@ -236,7 +238,7 @@ function schemaData($id) {
 	$app = \Slim\Slim::getInstance();
 
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$user = requestLoggedAny();
 	}
@@ -300,7 +302,7 @@ function schemaDataCreate($id) {
 //		"schema_id" => $allPostVars['schema_id'],
 	);
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$user = requestLoggedAny();
 	}
@@ -349,7 +351,7 @@ function schemaDataCreate($id) {
 function schemaDataUpdate($schema_id) {
 	$app = \Slim\Slim::getInstance();
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$user = requestLoggedAny();
 	}
@@ -414,7 +416,7 @@ function schemaDataUpdate($schema_id) {
 function schemaDataLast($id) {
 	$app = \Slim\Slim::getInstance();
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$user = requestLoggedAny();
 	}

@@ -8,7 +8,7 @@ function homework($id) {
 	$app = \Slim\Slim::getInstance();
 
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$user = requestLoggedAny();
 	}
@@ -61,7 +61,7 @@ function studentsHomeworks(){
 	$app = \Slim\Slim::getInstance();
 
 //	$id = 9;
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$student = requestLoggedStudent();
 		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, g.subject, g.day, g.weeks, g.block, t.valid
@@ -104,7 +104,7 @@ function studentsHomeworks(){
  */
 function homeworkSolutionList($id) {
 	$app = \Slim\Slim::getInstance();
-	$db = getDB();
+	$db = Database::getDB();
 
 	try {
 		$user = requestLoggedAny();
@@ -162,7 +162,7 @@ function homeworkSolutionDetail($id, $hw_id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description
             FROM hw_assigment AS hw 
             JOIN task AS t
@@ -191,6 +191,29 @@ function homeworkSolutionDetail($id, $hw_id) {
 
 
 /**
+ * Test jestli je řešení u úkolu správné a úkol je tak kompletně a správně odevzdán
+ * @param $id ID zadaného úkolu
+ * @return bool
+ */
+function isHomeworkDone($hw){
+//	$db = Database::getDB();
+//	$isDoneQuery = $db->prepare("SELECT status FROM hw_assigment WHERE id=:hw_id");
+//	$isDoneQuery->bindParam(":hw_id", $id, PDO::PARAM_INT);
+//	if ($isDoneQuery->execute()) {
+//		$hw = $isDoneQuery->fetchObject();
+//		if ($hw->status == "done") {
+//			return true;
+//		}
+//	}
+	return $hw->status == 'done';
+}
+
+
+function isAfterDeadline($hw){
+	return $hw->deadline <= date('Y-m-d H:i:s');
+}
+
+/**
  * Přidá řešení (odevzdá úkol) k úkolu
  * Korky:   1) zjistit jestli je úkol studenta a získat schéma
  *          4) vytvořit řešení
@@ -203,51 +226,46 @@ function homeworkSolutionCreate($id) {
 	try {
 		$student = requestLoggedStudent();
 	}catch(Exception $e) {
-		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		responseError($e->getMessage());
 		return;
 	}
-
-	/*
-	 * Kontrola maximálního počtu čekajících řešení
-	 */
-	$pocetReseni = 3;
-	if(getWaitingCount($student['id'])>=$pocetReseni) {
-		$app->response()->setStatus(429);
-		echo '{"error":{"text":"Překročili jste max. '.$pocetReseni.' čekajících řešení."}}';
-		return;
-	}
-
-	$allPostVars = json_decode($app->request->getBody(), true);
-	$values = array(
-		'homework_id' => $allPostVars['homework_id'],
-		'schema_id' => $allPostVars['schema_id'],
-		'name' => $allPostVars['name'],
-		'architecture' => $allPostVars['architecture'],
-		'vhdl' => $allPostVars['vhdl'],
-		'student_id' => $student['id'],
-	);
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 
-		// test jestli je řešení již odevzdané
-		$isDoneQuery = $db->prepare("SELECT status 
-			FROM hw_assigment WHERE id=:hw_id");
+		$isDoneQuery = $db->prepare("SELECT status, deadline, created, task_id, student_id, group_id FROM hw_assigment WHERE id=:hw_id");
 		$isDoneQuery->bindParam(":hw_id", $id, PDO::PARAM_INT);
 		if($isDoneQuery->execute()){
 			$hw = $isDoneQuery->fetchObject();
-			if ($hw->status=="done"){
-				$app->response()->setStatus(400);
-				$app->response()->headers->set('Content-Type', 'application/json');
-				echo json_encode(array(
-					'error' => array(
-						'text' => 'Úkol je správně odevzdaný, nelze odevzdávat další řešení.'
-					)
-				));
+
+			/**
+			 * Kontrola jestli je úkol již úspěšně odevzdán
+			 */
+			if (Config::getKey('settings/check/isHomeworkDone') && isHomeworkDone($hw)){
+				responseError("Řešení k úkol nelze odevzdat, protože úkol je již úspěšně odevzdaný.");
 				return;
 			}
+
+			/**
+			 * Kontrola jestli je úkol po deadlinu
+			 */
+			if (Config::getKey('settings/check/disableAfterDeadline') && isAfterDeadline($hw)){
+				responseError("Vypršel termín pro odevzdání ukolu.");
+				return;
+			}
+
+			/*
+			 * Kontrola maximálního počtu čekajících řešení
+			 */
+			$pocetReseni = Config::getKey('settings/limits/maxWaitingSolutions');
+			if(Config::getKey('settings/check/checkSolutionsLimit') && getWaitingCount($student['id'])>=$pocetReseni) {
+				responseError("Překročili jste max. $pocetReseni čekajících řešení.", 429);
+				return;
+			}
+		}else{
+			responseError("Úkol nebly nalezen.");
+			return;
 		}
 
 
@@ -259,6 +277,17 @@ function homeworkSolutionCreate($id) {
 
 		if($homework->execute()){
 			//OK úkol existuje a je studenta
+
+			$allPostVars = json_decode($app->request->getBody(), true);
+			$values = array(
+				'homework_id' => $allPostVars['homework_id'],
+				'schema_id' => $allPostVars['schema_id'],
+				'name' => $allPostVars['name'],
+				'architecture' => $allPostVars['architecture'],
+				'vhdl' => $allPostVars['vhdl'],
+				'student_id' => $student['id'],
+			);
+
 
 			$sth = $db->prepare("INSERT INTO solution 
 				  (homework_id, schema_id, user_id, created, `name`, architecture, vhdl )
@@ -310,14 +339,8 @@ function homeworkSolutionCreate($id) {
 		}
 		$db = null;
 
-	} catch(Exception $e) {
-		$app->response()->setStatus(400);
-		echo json_encode(array(
-			'error' => array(
-				'text' => $e->getMessage()
-			)
-		));
-		$db = null;
+	} catch (Exception $e) {
+		responseError($e->getMessage());
 	}
 
 }
@@ -344,7 +367,7 @@ function assignHomework() {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 
 			$sth = $db->prepare("INSERT INTO `hw_assigment` 
 			(`task_id`,`student_id`,`created`,`deadline`,`status`,`group_id`)
@@ -381,7 +404,7 @@ function homeworkDelete($id){
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 
 			$prepare = $db->prepare("DELETE FROM `hw_assigment` WHERE id=:id");
 			$prepare->bindParam(':id', $id, PDO::PARAM_INT);
@@ -416,7 +439,7 @@ function homeworkSolutionDelete($hw_id,$id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 
 		// Kontrola jestli schéma patří studentovi!
 		$homework = $db->prepare("SELECT id 
@@ -460,7 +483,7 @@ function groupHomeworks($id){
 		exit();
 	}
 
-	$db = getDB();
+	$db = Database::getDB();
 	try
 	{
 		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description, u.name AS u_name, u.mail, hw.group_id, hw.status, g.subject, g.day, g.weeks, g.block

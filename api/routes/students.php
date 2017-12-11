@@ -18,7 +18,7 @@ function students() {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT id, id AS `user_id`, mail, `name` AS `name` 
             FROM `user` WHERE type_uctu='student'");
 		$sth->execute();
@@ -44,7 +44,7 @@ function student($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
             FROM `user` 
             WHERE id = :id LIMIT 1");
@@ -75,7 +75,7 @@ function student($id) {
 function studentHomeworkList($id) {
 	$app = \Slim\Slim::getInstance();
 
-	$db = getDB();
+	$db = Database::getDB();
 	try {
 		$teacher = requestLoggedTeacher();
 
@@ -131,7 +131,7 @@ function studentHomeworkDetail($id, $hw_id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT hw.id,hw.task_id,hw.student_id,hw.created,hw.deadline,hw.status,t.teacher_id,t.name,t.description
             FROM hw_assigment AS hw 
             JOIN task AS t
@@ -170,7 +170,7 @@ function studentGroupList() {
 	}
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT ga.group_id, g.teacher_id, ga.entered, ga.approved, 
 			g.subject, g.`day`, g.weeks, g.block, u.name, u.mail 
             FROM group_assigment AS ga 

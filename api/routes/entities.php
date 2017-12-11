@@ -15,7 +15,7 @@ $app->get('/categories', function () {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT id_cat AS id, name
             FROM entity_cat");
 
@@ -26,7 +26,6 @@ $app->get('/categories', function () {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($schemas);
-			$db = null;
 		} else {
 			throw new PDOException('No records found.');
 		}
@@ -42,7 +41,7 @@ $app->get('/entities', function () {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT id_entity AS id, id_cat AS id_category, name, label FROM entities WHERE active=1");
 		$sth->execute();
 		$schemas = $sth->fetchAll(PDO::FETCH_OBJ);
@@ -51,7 +50,6 @@ $app->get('/entities', function () {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($schemas);
-			$db = null;
 		} else {
 			throw new PDOException('No records found.');
 		}
@@ -67,7 +65,7 @@ $app->get('/categories/:id/entities', function ($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT id_entity AS id, id_cat AS id_category, name, label, architecture, vhdl, inputs_count
             FROM entities WHERE id_cat = :id");
 
@@ -79,7 +77,6 @@ $app->get('/categories/:id/entities', function ($id) {
 			$app->response->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 			echo json_encode($schemas);
-			$db = null;
 		} else {
 			throw new PDOException('No records found.');
 		}

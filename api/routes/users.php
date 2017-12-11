@@ -16,7 +16,7 @@ function users(){
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT *
             FROM user");
 		$sth->execute();
@@ -43,7 +43,7 @@ function user($id) {
 
 	try
 	{
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT *
             FROM user
             WHERE id = :id");

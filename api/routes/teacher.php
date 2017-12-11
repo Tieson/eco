@@ -23,7 +23,7 @@ function teachers()
 	}
 
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT teacher.id AS `id`, user.id AS `user_id`, user.mail AS mail, user.name AS name 
             FROM `teacher` JOIN `user` ON user.id = teacher.user_id");
 		$sth->execute();
@@ -61,7 +61,7 @@ function teacher($id)
 	}
 
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT t.id AS `id`, u.id AS `user_id`, u.mail AS mail, u.name AS name 
             FROM `teacher` AS t JOIN `user` AS u
             ON u.id = t.user_id 
@@ -98,7 +98,7 @@ function teacherGroups($id)
 	}
 
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT group_id, teacher_id, subject, day, weeks, block
             FROM group_teaching AS gt JOIN `group` ON gt.group_id=`group`.id WHERE teacher_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
@@ -133,7 +133,7 @@ function teacherHomeworks($id)
 	}
 
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT hw.id as id, t.name as name, t.valid, hw.status, task_id, hw.student_id, t.teacher_id, deadline, hw.created, u.name AS student_name, u.mail AS student_mail
         	FROM hw_assigment AS hw
         	JOIN task AS t
@@ -177,7 +177,7 @@ function teacherTasks($id)
 	}
 
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created, valid
             FROM task WHERE teacher_id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
@@ -213,7 +213,7 @@ function showTasks()
 	}
 	try {
 
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created, valid
             FROM task WHERE teacher_id = :id");
 		$sth->bindParam(':id', $teacher['id'], PDO::PARAM_INT);
@@ -249,7 +249,7 @@ function showValidTasks()
 	}
 	try {
 
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created, valid
             FROM task WHERE teacher_id = :id AND valid=1");
 		$sth->bindParam(':id', $teacher['id'], PDO::PARAM_INT);
@@ -285,7 +285,7 @@ function task($id)
 	}
 
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("SELECT id, teacher_id, name, entity, description, created, valid
             FROM task WHERE id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
@@ -332,7 +332,7 @@ function taskCreate()
 	);
 
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 		$sth = $db->prepare("INSERT INTO task (id, teacher_id, name, entity, description)
             VALUES(:id,:teacher_id,:name,:entity, :description)");
 
@@ -391,7 +391,7 @@ function taskUpdate($id)
 //		"test_file" => $allPostVars['test_file'],
 	);
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 		$request = $db->prepare("UPDATE task SET name=:name, description=:description, teacher_id=:teacher_id, entity=:entity WHERE id=:id AND teacher_id=:teacher_id");
 
 		if ($request->execute($values)) {
@@ -453,7 +453,7 @@ function taskDelete($id)
 	}
 
 	try {
-		$db = getDB();
+		$db = Database::getDB();
 //		$prepare = $db->prepare("DELETE FROM `group_assigment` WHERE group_id=:group_id");
 		$prepare = $db->prepare("DELETE FROM `task` WHERE id=:id AND teacher_id=:teacher_id");
 		$prepare->bindParam(':id', $id, PDO::PARAM_INT);
