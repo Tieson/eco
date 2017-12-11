@@ -32,23 +32,12 @@ eco.Router = Backbone.Router.extend({
     },
 });
 
-function hideButtons(btns) {
-    _.each(btns, function (item) {
-        $(item).hide();
-    });
-}
-
-function showButtons(btns) {
-    _.each(btns, function (item) {
-        $(item).show();
-    });
-}
 
 function beforeRoute() {
     $(eco.selectors.main).empty();
     $(eco.selectors.schemas).hide();
     $(eco.selectors.pages).hide();
-    hideButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
+    eco.Utils.hideButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
 }
 
 

@@ -387,6 +387,55 @@ function getUtils() {
             });
         },
 
+        addEntityToGraph: function (entityName, position, graph, foundEntity) {
+            if (joint.shapes.mylib[entityName]) {
+                var newCell = new joint.shapes.mylib[entityName]({
+                    position: position
+                });
+                var counter = graph.get('counter');
+                // x.attr('custom', );
+                var number = counter.inc(entityName);
+                var elemLabel = eco.Utils.getElementLabel(entityName);
+                if (elemLabel !== undefined) {
+                    var uniqueName = elemLabel + number;
+                    newCell.attr('.label/text', uniqueName);
+                } else {
+                    var uniqueName = entityName + '_' + number;
+                }
+                newCell.attr('custom', {
+                    type: entityName,
+                    name: elemLabel,
+                    number: number,
+                    uniqueName: uniqueName,
+                    label: foundEntity.get('label'),
+                });
+                graph.addCell(newCell);
+            }
+            else {
+                foundEntity.set('disabled', true);
+            }
+        },
+
+        /**
+         * Schová tlačítka podle zadaného pole selectorů
+         * @param btns
+         */
+        hideButtons: function(btns) {
+            _.each(btns, function (item) {
+                $(item).hide();
+            });
+        },
+        /**
+         * Zobrazí tlačítka podle zadaného seznamu selectorů
+         * @param btns
+         */
+        showButtons: function(btns) {
+            _.each(btns, function (item) {
+                $(item).show();
+            });
+        },
+
+
         /**
          * Kontrola importovaného VHDL souboru
          * Naivní kontrola zda-li jde o vhd file

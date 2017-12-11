@@ -189,11 +189,32 @@ window.eco.start = function (data) {
         }
     };
 
+
+    this.vent = _.extend({}, Backbone.Events);
     var categoriesView = new eco.Views.CategoriesView({
         model: new eco.Models.EntityPanel({
             entities: entities,
             categories: categories,
-        })
+        }),
+        vent: this.vent
+    });
+
+    categoriesView.listenTo(this.vent, 'onEntityClick', function (item, event) {
+
+        if (activeSchemaView) {
+            var graph = activeSchemaView.get('graph');
+
+            var entityId = $(event.currentTarget).attr('data-entityid');
+            var foundEntity = entities.get(entityId);
+            var entityName = foundEntity.get('name');
+
+            eco.Utils.addEntityToGraph(entityName, {
+                x: 40,
+                y: 40
+            }, graph, foundEntity);
+
+        }
+
     });
 
     /**
@@ -257,14 +278,17 @@ window.eco.start = function (data) {
         }
     }
 
+    /**
+     * Funkce zajistí otevření zadaného schéma - jeho zobrazení. Buď otevřen neotevřené nebo znovu zobrazí již otevřené.
+     * @param schema
+     */
     function showSchema(schema) {
-
         schemas_tab.show();
-        showButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
-        console.log('%c showSchema ', 'background: yellow; color:white;', schema);
+        eco.Utils.showButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
+        // console.log('%c showSchema ', 'background: yellow; color:white;', schema);
 
-        //schovat posledně zobrazené schéma
-        hideSchemaPaper(activeSchemaView);
+
+        hideSchemaPaper(activeSchemaView); //schovat posledně zobrazené schéma
 
         if (isSchemaOpen(schema)) {
             reopenSchema(schema);
@@ -276,15 +300,15 @@ window.eco.start = function (data) {
     }
 
     function openSchema(schema) {
-        console.log('%c openSchema ', 'background: yellow; color: red', schema.get('id'), schema, activeSchemaView);
+        // console.log('%c openSchema ', 'background: yellow; color: red', schema.get('id'), schema, activeSchemaView);
 
-        var paper = eco.createPaper(schema);
+        var paper = eco.createPaper(schema, schemaContainer);
 
         var counter = createSetCounter(0);
 
-        console.log('schema success', schema);
+        // console.log('schema success', schema);
         schema.loadGraph(function () {
-            console.log('%c schema loaded graph!! ', 'background: yellow; color: red', schema.get('graph'));
+            // console.log('%c schema loaded graph!! ', 'background: yellow; color: red', schema.get('graph'));
 
             var graph = schema.get('graph');
             graph.set('counter', counter);
@@ -306,59 +330,33 @@ window.eco.start = function (data) {
                     var entityId = parseInt($(ui.helper).attr('data-entityid'));
                     var foundEntity = entities.get(entityId);
                     var entityName = foundEntity.get('name');
-                    console.log(entityName);
-                    if (joint.shapes.mylib[entityName]) {
-                        var newCell = new joint.shapes.mylib[entityName]({
-                            position: {
-                                x: ui.offset.left - schemaContainer.offset().left,
-                                y: ui.offset.top - schemaContainer.offset().top
-                            }
-                        });
-                        // x.attr('custom', );
-                        var number = counter.inc(entityName);
-                        var elemLabel = eco.Utils.getElementLabel(entityName);
-                        if (elemLabel !== undefined) {
-                            var uniqueName = elemLabel + number;
-                            newCell.attr('.label/text', uniqueName);
-                        } else {
-                            var uniqueName = entityName + '_' + number;
-                        }
-                        newCell.attr('custom', {
-                            type: entityName,
-                            name: elemLabel,
-                            number: number,
-                            uniqueName: uniqueName,
-                            label: foundEntity.get('label'),
-                        });
-                        schema.get('graph').addCell(newCell);
-                        //TODO: Přidat label hlavně u vstupů a výstupů s ID od counteru
-                    }
-                    else {
-                        foundEntity.set('disabled', true);
-                    }
+
+                    eco.Utils.addEntityToGraph(entityName, {
+                        x: ui.offset.left - schemaContainer.offset().left,
+                        y: ui.offset.top - schemaContainer.offset().top
+                    }, graph, foundEntity);
                 }
             });
         });
-
     }
 
     function showSchemaPaper(schema) {
-        console.log('%c showSchemaPaper ', 'background: yellow', schema);
+        // console.log('%c showSchemaPaper ', 'background: yellow', schema);
         if (schema) {
             var paper = openedSchemasPapers[schema.get('id')];
             if (paper) {
-                console.log('paper:', paper);
+                // console.log('paper:', paper);
                 paper.$el.show();
             }
         }
     }
 
     function hideSchemaPaper(schema) {
-        console.log('%c hideSchemaPaper ', 'background: yellow', schema);
+        // console.log('%c hideSchemaPaper ', 'background: yellow', schema);
         if (schema) {
             var paper = openedSchemasPapers[schema.get('id')];
             if (paper) {
-                console.log('paper:', paper);
+                // console.log('paper:', paper);
                 paper.$el.hide();
             }
         }
@@ -852,19 +850,19 @@ window.eco.start = function (data) {
     /**konec router metod**/
 
 
-    window.eco.createPaper = function (schema) {
-        console.log("%c createPaper ", "background:cornflowerblue; color: #fff");
+    window.eco.createPaper = function (schema, $container, size) {
+        // console.log("%c createPaper ", "background:cornflowerblue; color: #fff");
 
+        var size = _.extend({}, {width: 2400, height: 1200}, size);
         var graph = schema.get('graph');
 
-        var container = $("#canvasWrapper"),
-            width = 2400,
-            height = 1200;
+        var container = $container;
 
         var paperContainer = $('<div class="paper"></div>');
-        paperContainer.width(width);
-        paperContainer.height(height);
+        paperContainer.width(size.width);
+        paperContainer.height(size.height);
         paperContainer.attr('id', schema.get('id'));
+        paperContainer.attr('data-id', schema.get('id'));
 
         container.append(paperContainer);
 
@@ -874,8 +872,8 @@ window.eco.start = function (data) {
 
             el: paperContainer,
             model: graph,
-            width: width,
-            height: height,
+            width: size.width,
+            height: size.height,
             gridSize: 7,
             snapLinks: true,
             linkPinning: false,

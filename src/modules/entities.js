@@ -120,6 +120,7 @@ eco.Views.CategoriesView = Backbone.View.extend({
     syncedAll: false,
     initialize: function (opts) {
         // this.listenTo(this.model, 'change', this.render);
+        this.vent = opts.vent;
         this.listenTo(this.model.get('categories'), 'sync', this.render);
         this.listenTo(this.model.get('entities'), 'sync', this.render);
         this.render();
@@ -166,9 +167,9 @@ eco.Views.CategoriesView = Backbone.View.extend({
         return this;
     },
     onEntityClick: function (event) {
-        console.log($(event.target));
-
-        // console.log(this.collection.get($(event.target).parent().attr('data-categoryid')).get('name'));
+        if (this.vent) {
+            this.vent.trigger('onEntityClick', this, event);
+        }
     }
 
 });
