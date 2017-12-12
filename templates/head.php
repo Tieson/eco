@@ -26,6 +26,7 @@
 	<script src="scripts/jquery.hotkeys.js"></script>
 	<script src="assets/js/libs/lodash/lodash.min.js"></script>
 	<script src="assets/js/libs/backbone/backbone-min.js"></script>
+	<script src="scripts/Backbone.Undo.min.js"></script>
 	<!--	<script src="assets/js/libs/backbone-relational/backbone-relational.js"></script>-->
 	<script src="assets/js/libs/backbone.localStorage/backbone.localStorage-min.js"></script>
 	<!--	<script src="assets/js/libs/backbone.marionette/lib/backbone.marionette.min.js"></script>-->

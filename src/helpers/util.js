@@ -116,6 +116,9 @@ function createSetCounter(start) {
                 }
             }
         },
+        emptyAll: function () {
+            counts = {};
+        },
         empty: function (key) {
             counts[key] = [];
         },
@@ -242,7 +245,7 @@ function startClock(gate, signal, paper, graph) {
  * @returns {number}
  */
 function initializeSignal(paper, graph) {
-  console.log("%c initializeSignal ", "background: brown; color: yellow");
+  // console.log("%c initializeSignal ", "background: brown; color: yellow");
   var signal = Math.random(); //náhodná inicializace signálu
   // signal > 0 => vodič s log. 1, signal < 0  => vodič s log. 0
 

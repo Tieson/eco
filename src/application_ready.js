@@ -24,7 +24,6 @@ eco.Router = Backbone.Router.extend({
         if (!callback) callback = this[name];
 
         var f = function () {
-            $(document).off('keydown');
             beforeRoute();
             callback && callback.apply(router, arguments);
         };
@@ -34,6 +33,8 @@ eco.Router = Backbone.Router.extend({
 
 
 function beforeRoute() {
+    $(document).off('keydown');
+
     $(eco.selectors.main).empty();
     $(eco.selectors.schemas).hide();
     $(eco.selectors.pages).hide();

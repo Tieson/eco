@@ -13,6 +13,7 @@ eco.Models.Schema = Backbone.Model.extend({
         // colletion: null, //kolekce VHDL dat
         graph: null,
         paper: null,
+        undomanager: null,
     },
     parse: function (data) {
         return data; // in this case your model will be mixed with server response after sync was call

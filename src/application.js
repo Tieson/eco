@@ -44,8 +44,9 @@ window.eco = {
     }
 };
 
+activeSchemaView = null;
+
 window.eco.start = function (data) {
-    //Routes
     var router = new eco.Router();
 
     router.on('all', function () {
@@ -166,8 +167,7 @@ window.eco.start = function (data) {
     ]);
     // categories.fetch();
 
-    var activeSchemaView = null,
-        openedSchemas = new eco.Collections.Schemas(null, {local: true}), // seznam otevřených schémat.
+    var openedSchemas = new eco.Collections.Schemas(null, {local: true}), // seznam otevřených schémat.
         openedSchemasPapers = {};
 
     var openedSchemasButtonsView = new eco.Views.SchemasListView({collection: openedSchemas, active: activeSchemaView});
@@ -323,6 +323,35 @@ window.eco.start = function (data) {
             var sim = new eco.Models.Simulation({paper: paper});
             sim.startSimulation();
 
+            var undomanager = new Backbone.UndoManager();
+            undomanager.register(graph);
+            schema.set('undomanager', undomanager);
+
+
+            Backbone.UndoManager.removeUndoType("change");
+
+            // var beforeState;
+            // Backbone.UndoManager.addUndoType('change:isChanging', {
+            //     'on': function(model, isChanging){
+            //         if(isChanging) {
+            //             beforeState = model.toJSON();
+            //         }else {
+            //             return {
+            //                 object: model,
+            //                 before: beforeState,
+            //                 after: model.toJSON()
+            //             }
+            //         }
+            //     },
+            //     'undo': function (model, before, after) {
+            //         model.set(before);
+            //     },
+            //     'redo': function (model, before, after) {
+            //         model.set(after);
+            //     }
+            // });
+            undomanager.startTracking();
+
             eco.Utils.inicilizeCounterbyGraph(counter, graph);
 
             paper.$el.droppable({
@@ -384,7 +413,7 @@ window.eco.start = function (data) {
     }
 
     function reopenSchema(schema) {
-        console.log('%c reopenSchema ', 'background: yellow; color: blue', schema.get('id'), schema, activeSchemaView);
+        // console.log('%c reopenSchema ', 'background: yellow; color: blue', schema.get('id'), schema, activeSchemaView);
         showSchemaPaper(schema);
         setSchemaActive(schema);
     }
@@ -395,7 +424,6 @@ window.eco.start = function (data) {
      */
 
     function defaultRoute() {
-        console.log("404 Stránka nenalezena.");
         setPageTitle('404 Stránka nenalezena');
         main.html('<h1>404 Stránka nenalezena</h1>');
         main_tab.show();
@@ -530,6 +558,30 @@ window.eco.start = function (data) {
         });
         $(document).on('keydown', null, 'ctrl+e', function () {
             exportActiveSchema();
+            return false;
+        });
+
+        $(document).on('keydown', null, 'ctrl+z', function () {
+            var undomanager = activeSchemaView.get('undomanager');
+            if (undomanager) {
+                undomanager.undo(true);
+                var graph = activeSchemaView.get('graph');
+                var counter = graph.get('counter');
+                counter.emptyAll();
+                eco.Utils.inicilizeCounterbyGraph(counter, graph);
+            }
+            return false;
+        });
+
+        $(document).on('keydown', null, 'ctrl+shift+z', function () {
+            var undomanager = activeSchemaView.get('undomanager');
+            if (undomanager){
+                undomanager.redo(true);
+                var graph = activeSchemaView.get('graph');
+                var counter = graph.get('counter');
+                counter.emptyAll();
+                eco.Utils.inicilizeCounterbyGraph(counter, graph);
+            }
             return false;
         });
 

@@ -2769,16 +2769,22 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
     pointerclick: function (evt, x, y) {
         joint.dia.CellView.prototype.pointerclick.apply(this, arguments);
         var self = this;
+
+        console.log('pointerclick', self, self.model.get('id'), self.model.graph);
         var className = evt.target.parentNode.getAttribute('class');
         switch (className) {
             case 'element-tool-remove':
-                var id = $(evt.target.parentNode).attr("data-id");
-                if (id==self.model.get('id') ){
-                    var graph = this.model.graph;
-                    var counter = graph.get('counter');
-                    counter.removeOne(self.model.attr('custom').type, this.model.attr('custom').number);
-                    self.model.remove();
-                    return;
+
+                if (activeSchemaView) {
+                    var graph = activeSchemaView.get('graph');
+                    var id = $(evt.target.parentNode).attr("data-id");
+                    if (id==self.model.get('id') ){
+                        // var graph = self.model.graph;
+                        var counter = graph.get('counter');
+                        counter.removeOne(self.model.attr('custom').type, this.model.attr('custom').number);
+                        self.model.remove();
+                        return;
+                    }
                 }
                 break;
             default:
