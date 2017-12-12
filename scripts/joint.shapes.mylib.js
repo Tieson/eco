@@ -2763,22 +2763,26 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
         this._dx = x;
         this._dy = y;
         this._action = '';
+        joint.dia.CellView.prototype.pointerup.apply(this, arguments);
+    },
+
+    pointerclick: function (evt, x, y) {
+        joint.dia.CellView.prototype.pointerclick.apply(this, arguments);
+        var self = this;
         var className = evt.target.parentNode.getAttribute('class');
         switch (className) {
             case 'element-tool-remove':
                 var id = $(evt.target.parentNode).attr("data-id");
-                if (id==this.model.get('id')){
-                    console.log("remove click");
+                if (id==self.model.get('id') ){
                     var graph = this.model.graph;
                     var counter = graph.get('counter');
-                    counter.removeOne(this.model.attr('custom').type, this.model.attr('custom').number);
-                    this.model.remove();
+                    counter.removeOne(self.model.attr('custom').type, this.model.attr('custom').number);
+                    self.model.remove();
                     return;
                 }
                 break;
             default:
         }
-        joint.dia.CellView.prototype.pointerup.apply(this, arguments);
     },
 });
 
