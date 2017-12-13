@@ -23,13 +23,13 @@
 </script>
 
 <script type="text/template" id="tasksListItem-template">
-    <td class="list-name"><a href="#tasks/<%=data.id%>" class="btn btn-xs button--default"><%=data.name%></a></td>
+    <td class="list-name"><a href="#tasks/<%=data.id%>/edit" class="btn btn-xs button--default"><%=data.name%></a></td>
     <td class="list-created"><%=data.created%></td>
     <td class="list-entity"><%=data.entity%></td>
     <td class="list-entity"><%=data.valid%></td>
     <td>
         <button class="btn btn-xs btn-danger task_delete" data-cid="<%=data.cid%>">Smazat</button>
-        <a href="#tasks/<%=data.id%>/edit" class="btn btn-xs btn-default">Upravit</a>
+        <!--<a href="#tasks/<%=data.id%>/edit" class="btn btn-xs btn-default">Upravit</a>-->
     </td>
 </script>
 
@@ -44,7 +44,7 @@
                 <th>Vytvořeno</th>
             </tr>
             </thead>
-            <tbody class="items-container">
+            <tbody class="items-container list">
             </tbody>
         </table>
     </div>

@@ -139,6 +139,7 @@ $app->put('/tasks/:id', 'taskUpdate');
 $app->delete('/tasks/:id', 'taskDelete');
 
 $app->get('/tasks/:id/files', 'tasksFiles'); //získá seznam souborů pro dané zadání
+$app->get('/tasks/:id/files_normal', 'taskFilesStudent'); //získá seznam souborů pro dané zadání
 $app->put('/tasks/:id/files', 'addTaskFile'); //Přidá soubor k zadání
 
 $app->get('/files', 'filesList'); //Zobrazí všechny soubory //TODO: omezit práva

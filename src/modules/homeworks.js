@@ -437,7 +437,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
     renderInit: function () {
         var self = this;
         this.$el.empty();
-        var detailView = new eco.Views.GenericDetail({
+        var detailView = new eco.Views.HomeworkInfoDetail({
             template: '#homeworkDetail-template',
             formater: eco.Formaters.HomeworkFormater,
             model: this.model,
@@ -473,6 +473,35 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         return this;
     }
 
+});
+
+
+
+eco.Views.HomeworkInfoDetail = eco.Views.GenericDetail.extend({
+    afterInitialization: function () {
+        this.listenTo(this.model, 'sync change', this.initRenderTaskFiles);
+    },
+    initRenderTaskFiles: function () {
+        var self = this;
+
+        var files = new eco.Collections.Files(null,{
+            url: eco.basedir+'/api/tasks/'+self.model.get('task_id')+'/files_normal',
+        });
+        files.fetch();
+
+        this.filesView = new eco.Views.GenericList({
+            el: "#taskFilesContainer",
+            title: "Přiložené soubory",
+            noRecordsMessage: 'Žádné soubory nejsou přiloženy',
+            template: '#homeworkFilesList-template',
+            itemTemplate: '#homeworkFilesItem-template',
+            formater: eco.Formaters.FileFormater,
+            collection: files,
+            searchNames: [
+                'list-file',
+            ]
+        });
+    }
 });
 
 eco.Views.HomeworkTeacherDetail = eco.Views.HomeworkDetail.extend({

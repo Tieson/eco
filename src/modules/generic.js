@@ -57,7 +57,9 @@ eco.Views.GenericList = Backbone.View.extend({
         if(this.collection.length > 0){
             this.collection.each(this.renderOne, this);
         }else {
-            this.$el.html('<h1>'+this.noRecordsMessage+'</h1>');
+            var $element = $('<div class="alert alert-warning">' + this.noRecordsMessage + '</div>');
+            this.$el.append($element);
+            // this.$el.append('<td>'+this.noRecordsMessage+'</td>');
         }
         try {
             var options = {

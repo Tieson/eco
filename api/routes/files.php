@@ -48,8 +48,6 @@ function fileDetail($id) {
 }
 
 function tasksFiles($id) {
-	$app = \Slim\Slim::getInstance();
-
 	try
 	{
 		$db = Database::getDB();
@@ -58,18 +56,27 @@ function tasksFiles($id) {
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-//		if($items) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($items);
-			$db = null;
-//		} else {
-//			echo '[]';
-//		}
+		Util::response($items);
 
 	} catch(PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		Util::responseError($e->getMessage());
+	}
+}
+
+
+function taskFilesStudent($id) {
+	try
+	{
+		$db = Database::getDB();
+		$sth = $db->prepare("SELECT tf.id, tf.task_id, tf.file, tf.name, tf.type FROM task_files AS tf WHERE task_id=:id AND type='normal'");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		$sth->execute();
+		$items = $sth->fetchAll(PDO::FETCH_OBJ);
+
+		Util::response($items);
+
+	} catch(PDOException $e) {
+		Util::responseError($e->getMessage());
 	}
 }
 
@@ -274,18 +281,18 @@ function fileDownload($id)
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 
 		$sth->execute();
-		$file = $sth->fetch(PDO::FETCH_ASSOC);
+		$fileObject = $sth->fetch(PDO::FETCH_ASSOC);
 
-		if ($file) {
-			if($file['type'] != 'normal'){
+		if ($fileObject) {
+			if($fileObject['type'] != 'normal'){
 				$teacher = requestLoggedTeacher();
-				$content = file_get_contents(Config::getKey('absoluthPathBase').$file['file']);
+				$content = file_get_contents(Config::getKey('absoluthPathBase').$fileObject['file']);
 				$content = preg_replace('~\R~u', "\r\n", $content); // nahrazení nl za crlf pro zobrazení na windows
-				$name = basename($file['file']);
+				$name = basename($fileObject['file']);
 				Util::serveFile($name, $content);
 			}else{
-				header("Location: ".$file['file']); /* Redirect browser */
-				exit();
+				header("Location: ".$fileObject['file']); /* Redirect browser */
+				exit;
 			}
 
 		} else {
