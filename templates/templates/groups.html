@@ -78,8 +78,9 @@
     <td class="list-created"><%=data.created%></td>
     <td>
         <a href="#groups/<%=data.id%>" class="btn btn-xs button--default"><i class="glyphicon glyphicon-file"></i> Detail</a>
-        <a href="#groups/<%=data.id%>/homeworks" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-tasks"></i> Úkoly</a>
+        <a href="#groups/<%=data.id%>/homeworks" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-tasks"></i> Zadané úkoly</a>
         <a href="#groups/<%=data.id%>/delete" class="btn btn-xs btn-danger group-delete" data-cid="<%=data.cid%>"> <i class="glyphicon glyphicon-trash"></i> Smazat</a>
+        <a href="#groups/<%=data.id%>/edit" class="btn btn-xs btn-default"><i class="glyphicon glyphicon-edit"></i> Upravit</a>
     </td>
 </script>
 
@@ -356,13 +357,13 @@
 
 <script type="text/template" id="addGroupForm-template">
 
-    <h1>Vytvořit novou skupinu</h1>
+    <h1><%=title%></h1>
 
     <form action="#">
         <div class="row">
             <div class="col-xs-12 col-sm-6 col-md-3">
                 <div class="form-group">
-                    <label for="nova_skupina-subject">Předmět</label>
+                    <label for="nova_skupina-subject">Název (Předmět)</label>
                     <input type="text" class="form-control" id="nova_skupina-subject" placeholder="___"
                            value="<%=model.subject%>">
                 </div>
@@ -370,21 +371,18 @@
             <div class="col-xs-12 col-sm-6 col-md-3">
                 <div class="form-group">
                     <label for="nova_skupina-day">Den</label>
-                    <select class="form-control" id="nova_skupina-day">
-                        <option value="po">Pondělí</option>
-                        <option value="ut">Úterý</option>
-                        <option value="st">Středa</option>
-                        <option value="ct">Čtvrtek</option>
-                        <option value="pa">Pátek</option>
-                        <option value="so">Sobota</option>
-                        <option value="ne">Neděle</option>
+                    <select class="form-control" id="nova_skupina-day" value="<%=model.day%>">
+                        <% _.each({"po":'Pondělí',"ut":'Úterý',"st":'Středa',"ct":'Čtvrtek',"pa":'Pátek',"so":'Sobota',"ne":'Neděle'},function(value, index) { %>
+                        <option value="<%=index%>"
+                        <% if(index==model.day){%> selected <%}%>> <%=value%></option>
+                        <% }); %>
                     </select>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-3">
                 <div class="form-group">
                     <label for="nova_skupina-block">Blok</label>
-                    <select class="form-control" id="nova_skupina-block">
+                    <select class="form-control" id="nova_skupina-block" value="<%=model.block%>">
                         <% _.each([1,2,3,4,5,6,7,8,9,10],function(index) { %>
                         <option value="<%=index%>"
                         <% if(index==model.block){%> selected <%}%> > <%=index%>.</option>
@@ -397,9 +395,10 @@
                 <div class="form-group">
                     <label for="nova_skupina-weeks">Týden</label>
                     <select class="form-control" id="nova_skupina-weeks" value="<%=model.weeks%>">
-                        <option value="both">Každý</option>
-                        <option value="even">Sudý</option>
-                        <option value="odd">Lichý</option>
+                        <% _.each({"both":'Každý',"even":'Sudý',"odd":'Lichý'},function(value, index) { %>
+                        <option value="<%=index%>"
+                        <% if(index==model.weeks){%> selected <%}%>> <%=value%></option>
+                        <% }); %>
                     </select>
                 </div>
             </div>
@@ -408,7 +407,7 @@
         <div class="row">
             <div class="col-xs-12 col-sm-3">
                 <div class="form-group">
-                    <button type="submit" class="btn btn-block button--success">Přidat</button>
+                    <button type="submit" class="btn btn-block button--success"><%=submitText%></button>
                 </div>
             </div>
         </div>

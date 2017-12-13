@@ -172,6 +172,7 @@ eco.Views.GenericForm = Backbone.View.extend({
     tagName: 'div',
     initialize: function (opts) {
         this.title = opts.title || "";
+        this.submitText = opts.submitText || "Přidat";
         this.template = _.template($(opts.template).html());
         this.formater = opts.formater || eco.Formaters.GenericFormater;
         this.validator = opts.validator || eco.Validators.NoValidator;
@@ -204,15 +205,13 @@ eco.Views.GenericForm = Backbone.View.extend({
     },
     render: function () {
         var data = this.formater(this.model);
-        console.log("DATA", data, this.model);
-        var html = this.template({error: this.error, title: this.title, model: data});
+        var html = this.template({error: this.error, title: this.title, model: data, submitText: this.submitText});
         this.$el.html(html);
 
         return this;
     },
     formSubmit: function (e) {
         e.preventDefault();
-        console.log("formSubmit");
         var self = this;
         var schema = this.model;
 
@@ -222,7 +221,6 @@ eco.Views.GenericForm = Backbone.View.extend({
         if (this.validator(data)) {
             data.save(data.toJSON(), {
                 success: function (model, response) {
-                    console.log("Generic formSubmit success");
                     showSnackbar(self.sanckbarMessage);
                     if (self.collection) {
                         schema.set(data);

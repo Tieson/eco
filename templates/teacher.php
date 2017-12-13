@@ -53,6 +53,7 @@
 
                 'groups': 'showGroups', //seznam skupin vyučujícího
                 'groups/:id': 'showGroupDetail', //detailu skupiny
+                'groups/:id/edit': 'editGroup', //detailu skupiny
                 'groups/:id/homeworks': 'showGroupHomeworks', //seznam úkolů zadanách ve skupině
 
                 'tasks': 'showOwnTasks', // seznam zadání

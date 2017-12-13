@@ -118,6 +118,7 @@ $app->get('/schemas/:id/vhdls/last', 'schemaDataLast');
 $app->get('/groups', 'groups'); //seznam skupin
 $app->post('/groups', 'groupCreate'); //vytvoření skupiny
 $app->get('/groups/:id', 'group'); //detail skupiny
+$app->put('/groups/:id', 'groupEdit'); //uravit skupinu
 $app->get('/groups/:id/students', 'groupStudents'); //studenti skupiny
 $app->get('/groups/:id/homeworks', 'groupHomeworks'); //studenti skupiny
 $app->post('/groups/:id/students', 'groupAddStudent'); // přidání studenta do skupiny

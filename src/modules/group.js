@@ -461,3 +461,30 @@ eco.Views.StudentAssignGroupsList = eco.Views.GenericList.extend({
         return false;
     },
 });
+
+
+
+eco.Views.EditGroup = eco.Views.GenericForm.extend({
+    afterInitialization: function () {
+        this.origTitle = this.title;
+        this.listenTo(this.model, 'sync', this.updateTitle);
+    },
+    updateTitle: function () {
+        this.title = this.origTitle + ": " + this.model.get('subject');
+        this.render();
+    },
+    onSuccess:function (schema, model) {
+        this.model = model;
+        this.updateTitle();
+    },
+    events: {
+        'submit form': 'formSubmit',
+    },
+    // render: function () {
+    //     var data = this.formater(this.model);
+    //     var html = this.template({error: this.error, title: this.title, model: data});
+    //     this.$el.html(html);
+    //
+    //     return this;
+    // },
+});

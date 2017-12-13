@@ -152,6 +152,54 @@ function groupCreate() {
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 }
+function groupEdit($id) {
+	$app = \Slim\Slim::getInstance();
+
+	try {
+		$teacher = requestLoggedTeacher();
+	}catch(Exception $e) {
+		Util::responseError($e->getMessage(), 401);
+		exit();
+	}
+
+	$allPostVars = json_decode($app->request->getBody(), true);
+	$values = array(
+		"subject" => $allPostVars['subject'],
+		"day" => $allPostVars['day'],
+		"block" => $allPostVars['block'],
+		"weeks" => $allPostVars['weeks'],
+		"id" => $id,
+	);
+
+	try
+	{
+		$db = Database::getDB();
+		$result = $db->prepare("UPDATE `groups` SET subject=:subject, day=:day, weeks=:weeks, block=:block WHERE id=:id")
+			->execute($values);
+
+		if ($result){
+			$id = $db->lastInsertId();
+
+			$sth = $db->prepare("SELECT g.id AS id, g.subject, g.day, g.weeks, g.block, g.created, g.teacher_id, u.name AS name, u.mail
+            FROM `groups` AS g
+            JOIN `user` AS u
+            ON g.teacher_id = u.id
+            WHERE g.id=:id LIMIT 1");
+			$sth->bindParam(":id", $id, PDO::PARAM_INT);
+			if ($sth->execute()) {
+				$group = $sth->fetchObject();
+				Util::response($group);
+			} else {
+				throw new PDOException('Getting inserted values was unsuccessful');
+			}
+		} else {
+			throw new PDOException('No group was created.');
+		}
+
+	} catch(PDOException $e) {
+		Util::responseError($e->getMessage());
+	}
+}
 
 function groupAddStudent($id) {
 	$app = \Slim\Slim::getInstance();

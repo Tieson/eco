@@ -53,6 +53,7 @@ window.eco = {
         /** Skupiny **/
         router.on('route:showGroups', showGroups);
         router.on('route:showGroupDetail', showGroupDetail);
+        router.on('route:editGroup', editGroup);
 
 
         // router.on('route:homeworksAssigment', homeworksAssigment); eco.Views.TaskStudent
@@ -486,6 +487,66 @@ window.eco = {
             main.append(addFileView.render().$el);
             main.append(filesView.$el);
             files.fetch();
+        }
+
+        function editGroup(id) {
+            setPageTitle('Editace skupiny');
+            main_tab.show();
+            main.empty();
+            eco.ViewGarbageCollector.clear();
+            var groupsView = new eco.Views.GroupsList({
+                template: '#groupsList-template',
+                itemTemplate: '#groupsListItem-template',
+                formater: eco.Formaters.GroupFormater,
+                deleteConfirm: {
+                    needConfirm: true,
+                    swal: {
+                        title: "Opravdu chcete skupinu odstranit?",
+                        text: "Odebrání nelze vzít zpět!",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Ano, smazat!",
+                        cancelButtonText: "Ne",
+                        closeOnConfirm: false
+                    }
+                },
+                searchNames: [
+                    'list-subject',
+                    'list-day',
+                    'list-block',
+                    'list-weeks',
+                    'list-teacher',
+                    'list-created',
+                ],
+                collection: groups,
+            });
+            groups.fetch();
+
+            var newModel = new eco.Models.Group({id:id});
+            newModel.fetch();
+
+            var addGroupView = new eco.Views.EditGroup({
+                submitText: 'Uložit',
+                titleText: 'Editace skupiny',
+                title: 'Upravit skupinu',
+                template: "#addGroupForm-template",
+                mapper: function ($element) {
+                    var result = eco.Utils.mapValues({
+                        'subject': eco.Utils.inputParsers.byValue,
+                        'day': eco.Utils.inputParsers.byValue,
+                        'weeks': eco.Utils.inputParsers.byValue,
+                        'block': eco.Utils.inputParsers.byValue,
+                    }, "#nova_skupina-" , $element);
+                    return result;
+                },
+                model: newModel,
+                collection: groups,
+            });
+            addGroupView.render();
+
+            main.append(addGroupView.$el);
+            // main.append(groupsView.$el);
         }
 
         function showTaskDetail(id) {
