@@ -2,6 +2,9 @@
 <!--<script src="src/helpers/templates.js?--><?php //echo(filemtime('./src/helpers/templates.js')) ?><!--"></script>-->
 
 
+<script src="src/structure.js?<?php echo(filemtime('./src/structure.js')) ?>"></script>
+
+<script src="src/helpers/util.js?<?php echo(filemtime('./src/helpers/util.js')) ?>"></script>
 <script src="src/helpers/formaters.js?<?php echo(filemtime('./src/helpers/formaters.js')) ?>"></script>
 <script src="src/helpers/validators.js?<?php echo(filemtime('./src/helpers/validators.js')) ?>"></script>
 <script src="src/helpers/snackbar.js?<?php echo(filemtime('./src/helpers/snackbar.js')) ?>"></script>

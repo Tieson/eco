@@ -80,15 +80,17 @@ $app->get("/private", $authenticate($app), function () use ($app) {
 });
 
 
-$app->get('/students', 'students'); //seznam všech studentů
-$app->get('/students/hw', 'studentsHomeworks'); //seznam úkolů pro studenta
-$app->get('/students/hw/id', 'studentHomeworkDetail'); //detail úkolu studenta
-$app->get('/students/groups', 'studentGroupList');
-$app->get('/students/:id', 'student'); //informace o konkrétním uživateli - asi není potřeba
-$app->get('/students/:id/hw', 'studentHomeworkList'); //seznam úkolů konkrétního studentas
-$app->get('/students/:id/hw/:hw_id', 'studentHomeworkDetail');
-//$app->get('/students/:id/groups', 'studentGroupList');
-$app->delete('/students/:id', 'student');
+$app->group('/students', function () use ($app){
+	$app->get('', 'students'); //seznam všech studentů
+	$app->get('/hw', 'studentsHomeworks'); //seznam úkolů pro studenta
+	$app->get('/hw/id', 'studentHomeworkDetail'); //detail úkolu studenta
+	$app->get('/groups', 'studentGroupList');
+	$app->get('/:id', 'student'); //informace o konkrétním uživateli - asi není potřeba
+	$app->get('/:id/hw', 'studentHomeworkList'); //seznam úkolů konkrétního studentas
+	$app->get('/:id/hw/:hw_id', 'studentHomeworkDetail');
+    //$app->get('/:id/groups', 'studentGroupList');
+	$app->delete('/students/:id', 'student');
+});
 
 
 //Pomocné - měli by být neveřejné
@@ -98,55 +100,67 @@ $app->get('/users/:id', 'user');
 
 //pro studenta
 
-$app->post('/homework', 'assignHomework'); //seznam úkolů konkrétního studentas
-$app->get('/homework/:id', 'homework');
-$app->delete('/homework/:id', 'homeworkDelete');
-$app->get('/homework/:id/solutions', 'homeworkSolutionList');
-$app->post('/homework/:id/solutions', 'homeworkSolutionCreate');
-$app->delete('/homework/:hw_id/solutions/:id', 'homeworkSolutionDelete');
+$app->group('/homework', function () use ($app) {
+	$app->post('', 'assignHomework'); //seznam úkolů konkrétního studentas
+	$app->get('/:id', 'homework');
+	$app->delete('/:id', 'homeworkDelete');
+	$app->get('/:id/solutions', 'homeworkSolutionList');
+	$app->post('/:id/solutions', 'homeworkSolutionCreate');
+	$app->delete('/:hw_id/solutions/:id', 'homeworkSolutionDelete');
+});
 
-$app->get('/schemas', 'schemas');
-$app->post('/schemas', 'schemaCreate');
-$app->put('/schemas/:id', 'schemaUpdate');
-$app->delete('/schemas/:id', 'schemaDelete');
-$app->get('/schemas/:id', 'schemaDetail');
-$app->get('/schemas/:id/vhdls', 'schemaData');
-$app->post('/schemas/:id/vhdls', 'schemaDataCreate');
-$app->put('/schemas/:schema_id/vhdls', 'schemaDataUpdate');
-$app->get('/schemas/:id/vhdls/last', 'schemaDataLast');
+$app->group('/homework', function () use ($app) {
+	$app->get('', 'schemas');
+	$app->post('', 'schemaCreate');
+	$app->put('/:id', 'schemaUpdate');
+	$app->delete('/:id', 'schemaDelete');
+	$app->get('/:id', 'schemaDetail');
+	$app->get('/:id/vhdls', 'schemaData');
+	$app->post('/:id/vhdls', 'schemaDataCreate');
+	$app->put('/:id/vhdls', 'schemaDataUpdate');
+	$app->get('/:id/vhdls/last', 'schemaDataLast');
+});
 
-$app->get('/groups', 'groups'); //seznam skupin
-$app->post('/groups', 'groupCreate'); //vytvoření skupiny
-$app->get('/groups/:id', 'group'); //detail skupiny
-$app->put('/groups/:id', 'groupEdit'); //uravit skupinu
-$app->get('/groups/:id/students', 'groupStudents'); //studenti skupiny
-$app->get('/groups/:id/homeworks', 'groupHomeworks'); //studenti skupiny
-$app->post('/groups/:id/students', 'groupAddStudent'); // přidání studenta do skupiny
-//$app->post('/groups/:id/students/:student_id', 'groupAddStudent'); // přidání studenta do skupiny
-$app->delete('/groups/:id', 'groupDelete'); // odebrání skupiny
-$app->delete('/groups/:group_id/students/:student_id', 'groupRemoveStudent'); // odebrání studenta ze skupiny
+$app->group('/groups', function () use ($app) {
+	$app->get('', 'groups'); //seznam skupin
+	$app->post('', 'groupCreate'); //vytvoření skupiny
+	$app->get('/:id', 'group'); //detail skupiny
+	$app->put('/:id', 'groupEdit'); //uravit skupinu
+	$app->get('/:id/students', 'groupStudents'); //studenti skupiny
+	$app->get('/:id/homeworks', 'groupHomeworks'); //studenti skupiny
+	$app->post('/:id/students', 'groupAddStudent'); // přidání studenta do skupiny
+    //$app->post('/:id/students/:student_id', 'groupAddStudent'); // přidání studenta do skupiny
+	$app->delete('/:id', 'groupDelete'); // odebrání skupiny
+	$app->delete('/:group_id/students/:student_id', 'groupRemoveStudent'); // odebrání studenta ze skupiny
+});
 
-$app->get('/teachers', 'teachers');
-$app->get('/teachers/:id', 'teacher');
-$app->get('/teachers/:id/groups', 'teacherGroups');
-$app->get('/teachers/:id/hw', 'teacherHomeworks');
-$app->get('/teachers/:id/tasks', 'teacherTasks');
+$app->group('/teachers', function () use ($app) {
+	$app->get('', 'teachers');
+	$app->get('/:id', 'teacher');
+	$app->get('/:id/groups', 'teacherGroups');
+	$app->get('/:id/hw', 'teacherHomeworks');
+	$app->get('/:id/tasks', 'teacherTasks');
+});
 
-$app->get('/tasks', 'showTasks');
-$app->get('/tasks/valid', 'showValidTasks');
-$app->post('/tasks', 'taskCreate');
-$app->get('/tasks/:id', 'task');
-$app->put('/tasks/:id', 'taskUpdate');
-$app->delete('/tasks/:id', 'taskDelete');
+$app->group('/tasks', function () use ($app) {
+	$app->get('', 'showTasks');
+	$app->get('/valid', 'showValidTasks');
+	$app->post('', 'taskCreate');
+	$app->get('/:id', 'task');
+	$app->put('/:id', 'taskUpdate');
+	$app->delete('/:id', 'taskDelete');
 
-$app->get('/tasks/:id/files', 'tasksFiles'); //získá seznam souborů pro dané zadání
-$app->get('/tasks/:id/files_normal', 'taskFilesStudent'); //získá seznam souborů pro dané zadání
-$app->put('/tasks/:id/files', 'addTaskFile'); //Přidá soubor k zadání
+	$app->get('/:id/files', 'tasksFiles'); //získá seznam souborů pro dané zadání
+	$app->get('/:id/files_normal', 'taskFilesStudent'); //získá seznam souborů pro dané zadání
+	$app->put('/:id/files', 'addTaskFile'); //Přidá soubor k zadání
+});
 
-$app->get('/files', 'filesList'); //Zobrazí všechny soubory //TODO: omezit práva
-$app->get('/files/:id', 'fileDetail'); //Vrátí pouze konkrétní subor
-$app->get('/files/:id/download', 'fileDownload'); //Vrátí pouze konkrétní subor
-$app->delete('/files/:id', 'fileDelete');
-$app->post('/files', 'uploadFile');
+$app->group('/files', function () use ($app) {
+	$app->get('', 'filesList'); //Zobrazí všechny soubory //TODO: omezit práva
+	$app->get('/:id', 'fileDetail'); //Vrátí pouze konkrétní subor
+	$app->get('/:id/download', 'fileDownload'); //Vrátí pouze konkrétní subor
+	$app->delete('/:id', 'fileDelete');
+	$app->post('', 'uploadFile');
+});
 
 $app->run();

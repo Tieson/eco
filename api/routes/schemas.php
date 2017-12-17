@@ -348,7 +348,7 @@ function schemaDataCreate($id) {
 	}
 }
 
-function schemaDataUpdate($schema_id) {
+function schemaDataUpdate($id) {
 	$app = \Slim\Slim::getInstance();
 
 	$db = Database::getDB();
@@ -373,7 +373,7 @@ function schemaDataUpdate($schema_id) {
             JOIN schema_data AS sd
             ON  sd.schema_id = sb.id
             WHERE schema_id = :schema_id AND user_id = :user_id");
-		$schema->bindParam(":schema_id", $schema_id, PDO::PARAM_INT);
+		$schema->bindParam(":schema_id", $id, PDO::PARAM_INT);
 		$schema->bindParam(":user_id", $user['user_id'], PDO::PARAM_INT);
 //	} else if (isTeacher($user)) {
 //		$schema = $db->prepare("SELECT id
@@ -392,7 +392,7 @@ function schemaDataUpdate($schema_id) {
 				$request = $db->prepare("UPDATE schema_data SET data=:data, edited=NOW() WHERE schema_id=:schema_id AND id=:id");
 				$request->bindParam(":data", $values['data'], PDO::PARAM_STR);
 				$request->bindParam(":id", $values['id'], PDO::PARAM_INT);
-				$request->bindParam(":schema_id", $schema_id, PDO::PARAM_INT);
+				$request->bindParam(":schema_id", $id, PDO::PARAM_INT);
 
 				if ($request->execute()) {
 					$app->response()->setStatus(200);

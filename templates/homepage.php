@@ -24,7 +24,7 @@
 
 					<div id="ribbonContent" class="ribbon__contents">
 						<p class="text-muted text-center">
-							Entity se načítají...
+
 						</p>
 					</div>
 				</div>
@@ -37,4 +37,21 @@
 	</div>
 </div>
 
-<?php require 'footer.php' ?>
+<div id="modals"></div>
+
+<div id="snackbar" class="snackbar">...</div>
+
+<div id="scripts">
+	<?php require 'scripts.php'; ?>
+    <script src="src/application.js?<?php echo(filemtime('./src/application.js')) ?>"></script>
+
+    <script>
+        eco.basedir = '<?php echo $projectDir ?>';
+        $(document).ready(function() {
+            eco.start();
+        });
+    </script>
+</div>
+
+</body>
+</html>

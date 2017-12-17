@@ -1,7 +1,3 @@
-/**
- * Created by Tom on 29.06.2017.
- */
-
 
 eco.Formaters.GroupFormater = function (model) {
     var result = {
@@ -136,6 +132,5 @@ eco.Formaters.StudentFormater = function (model) {
 
 eco.Formaters.GenericFormater = function (x) {
     var result = _.extend({}, x.attributes, {cid: x.cid});
-    console.log("_.......................................", x, result);
     return result  ;
 };

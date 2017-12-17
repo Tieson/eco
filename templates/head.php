@@ -53,12 +53,6 @@
 	<!--<script src="/scripts/VhdExport.js"></script>-->
 	<!--<script src="/scripts/VhdImport.js"></script>-->
 
-    <script>
-        var config = {
-            basedir: '<?php echo $projectDir ?>'
-        }
-    </script>
-
 
 	<style>
 		.joint-element .output, .joint-element .input

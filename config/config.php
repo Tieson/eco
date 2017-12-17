@@ -6,6 +6,7 @@ class Config
 	private static $config = array(
 
 		"release" => "local",
+		'secret' => 'secret',
 		'db' => array(
 			'host' => '127.0.0.1',
 			'user' => 'root',

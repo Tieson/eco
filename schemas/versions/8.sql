@@ -20,3 +20,5 @@
 TRUNCATE TABLE `solution` ||
 ALTER TABLE `solution` ADD `user_id` INT NOT NULL AFTER `schema_id`, ADD INDEX `fk_user_id` (`user_id`) ||
 
+
+UPDATE `version` SET version=8, updated=NOW()||

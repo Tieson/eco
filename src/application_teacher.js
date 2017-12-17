@@ -1,48 +1,52 @@
 // Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
 
 
+function beforeRoute() {
+    $(document).off('keydown');
 
+    $(eco.selectors.main).empty();
+    $(eco.selectors.schemas).hide();
+    $(eco.selectors.pages).hide();
 
-window.eco = {
-    Models: {},
-    Collections: {},
-    Views: {},
-    Formaters: {},
-    Validators: {},
-    Mappers: {},
-    Utils: getUtils(),
-    basedir: config.basedir || '',
-    ViewGarbageCollector: {
-        items: [],
-        clear: function () {
-            _.each(this.items, function (item) {
-                if (item && item.remove) {
-                    item.stopListening();
-                    item.remove();
-                }
-            });
-            this.items = [];
-        },
-        add: function (item) {
-            this.items.push(item)
-        },
-        getItems: function () {
-            return this.items;
-        }
+    eco.Utils.hideButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
+}
+
+eco.Router = Backbone.Router.extend({
+    routes: {
+        '': 'home',
+
+        'groups': 'showGroups', //seznam skupin vyučujícího
+        'groups/:id': 'showGroupDetail', //detailu skupiny
+        'groups/:id/edit': 'editGroup', //detailu skupiny
+        'groups/:id/homeworks': 'showGroupHomeworks', //seznam úkolů zadanách ve skupině
+
+        'tasks': 'showOwnTasks', // seznam zadání
+        'tasks/:id': 'showTaskDetail', //detail zadání
+        'tasks/:id/edit': 'editTask', // úprava zadání s uploadem souborů
+
+        'homeworks/:id': 'showHwDetail', //detail úkolů se zadáním
+
+        'schemas': 'showSchemas', //seznam vlastních schémat
+        'schemas/new': 'schemaCreateNew', //vytvoření nového schema
+        'schemas/:id': 'openedSchema', //otevření schéma
+        'schemas/:id/edit': 'showSchemaEdit', //úprava údajů schéma
+
+//                'students/:id/homeworks': 'showStudentsHwList', // zobrazí všechny úkoly studenta
+
+        '*path':  'defaultRoute'
     },
-    buttons: {
-        'saveSchema': ".saveSchemaButton",
-        'exportSchema': ".vhdlExportSchemaButton",
-        'libDownload': "#menu-file-download_lib",
+    route: function(route, name, callback) {
+        var router = this;
+        if (!callback) callback = this[name];
+
+        var f = function () {
+            beforeRoute();
+            callback && callback.apply(router, arguments);
+        };
+        return Backbone.Router.prototype.route.call(this, route, name, f);
     },
-    selectors: {
-        'main': '#page_main_content',
-        'main_bar': '#main_bar',
-        'pages': '#container--pages',
-        'schemas': '#container--schemas',
-        'canvasWrapper': '#canvasWrapper',
-    }
-};
+});
+
 
     window.eco.start = function(data) {
         //Routes
