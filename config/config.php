@@ -19,7 +19,10 @@ class Config
 		'libPath' => 'lib.vhd',
 		'basepathApi' => '/eco/api',		//cesta k API
 		'dir' => __DIR__,
-
+		'admin' => array(
+			'name' => 'admin',
+			'password' => 'heslo',
+		),
 		'absoluthPathBase' => 'C:\Users\Tom\TUL\ING\semestr-2\DipProjekt\EditorObvodu\source/',
 		'base' => '.',
 		'cgipath' => 'cgi-bin/',

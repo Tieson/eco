@@ -9,7 +9,7 @@ require_once './common/database.php';
 
 $config = Config::getConfig();
 
-$basedir = $config['projectDir'];
+//$basedir = Config::getKey('projectDir');
 
 $slim_config = array(
 	'displayErrorDetails' => true,
@@ -21,7 +21,7 @@ $app = new \Slim\Slim(array("settings" => $slim_config));
 
 $authenticate = function ($app) {
 	return function () use ($app) {
-		global $basedir;
+		$basedir = Config::getKey('projectDir');
 		if (!isset($_SESSION['user_id'])) {
 			$_SESSION['urlRedirect'] = $basedir.$app->request()->getPathInfo();
 //			$app->flash('error', 'Login required');
@@ -32,7 +32,7 @@ $authenticate = function ($app) {
 
 $authenticateTeacher = function ($app) {
 	return function () use ($app) {
-		global $basedir;
+		$basedir = Config::getKey('projectDir');
 		if (isset($_SESSION['user_id']) && isset($_SESSION['user_role']) && $_SESSION['user_role']=='teacher') {
 
 		} else {
@@ -68,7 +68,7 @@ $app->hook('slim.before.dispatch', function() use ($app) {
 		'user_logged',
 	));
 
-	global $basedir;
+	$basedir = Config::getKey('projectDir');
 
 	$app->view()->setData('projectDir', $basedir); //TODO: toto implementovat v masteru
 });
@@ -79,7 +79,7 @@ $app->get('/', function() use($app) {
 });
 
 $app->get("/login", function () use ($app) {
-	global $basedir;
+	$basedir = Config::getKey('projectDir');
 
 	$app->response->setStatus(200);
 	$flash = $app->view()->getData('flash');
@@ -115,7 +115,7 @@ $app->get("/login", function () use ($app) {
 });
 
 $app->post("/login", function () use ($app) {
-	global $basedir;
+	$basedir = Config::getKey('projectDir');
 	$email = $app->request()->post('email');
 	$password = $app->request()->post('password');
 
@@ -131,10 +131,13 @@ $app->post("/login", function () use ($app) {
 //		$app->redirect($basedir.'/login');
 //	}
 
+	$password_hash = hash('sha256',$password, FALSE);
+
 	$db = Database::getDB();
 
-	$user_prepare = $db->prepare("SELECT * FROM user WHERE mail = :mail LIMIT 1");
+	$user_prepare = $db->prepare("SELECT * FROM user WHERE mail = :mail AND (password = :password OR password IS NULL) LIMIT 1");
 	$user_prepare->bindParam(':mail', $email, PDO::PARAM_STR);
+	$user_prepare->bindParam(':password', $password_hash, PDO::PARAM_STR);
 
 	$user_prepare->execute();
 	$user = $user_prepare->fetchObject();
@@ -152,12 +155,38 @@ $app->post("/login", function () use ($app) {
 		}
 		$app->redirect($basedir.'/');
 	}else {
-		$app->flash('errors', array('email'=>'Uživatel nenalezen.'));
+		$app->flash('errors', array('email'=>'Přihlašovací jméno nebo heslo není správné.'));
 		$app->redirect($basedir.'/login');
 	}
 });
 
 $app->get("/logout", function () use ($app) {
+	setNullDataToViewAndUnset($app, array(
+		'user_id',
+		'user_name',
+		'user_role',
+		'user_logged',
+	));
+//	$app->render('homepage.php');
+	$basedir = Config::getKey('projectDir');
+	$app->redirect($basedir.'/login');
+});
+
+$app->get("/register", function () use ($app) {
+	$basedir = Config::getKey('projectDir');
+	$error = NULL;
+	$email_error = NULL;
+	$password_error = NULL;
+	$app->render('register.php', array(
+		'error' => $error,
+//		'email_value' => $email_value,
+		'email_error' => $email_error,
+		'password_error' => $password_error,
+//		'urlRedirect' => $urlRedirect,
+		'basedir' => $basedir
+	));
+});
+$app->post("/register", function () use ($app) {
 	setNullDataToViewAndUnset($app, array(
 		'user_id',
 		'user_name',

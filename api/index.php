@@ -11,22 +11,16 @@ require_once '../common/task_validation.php';
 
 $config = Config::getConfig();
 
-$basedir = $config['projectDir'];
+$basedir = Config::getKey('projectDir');
+
+$slim_config = array(
+	'debug' => true,
+	'displayErrorDetails' => true,
+	'addContentLengthHeader' => true,
+//	'cookies.lifetime' => '20 minutes'
+);
 
 
-$slim_config['displayErrorDetails'] = true;
-$slim_config['addContentLengthHeader'] = false;
-
-
-$authenticate = function ($app) {
-	return function () use ($app) {
-		if (!isset($_SESSION['user.id'])) {
-			$_SESSION['urlRedirect'] = $app->request()->getPathInfo();
-			$app->flash('error', 'Login required');
-			$app->redirect('/login');
-		}
-	};
-};
 
 
 $app = new \Slim\Slim(array("settings" => $slim_config));
@@ -75,8 +69,8 @@ require_once './routes/homeworks.php';
 
 //$app->post('/file', 'uploadFile');
 
-$app->get("/private", $authenticate($app), function () use ($app) {
-	$app->render('privateAbout.php');
+$app->get('/foo', AuthRoute::authenticateForRole('admin'), function () {
+	//Display admin control panel
 });
 
 
@@ -109,7 +103,7 @@ $app->group('/homework', function () use ($app) {
 	$app->delete('/:hw_id/solutions/:id', 'homeworkSolutionDelete');
 });
 
-$app->group('/homework', function () use ($app) {
+$app->group('/schemas', function () use ($app) {
 	$app->get('', 'schemas');
 	$app->post('', 'schemaCreate');
 	$app->put('/:id', 'schemaUpdate');

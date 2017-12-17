@@ -129,16 +129,14 @@ function addTaskFile($id) {
 function uploadFile () {
 	$app = \Slim\Slim::getInstance();
 
-	$config = Config::getConfig();
-	$basedir = $config['projectDir'];
+	$basedir = Config::getKey('projectDir');
 
 	try {
 		$teacher = requestLoggedTeacher();
 
 	} catch(Exception $e) {
-		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
-		exit;
+		Util::responseError($e->getMessage(), 401);
+		$app->stop();
 	}
 
 	if (!isset($_FILES['uploads'])) {
@@ -180,7 +178,6 @@ function uploadFile () {
 														VALUES	(:task_id,	:name, 	:file, 	:type)");
 
 
-
 			$result = $sth->execute($values);
 
 			if ($result) {
@@ -192,18 +189,14 @@ function uploadFile () {
 				$item = $sth->fetch(PDO::FETCH_OBJ);
 
 				if ($item) {
-					$app->response()->setStatus(200);
-					$app->response()->headers->set('Content-Type', 'application/json');
-					echo json_encode($item);
+					Util::response($item);
 
-					$isValid = isTaskValid($task_id, $config["absoluthPathBase"]);
+					$isValid = isTaskValid($task_id, Config::getKey("absoluthPathBase"));
 					if ($isValid===TRUE){
 						taskUpdateValidity($task_id, 1, $db);
 					}else{
 						taskUpdateValidity($task_id, 0, $db);
 					}
-
-					$db = null;
 				} else {
 					throw new PDOException('Getting inserted values was unsuccessful');
 				}
@@ -212,8 +205,7 @@ function uploadFile () {
 			}
 
 		} catch (PDOException $e) {
-			$app->response()->setStatus(404);
-			echo '{"error":{"text":' . $e->getMessage() . '}}';
+			Util::responseError($e->getMessage(), 404);
 		}
 	}
 
@@ -223,14 +215,12 @@ function uploadFile () {
 
 function fileDelete($id) {
 	$app = \Slim\Slim::getInstance();
-	$config = Config::getConfig();
 
 	try {
 		$teacher = requestLoggedTeacher();
 	} catch(Exception $e) {
-		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
-		exit;
+		Util::responseError($e->getMessage(), 401);
+		$app->stop();
 	}
 
 	try
@@ -250,23 +240,19 @@ function fileDelete($id) {
 			$app->response()->setStatus(200);
 			$app->response()->headers->set('Content-Type', 'application/json');
 
-			$isValid = isTaskValid($task_id, $config["absoluthPathBase"]);
+			$isValid = isTaskValid($task_id, Config::getKey("absoluthPathBase"));
 			if ($isValid===TRUE){
 				taskUpdateValidity($task_id, 1, $db);
 			}else{
 				taskUpdateValidity($task_id, 0, $db);
 			}
-			
-			echo json_encode(array( 'response' => 'success' ));
-
-			$db = null;
+			Util::response(array( 'response' => 'success' ));
 		} else {
 			throw new PDOException('No group was deleted.');
 		}
 
 	} catch(PDOException $e) {
-		$app->response()->setStatus(400);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		Util::responseError($e->getMessage(), 400);
 	}
 }
 
@@ -274,6 +260,7 @@ function fileDelete($id) {
 
 function fileDownload($id)
 {
+	$app = \Slim\Slim::getInstance();
 	try
 	{
 		$db = Database::getDB();
@@ -291,8 +278,7 @@ function fileDownload($id)
 				$name = basename($fileObject['file']);
 				Util::serveFile($name, $content);
 			}else{
-				header("Location: ".$fileObject['file']); /* Redirect browser */
-				exit;
+				$app->redirect($fileObject['file']);
 			}
 
 		} else {

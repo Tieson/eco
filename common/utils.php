@@ -1,5 +1,13 @@
 <?php
 
+class AuthorizationException extends Exception
+{
+	public function __construct($message, $code = 0, Exception $previous = null)
+	{
+		parent::__construct($message, $code, $previous);
+	}
+}
+
 class Util
 {
 
@@ -48,14 +56,17 @@ class Util
 		return $complete;
 	}
 
-	public static function getJwtData($jwtData)
+	public static function getJwtData($token)
 	{
 		$result = array();
-		$parts = explode('.', $jwtData);
-		$result['header'] = json_decode(base64_decode($parts[0]));
-		$result['payload'] = json_decode(base64_decode($parts[1]));
-
-		return $result;
+		$parts = explode('.', $token);
+		if (count($parts)==3){
+			$result['header'] = json_decode(base64_decode($parts[0]));
+			$result['payload'] = json_decode(base64_decode($parts[1]));
+			return $result;
+		}else{
+			throw new AuthorizationException("Authorization token have invalid length.");
+		}
 	}
 
 	public static function clearBase64Encoding($data)
@@ -66,19 +77,12 @@ class Util
 	public static function getToken()
 	{
 		$app = \Slim\Slim::getInstance();
-		return $app->request->headers->get('Authorization');
+		$token = $app->request->headers->get('Authorization');
+		if (!$token || empty($token)){
+//			throw new AuthorizationException("No or empty Authorization header in HTTP.");
+			$app->halt(403, "No or empty Authorization header in HTTP.");
+		}
+		return $token;
 	}
 }
-
-
-/**
- * Vypíše JSON objekt s poppisem chyby a odešle ho jako JSON
- * @param $msg
- * @param int $status
- */
-function responseError($msg, $status = 400)
-{
-	Util::responseError($msg, $status);
-}
-
 

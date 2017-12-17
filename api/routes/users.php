@@ -12,56 +12,43 @@
 
 
 function users(){
-	$app = \Slim\Slim::getInstance();
-
 	try
 	{
 		$db = Database::getDB();
-		$sth = $db->prepare("SELECT *
-            FROM user");
+		$sth = $db->prepare("SELECT * FROM user");
 		$sth->execute();
 		$users = $sth->fetchAll(PDO::FETCH_OBJ);
 
 		if($users) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($users);
-			$db = null;
+			Util::response($users);
 		} else {
 			throw new PDOException('No records found.');
 		}
 
 	} catch(PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		Util::responseError($e->getMessage(), 404);
 	}
 }
 
 
 function user($id) {
-	$app = \Slim\Slim::getInstance();
-
 	try
 	{
 		$db = Database::getDB();
-		$sth = $db->prepare("SELECT *
-            FROM user
-            WHERE id = :id");
+		$sth = $db->prepare("SELECT * FROM user WHERE id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->execute();
-		$users = $sth->fetch(PDO::FETCH_OBJ);
+		$user = $sth->fetch(PDO::FETCH_OBJ);
 
-		if($users) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($users);
-			$db = null;
+		if($user) {
+			Util::response($user);
 		} else {
 			throw new PDOException('No records found.');
 		}
+		return $user;
 
 	} catch(PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		Util::responseError($e->getMessage(), 404);
+		return FALSE;
 	}
 }

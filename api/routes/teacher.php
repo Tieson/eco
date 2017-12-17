@@ -369,8 +369,6 @@ function taskUpdate($id)
 {
 	$app = \Slim\Slim::getInstance();
 
-	global $config;
-
 	try {
 		$teacher = requestLoggedTeacher();
 
@@ -397,7 +395,7 @@ function taskUpdate($id)
 		if ($request->execute($values)) {
 			$app->response()->setStatus(200);
 
-			$isValid = isTaskValid($id, $config["absoluthPathBase"]);
+			$isValid = isTaskValid($id, Config::getKey("absoluthPathBase"));
 			if ($isValid===TRUE){
 				taskUpdateValidity($id, 1, $db);
 			}else{

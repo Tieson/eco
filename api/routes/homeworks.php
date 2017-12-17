@@ -226,7 +226,7 @@ function homeworkSolutionCreate($id) {
 	try {
 		$student = requestLoggedStudent();
 	}catch(Exception $e) {
-		responseError($e->getMessage());
+		Util::responseError($e->getMessage());
 		return;
 	}
 
@@ -243,7 +243,7 @@ function homeworkSolutionCreate($id) {
 			 * Kontrola jestli je úkol již úspěšně odevzdán
 			 */
 			if (Config::getKey('settings/check/isHomeworkDone') && isHomeworkDone($hw)){
-				responseError("Řešení k úkol nelze odevzdat, protože úkol je již úspěšně odevzdaný.");
+				Util::responseError("Řešení k úkol nelze odevzdat, protože úkol je již úspěšně odevzdaný.");
 				return;
 			}
 
@@ -251,7 +251,7 @@ function homeworkSolutionCreate($id) {
 			 * Kontrola jestli je úkol po deadlinu
 			 */
 			if (Config::getKey('settings/check/disableAfterDeadline') && isAfterDeadline($hw)){
-				responseError("Vypršel termín pro odevzdání ukolu.");
+				Util::responseError("Vypršel termín pro odevzdání ukolu.");
 				return;
 			}
 
@@ -260,11 +260,11 @@ function homeworkSolutionCreate($id) {
 			 */
 			$pocetReseni = Config::getKey('settings/limits/maxWaitingSolutions');
 			if(Config::getKey('settings/check/checkSolutionsLimit') && getWaitingCount($student['id'])>=$pocetReseni) {
-				responseError("Překročili jste max. $pocetReseni čekajících řešení.", 429);
+				Util::responseError("Překročili jste max. $pocetReseni čekajících řešení.", 429);
 				return;
 			}
 		}else{
-			responseError("Úkol nebly nalezen.");
+			Util::responseError("Úkol nebly nalezen.");
 			return;
 		}
 

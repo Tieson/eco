@@ -12,7 +12,7 @@
                     <div class="row">
                         <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 
-                            <h1>Přihlášení</h1>
+                            <h1>Registrace</h1>
 
                             <div class="panel panel-default mt20">
                                 <div class="panel-heading">
@@ -24,26 +24,23 @@
                                         <p class="error"><?PHP echo $error; ?></p>
 			                        <?php endif; ?>
 
-                                    <form action="<?php echo $basedir ?>/login" method="POST">
+                                    <form action="<?php echo $basedir ?>/register" method="POST">
                                         <div class="form-group">
                                             <label for="email">E-mail:</label>
-                                            <input type="text" name="email" id="email" value="<?php echo $email_value; ?>"
-                                                   class="form-control"/>
-                                            <span class="error"><?php echo $email_error; ?></span>
+                                            <input type="text" name="email" id="email" value="" class="form-control" placeholder="jmeno.prijmeni@tul.cz"/>
                                         </div>
+	                                    <?php if (isset($email_error)) { ?><div class="alert alert-danger"><?php echo $email_error; ?></div><?php } ?>
                                         <div class="form-group">
                                             <label for="password">Heslo:</label>
                                             <input type="password" name="password" id="password" class="form-control"/>
-                                            <span class="error"><?php echo $password_error; ?></span>
                                         </div>
-                                        <button type="submit" class="btn btn-success">Přihlásit se</button>
+                                        <div class="form-group">
+                                            <label for="password3">Heslo:</label>
+                                            <input type="password" name="password3" id="password2" class="form-control"/>
+                                        </div>
+	                                    <?php if (isset($email_error)) { ?><div class="alert alert-danger"><?php echo $password_error; ?></div><?php } ?>
+                                        <button type="submit" class="btn btn-success">Zaregistrovat se</button>
                                     </form>
-
-
-			                        <?php if (!empty($urlRedirect)): ?>
-                                        <p class="small mt20">Po přihlášení budete přesměrováni na adresu "<?php echo $urlRedirect; ?>".</p>
-			                        <?php endif; ?>
-
                                 </div>
                             </div>
                         </div>

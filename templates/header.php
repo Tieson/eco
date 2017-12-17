@@ -57,9 +57,11 @@
 			</div>
 			<ul class="dropdown-menu dropdown-menu-right">
 				<?php if (!empty($user_name)): ?>
+                    <li><a href="<?php echo $projectDir ?>/profile">Profil</a></li>
                     <li><a href="<?php echo $projectDir ?>/logout">Odhlásit se</a></li>
 				<?php else: ?>
                     <li><a href="<?php echo $projectDir ?>/login">Přihlásit se</a></li>
+                    <li><a href="<?php echo $projectDir ?>/register">Registrovat se</a></li>
 				<?php endif; ?>
 			</ul>
 		</div>
