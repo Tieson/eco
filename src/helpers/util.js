@@ -174,15 +174,28 @@ window.eco.Utils = {
             callback(entityName, archName, import_text);
         };
         reader.readAsText(file, "UTF-8");
-    }
+    },
+
+    recoutSchemaCounters: function (schema) {
+        var graph = schema.get('graph');
+        var counter = graph.get('counter');
+        counter.emptyAll();
+        eco.Utils.inicilizeCounterbyGraph(counter, graph);
+    },
+
 };
 
+function getTranslate(key, data){
+    if(data && data[key])
+        return data[key];
+    else
+        return key;
+}
 
 
 function createBorderedCounter(min, max, start) {
-    var start = start || 0;
+    start = start || 0;
     if (min > max) {
-        console.log("Minimum value is larger than max");
         error("Minimum value is larger than max");
     }
     if (start < min) {
@@ -235,7 +248,7 @@ function createBorderedCounter(min, max, start) {
 }
 
 function createMapCounter(start) {
-    var start = start || 0;
+    start = start || 0;
     var counts = {};
     var functions = {
         get: function (key) {
@@ -275,7 +288,7 @@ function createMapCounter(start) {
 }
 
 function createSetCounter(start) {
-    var start = start || 0;
+    start = start || 0;
     var counts = {};
     var functions = {
         set: function (key, value) {
@@ -359,7 +372,7 @@ function createCellDoubleclickHandler(callback) {
 
 function inputNameValidator(self, event) {
     var text = $(event.target).val();
-    if (text.length == 0 || isVhdlName(text) || (text.length > 0 && String.fromCharCode(event.keyCode) == '_')) {
+    if (text.length === 0 || isVhdlName(text) || (text.length > 0 && String.fromCharCode(event.keyCode) === '_')) {
         console.log("ok", text);
         return true;
     } else {
@@ -369,12 +382,13 @@ function inputNameValidator(self, event) {
 }
 
 
-function broadcastSignal(gate, signals, paper, graph) {
+function broadcastSignal(gate, signals, graph) {
     var outLinks = graph.getConnectedLinks(gate, {outbound: true})
         .map(function (x) {
             return x;
         });
 
+    //seskupení výstupních vodičů podle názvu portu
     var result = _.reduce(outLinks, function(result, item) {
         var key = item.get('source').port;
         (result[key] || (result[key] = [])).push(item);
@@ -388,11 +402,8 @@ function broadcastSignal(gate, signals, paper, graph) {
 }
 
 function toggleLive(model, signal, paper) {
-
-    // console.log('%c toggleLive ', 'background: black; color:yellow; ', paper);
     if (paper) {
         // add 'live' class to the element if there is a positive signal
-        // console.log("live",model, paper, paper.findViewByModel(model));
         try {
             if (paper.findViewByModel(model))
                 V(paper.findViewByModel(model).el).toggleClass('live', signal > 0);
@@ -405,13 +416,13 @@ function toggleLive(model, signal, paper) {
     }
 }
 
-function startClock(gate, signal, paper, graph) {
-//                _.delay(startClock, gate.clockSpd, gate, gate.signal);
+function startClock(gate, signal, graph) {
     window.setInterval(function () {
         if (gate.tryTick()) {
-            broadcastSignal(gate, {q:gate.signal}, paper, graph);
+            broadcastSignal(gate, {q:gate.signal}, graph);
         }
     }, gate.interval);
+    return true;
 }
 
 /**
@@ -421,8 +432,6 @@ function startClock(gate, signal, paper, graph) {
  * @returns {number}
  */
 function initializeSignal(paper, graph) {
-  // console.log("%c initializeSignal ", "background: brown; color: yellow");
-  var signal = Math.random(); //náhodná inicializace signálu
   // signal > 0 => vodič s log. 1, signal < 0  => vodič s log. 0
 
   // vynulování všech signálů
@@ -433,30 +442,20 @@ function initializeSignal(paper, graph) {
       V(this).removeClass('live');
   });
 
-  // rozeslání signálů ze vstupů
+  var signalProducers = {
+      INPUT: broadcastSignal,
+      VCC: broadcastSignal,
+      GND: broadcastSignal,
+      CLK: startClock,
+  };
+
   _.each(graph.getElements(), function (element) {
     var view = paper.findViewByModel(element);
-    (element instanceof joint.shapes.mylib.INPUT)
-    && broadcastSignal(element, {q : element.signal}, paper, graph)
-    && view.$el.toggleClass('live', element.signal > 0);
-    (element instanceof joint.shapes.mylib.VCC)
-    && broadcastSignal(element, {q : element.signal}, paper, graph)
-    && view.$el.toggleClass('live', element.signal > 0);
-    (element instanceof joint.shapes.mylib.GND)
-    && broadcastSignal(element, {q : element.signal}, paper, graph)
-    && view.$el.toggleClass('live', element.signal > 0);
-    (element instanceof joint.shapes.mylib.CLK)
-    && startClock(element, {q : element.signal}, paper, graph)
-    && view.$el.toggleClass('live', element.signal > 0);
+      _.each(signalProducers, function (item, key) {
+          (element instanceof joint.shapes.mylib[key])
+          && item(element, {q: element.signal}, graph)
+          && view.$el.toggleClass('live', element.isVisualyActive());
+      });
   });
-  return signal;
-}
-
-
-function getTranslate(key, data){
-    if(data && data[key])
-        return data[key];
-    else
-        return key;
 }
 

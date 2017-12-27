@@ -277,6 +277,7 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
 joint.shapes.mylib.HradloIO = joint.shapes.mylib.Hradlo.extend({ 
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/><text class="jmeno"/></g><text class="label"/><path class="wire"/><circle/></g>',
 
+    signal: 0,
     defaults: joint.util.deepSupplement({
 
         type: 'mylib.HradloIO',
@@ -287,7 +288,8 @@ joint.shapes.mylib.HradloIO = joint.shapes.mylib.Hradlo.extend({
     }, joint.shapes.mylib.Hradlo.prototype.defaults),
 
     operation: function() { return true; },
-    switchSignal: function () {}
+    switchSignal: function () {},
+    isVisualyActive: function () { return this.signal > 0},
 });
 
 
@@ -324,11 +326,10 @@ joint.shapes.mylib.INPUT = joint.shapes.mylib.HradloIO.extend({
 joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/></g>',
     clock: 0,
-    // clockSpd: 1000,
     interval: 250,
     signal: 1,
     lastTime: Date.now(),
-    tickOn: true,
+    tickOn: false,
     defaults: joint.util.deepSupplement({
         type: 'mylib.CLK',
         exportType: 'mylib.CLK',
@@ -345,7 +346,7 @@ joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
         return this.signal;
     },
     switchSignal: function () {
-        this.signal = !this.signal;
+        this.tickOn = !this.tickOn;
     },
     tryTick: function () {
         if (this.tickOn){
@@ -356,7 +357,8 @@ joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
             }
         }
         return false;
-    }
+    },
+    isVisualyActive: function () { return this.tickOn},
 });
 
 joint.shapes.mylib.OUTPUT = joint.shapes.mylib.HradloIO.extend({
@@ -2767,18 +2769,17 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
     },
 
     pointerclick: function (evt, x, y) {
-        joint.dia.CellView.prototype.pointerclick.apply(this, arguments);
         var self = this;
 
         console.log('pointerclick', self, self.model.get('id'), self.model.graph);
         var className = evt.target.parentNode.getAttribute('class');
         switch (className) {
             case 'element-tool-remove':
-
                 if (activeSchemaView) {
                     var graph = activeSchemaView.get('graph');
                     var id = $(evt.target.parentNode).attr("data-id");
                     if (id==self.model.get('id') ){
+                        evt.stopPropagation();
                         // var graph = self.model.graph;
                         var counter = graph.get('counter');
                         counter.removeOne(self.model.attr('custom').type, this.model.attr('custom').number);
@@ -2789,6 +2790,7 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
                 break;
             default:
         }
+        joint.dia.CellView.prototype.pointerclick.apply(this, arguments);
     },
 });
 

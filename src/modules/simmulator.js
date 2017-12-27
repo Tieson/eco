@@ -30,22 +30,7 @@ eco.Models.Simulation = Backbone.Model.extend({
     },
 
     startSimulation: function () {
-
-        var gates = {
-            // JKFFAR: new joint.shapes.mylib.JKFFAR({position: {x: 50, y: 50}}),
-            // rs: new joint.shapes.mylib.RST({ position: { x: 25, y: 25 }}),
-            // rs2: new joint.shapes.mylib.RST({ position: { x: 25, y: 25 }}),
-            // mux: new joint.shapes.mylib.MUX2({ position: { x: 25, y: 125 }}),
-            // dec: new joint.shapes.mylib.DEC18({ position: { x: 25, y: 225 }}),
-            // ram: new joint.shapes.mylib.ARAM4x16({ position: { x: 25, y: 325 }}),
-            // fadd: new joint.shapes.mylib.FULLADDER({ position: { x: 25, y: 425 }}),
-            // and1: new joint.shapes.mylib.TUL_AND({ position: { x: 25, y: 425 }}),
-            // and2: new joint.shapes.mylib.TUL_AND({ position: { x: 25, y: 425 }}),
-            // add: new joint.shapes.mylib.ADD4({ position: { x: 25, y: 425 }}),
-            // mult: new joint.shapes.mylib.MUL8({ position: { x: 25, y: 425 }}),
-            // in: new joint.shapes.mylib.INPUT({ position: { x: 25, y: 425 }}),
-        };
-        this.paper.model.addCells(_.toArray(gates));
+        // this.paper.model.addCells(_.toArray({}));
 
         var self = this;
         initializeSignal(self.paper, self.paper.model);
@@ -55,8 +40,6 @@ eco.Models.Simulation = Backbone.Model.extend({
         }));
 
         this.paper.on('cell:pointerclick', function (cellView) {
-            console.log('pointerclick');
-
             var gate = cellView.model;
 
             if (eco.Utils.getType('VODIC') !== gate.attr('type')){
@@ -92,12 +75,15 @@ eco.Models.Simulation = Backbone.Model.extend({
                     ports["q"] = ops;
                 }
 
-                // console.log(cellView.model.get('outPorts') );
-
-                if (cellView.model instanceof joint.shapes.mylib.INPUT) {
+                if (cellView.model instanceof joint.shapes.mylib.INPUT ) {
                     cellView.model.switchSignal();
-                    broadcastSignal(cellView.model, {q: cellView.model.signal}, self.paper, self.paper.model);
-                    V(cellView.el).toggleClass('live', cellView.model.signal > 0);
+                    broadcastSignal(cellView.model, {q: cellView.model.signal}, self.paper.model);
+                    V(cellView.el).toggleClass('live', cellView.model.isVisualyActive());
+                }
+                if (cellView.model instanceof joint.shapes.mylib.CLK) {
+                    cellView.model.switchSignal();
+                    broadcastSignal(cellView.model, {q: cellView.model.signal}, self.paper.model);
+                    V(cellView.el).toggleClass('live', cellView.model.isVisualyActive());
                 }
             }
         });
@@ -133,7 +119,7 @@ eco.Models.Simulation = Backbone.Model.extend({
             if (gate) {
 
                 if (gate instanceof joint.shapes.mylib.Hradlo) {
-                    console.log(gate);
+                    // console.log(gate);
                     gate.onSignal(signal, function () {
 
                         var ports = {};
@@ -164,7 +150,7 @@ eco.Models.Simulation = Backbone.Model.extend({
                         }else{
                             outputs["q"] = magnitude * ops;
                         }
-                        broadcastSignal(gate, outputs, self.paper, self.paper.model);
+                        broadcastSignal(gate, outputs, self.paper.model);
                     });
                 }
             }
