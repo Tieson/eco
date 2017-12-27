@@ -9,6 +9,7 @@
 </script>
 
 <script src="src/helpers/util.js?<?php echo(filemtime('./src/helpers/util.js')) ?>"></script>
+<script src="src/helpers/counters.js?<?php echo(filemtime('./src/helpers/counters.js')) ?>"></script>
 <script src="src/helpers/formaters.js?<?php echo(filemtime('./src/helpers/formaters.js')) ?>"></script>
 <script src="src/helpers/validators.js?<?php echo(filemtime('./src/helpers/validators.js')) ?>"></script>
 <script src="src/helpers/snackbar.js?<?php echo(filemtime('./src/helpers/snackbar.js')) ?>"></script>
@@ -29,3 +30,7 @@
 <script src="src/modules/group.js?<?php echo(filemtime('./src/modules/group.js')) ?>"></script>
 
 <script src="src/modules/simmulator.js?<?php echo(filemtime('./src/modules/simmulator.js')) ?>"></script>
+
+
+<!--<script src="src/helpers.min.js?--><?php //echo(filemtime('./src/helpers.min.js')) ?><!--"></script>-->
+<!--<script src="src/modules.min.js?--><?php //echo(filemtime('./src/modules.min.js')) ?><!--"></script>-->

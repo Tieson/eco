@@ -10,6 +10,7 @@
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-autoprefixer": "*",
+    "grunt-browser-sync": "*",
     "grunt-contrib-concat": "*",
     "grunt-contrib-copy": "*",
     "grunt-contrib-cssmin": "*",
@@ -17,8 +18,7 @@
     "grunt-contrib-uglify": "*",
     "grunt-contrib-watch": "*",
     "grunt-sass": "^2.0.0",
-    "grunt-spritesmith": "^6.4.0",
-    "grunt-browser-sync": "*"
+    "grunt-spritesmith": "^6.4.0"
   },
   "dependencies": {
     "grunt": "^1.0.1",

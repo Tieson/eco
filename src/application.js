@@ -44,7 +44,7 @@ eco.Router = Backbone.Router.extend({
     },
 });
 
-activeSchemaView = null;
+activeSchemaModel = null;
 
 eco.start = function (data) {
     var router = new eco.Router();
@@ -171,7 +171,7 @@ eco.start = function (data) {
     var openedSchemas = new eco.Collections.Schemas(null, {local: true}), // seznam otevřených schémat.
         openedSchemasPapers = {};
 
-    var openedSchemasButtonsView = new eco.Views.SchemasListView({collection: openedSchemas, active: activeSchemaView});
+    var openedSchemasButtonsView = new eco.Views.SchemasListView({collection: openedSchemas, active: activeSchemaModel});
 
 
     //MOCK user object
@@ -202,8 +202,8 @@ eco.start = function (data) {
 
     categoriesView.listenTo(this.vent, 'onEntityClick', function (item, event) {
 
-        if (activeSchemaView) {
-            var graph = activeSchemaView.get('graph');
+        if (activeSchemaModel) {
+            var graph = activeSchemaModel.get('graph');
 
             var entityId = $(event.currentTarget).attr('data-entityid');
             var foundEntity = entities.get(entityId);
@@ -237,7 +237,7 @@ eco.start = function (data) {
      * Rychlé uložení schéma pomocí tlačítka
      */
     $(eco.buttons.saveSchema).on('click', function () {
-        saveSchema(activeSchemaView);
+        saveSchema(activeSchemaModel);
     });
 
     /**
@@ -266,10 +266,10 @@ eco.start = function (data) {
 
     function exportActiveSchema() {
         var vhdlExporter = new eco.Models.VhdlExporter({
-            schema: activeSchemaView,
+            schema: activeSchemaModel,
         });
-        if (activeSchemaView) {
-            var file_name = activeSchemaView.get('name') + ".vhd";
+        if (activeSchemaModel) {
+            var file_name = activeSchemaModel.get('name') + ".vhd";
             var data = vhdlExporter.getVHDL();
             eco.Utils.downloadAsFile(data, file_name);
         }
@@ -292,74 +292,34 @@ eco.start = function (data) {
     function showSchema(schema) {
         schemas_tab.show();
         eco.Utils.showButtons([eco.buttons.saveSchema, eco.buttons.exportSchema, eco.buttons.undo, eco.buttons.redo]);
-        // console.log('%c showSchema ', 'background: yellow; color:white;', schema);
-
-
-        hideSchemaPaper(activeSchemaView); //schovat posledně zobrazené schéma
-
+        hideSchemaPaper(activeSchemaModel); //schovat posledně zobrazené schéma
         if (isSchemaOpen(schema)) {
             reopenSchema(schema);
         } else {
             openSchema(schema);
         }
-
         setPageTitle(schema.get('name'));
     }
 
     function openSchema(schema) {
-        // console.log('%c openSchema ', 'background: yellow; color: red', schema.get('id'), schema, activeSchemaView);
-
         var paper = eco.createPaper(schema, schemaContainer);
-
         var counter = createSetCounter(0);
+        var sim = new eco.Models.Simulation({paper: paper});
+        var undomanager = new Backbone.UndoManager();
+        schema.set('undomanager', undomanager);
 
-        // console.log('schema success', schema);
         schema.loadGraph(function () {
-            // console.log('%c schema loaded graph!! ', 'background: yellow; color: red', schema.get('graph'));
-
             var graph = schema.get('graph');
             graph.set('counter', counter);
-
             schema.set('opened', true); // nastavení indikátoru, že je otevřeno
             openedSchemas.add(schema); //přidáme schéma do kolekce otevřených
             addOpenedPaper(schema, paper);
-
             showSchemaPaper(schema);
             setSchemaActive(schema);
-
-            var sim = new eco.Models.Simulation({paper: paper});
-            sim.startSimulation();
-
-            var undomanager = new Backbone.UndoManager();
-            undomanager.register(graph);
-            schema.set('undomanager', undomanager);
-
-
-            Backbone.UndoManager.removeUndoType("change");
-
-            // var beforeState;
-            // Backbone.UndoManager.addUndoType('change:isChanging', {
-            //     'on': function(model, isChanging){
-            //         if(isChanging) {
-            //             beforeState = model.toJSON();
-            //         }else {
-            //             return {
-            //                 object: model,
-            //                 before: beforeState,
-            //                 after: model.toJSON()
-            //             }
-            //         }
-            //     },
-            //     'undo': function (model, before, after) {
-            //         model.set(before);
-            //     },
-            //     'redo': function (model, before, after) {
-            //         model.set(after);
-            //     }
-            // });
-            undomanager.startTracking();
-
             eco.Utils.inicilizeCounterbyGraph(counter, graph);
+            sim.startSimulation();
+            undomanager.register(graph);
+            undomanager.startTracking();
 
             paper.$el.droppable({
                 drop: function (event, ui) {
@@ -377,11 +337,9 @@ eco.start = function (data) {
     }
 
     function showSchemaPaper(schema) {
-        // console.log('%c showSchemaPaper ', 'background: yellow', schema);
         if (schema) {
             var paper = openedSchemasPapers[schema.get('id')];
             if (paper) {
-                // console.log('paper:', paper);
                 paper.$el.show();
             }
         }
@@ -398,10 +356,6 @@ eco.start = function (data) {
         }
     }
 
-    function isSchemaActive(schema) {
-        return activeSchemaView && activeSchemaView.get('id') == schema.get('id');
-    }
-
     function isSchemaOpen(schema) {
         if (_.isNumber(schema)) {
             return (!!openedSchemasPapers[schema]);
@@ -411,7 +365,7 @@ eco.start = function (data) {
     }
 
     function setSchemaActive(schema) {
-        activeSchemaView = schema;
+        activeSchemaModel = schema;
         openedSchemasButtonsView.setActiveSchema(schema);
     }
 
@@ -420,7 +374,6 @@ eco.start = function (data) {
     }
 
     function reopenSchema(schema) {
-        // console.log('%c reopenSchema ', 'background: yellow; color: blue', schema.get('id'), schema, activeSchemaView);
         showSchemaPaper(schema);
         setSchemaActive(schema);
     }
@@ -538,9 +491,7 @@ eco.start = function (data) {
     function showHome() {
         schemas_tab.show();
 
-        // openedSchemas.fetch();
-
-        if (!activeSchemaView) {
+        if (!activeSchemaModel) {
             //pokud nemám žádné schéma, tak přejít na stránku pro vytvořenín ebo otevření schéma
             router.navigate('schemas', {
                 trigger: true,
@@ -548,7 +499,7 @@ eco.start = function (data) {
             });
         } else {
             //přejít na poslední otevřené schéma
-            router.navigate('schemas/' + activeSchemaView.get('id'), {
+            router.navigate('schemas/' + activeSchemaModel.get('id'), {
                 trigger: true,
                 replace: true
             });
@@ -557,54 +508,38 @@ eco.start = function (data) {
     }
 
     function showOpenSchema(id) {
-        console.log('openedSchema', id);
-
         $(document).on('keydown', null, 'ctrl+s', function () {
-            saveSchema(activeSchemaView);
+            saveSchema(activeSchemaModel);
             return false;
         });
         $(document).on('keydown', null, 'ctrl+e', function () {
             exportActiveSchema();
             return false;
         });
-
         $(document).on('keydown', null, 'ctrl+z', function () {
             schemaUndo();
             return false;
         });
-
         $(document).on('keydown', null, 'ctrl+shift+z', function () {
             schemaRedo();
             return false;
         });
 
-        // var sch = new eco.Models.Schema({
-        //     id:30
-        // });
-        // var paper = eco.createPaper(sch);
-        // sch.loadGraph(function(){
-        //     console.log('graph loaded');
-        //     console.log(paper);
-        // });
-
         if (isSchemaOpen(parseInt(id))) {
             showSchema(openedSchemas.get(id));
         }
         else {
-            var nSchema = new eco.Models.Schema({id: id});
-            nSchema.fetch({
+            var schema = new eco.Models.Schema({id: id});
+            schema.fetch({
                 success: function () {
-                    showSchema(nSchema);
+                    showSchema(schema);
                 },
                 error: function () {
-                    setPageTitle('Otevřít schéma');
-                    main.html("<div class='alert alert-danger mt20'>Požadované schéma nebylo nalezeno!</div>");
-                    showNewSchemaForm();
-                    showSchemas();
+                    router.navigate('schemas', {trigger: true, replace: true});
+                    showSnackbar('Požadované schéma nebylo nalezeno!');
                 }
             });
         }
-        //TODO: dodělat zapamatovávání schémat a jejich otevírání
     }
 
     /**
@@ -930,17 +865,17 @@ eco.start = function (data) {
 
 
     function schemaUndo() {
-        var undomanager = activeSchemaView.get('undomanager');
+        var undomanager = activeSchemaModel.get('undomanager');
         if (undomanager) {
             undomanager.undo(true);
-            eco.Utils.recoutSchemaCounters(activeSchemaView);
+            eco.Utils.recoutSchemaCounters(activeSchemaModel);
         }
     }
     function schemaRedo() {
-        var undomanager = activeSchemaView.get('undomanager');
+        var undomanager = activeSchemaModel.get('undomanager');
         if (undomanager) {
             undomanager.redo(true);
-            eco.Utils.recoutSchemaCounters(activeSchemaView);
+            eco.Utils.recoutSchemaCounters(activeSchemaModel);
         }
     }
 

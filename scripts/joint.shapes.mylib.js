@@ -204,7 +204,6 @@ function priority(p, bits) {
     for (; j < bits; j++) {
         result['q' + j] = 0;
     }
-    console.log("____", p, any, result);
     return result;
 }
 

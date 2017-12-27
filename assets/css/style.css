@@ -222,10 +222,10 @@ text {
   stroke: transparent; }
 
 .joint-element.live .entitybody {
-  stroke: #F58220; }
+  stroke: #39ce34; }
 
 .joint-element.running .label {
-  fill: #F58220; }
+  fill: #39ce34; }
 
 .joint-element .element-tools {
   display: none;
@@ -245,6 +245,28 @@ text {
 
 .available-magnet {
   fill: yellow; }
+
+.joint-link.live > .connection {
+  stroke: #39ce34;
+  stroke-width: 3px; }
+
+.live .connection-wrap {
+  stroke: #39ce34; }
+
+.joint-element.live .body {
+  fill: #39ce34;
+  stroke: #39ce34; }
+
+.joint-link.invalid > .connection {
+  stroke: #e1092d;
+  stroke-width: 3px; }
+
+.invalid .connection-wrap {
+  stroke: #e1092d; }
+
+.joint-element.invalid .body {
+  fill: #e1092d;
+  stroke: #e1092d; }
 
 .ribbon {
   display: flex;
@@ -587,28 +609,6 @@ dl {
   display: flex; }
   .centerred {
     margin: auto; }
-
-.joint-link.live > .connection {
-  stroke: #F58220;
-  stroke-width: 3px; }
-
-.live .connection-wrap {
-  stroke: #F58220; }
-
-.joint-element.live .body {
-  fill: #F58220;
-  stroke: #f58220; }
-
-.joint-link.invalid > .connection {
-  stroke: #e1092d;
-  stroke-width: 3px; }
-
-.invalid .connection-wrap {
-  stroke: #e1092d; }
-
-.joint-element.invalid .body {
-  fill: #e1092d;
-  stroke: #e1092d; }
 
 .flex {
   display: flex;
