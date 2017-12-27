@@ -183,6 +183,17 @@ window.eco.Utils = {
         eco.Utils.inicilizeCounterbyGraph(counter, graph);
     },
 
+    downloadAsFile: function (data, filename) {
+        var a = $('<a href="#" target="_blank" style="display: none">');
+        var uriContent = 'data:application/octet-stream,' + encodeURIComponent(data);
+        a.attr('href', uriContent);
+        a.attr('download', filename);
+        a.attr('target', "_blank");
+        a.appendTo($('body'));
+        a[0].click(); // okamžité stažení souboru
+        a.remove(); // odebrání z body
+    },
+
 };
 
 function getTranslate(key, data){

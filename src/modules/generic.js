@@ -170,7 +170,9 @@ eco.Views.GenericDetail = Backbone.View.extend({
 
 eco.Views.GenericForm = Backbone.View.extend({
     tagName: 'div',
+    noclear: false,
     initialize: function (opts) {
+        // this.noclear = false;
         this.title = opts.title || "";
         this.submitText = opts.submitText || "Přidat";
         this.template = _.template($(opts.template).html());
@@ -182,16 +184,16 @@ eco.Views.GenericForm = Backbone.View.extend({
         }
         this.model = opts.model;
         this.renderLoading();
-        this.afterInitialization();
+        this.afterInitialization(opts);
         this.vent = opts.vent;
-        this.sanckbarMessage = opts.sanckbarMessage || 'Podařilo se uložit!';
-        this.sanckbarMessageError = opts.sanckbarMessageError || "Něco se pokazilo.";
+        this.snackbarMessage = opts.snackbarMessage || 'Podařilo se uložit!';
+        this.snackbarMessageError = opts.snackbarMessageError || "Něco se pokazilo.";
         this.listenTo(this.model, 'sync change add', this.render);
     },
     renderLoading: function () {
         // this.$el.html('<div class="loader">Načítám</div>');
     },
-    afterInitialization: function () {
+    afterInitialization: function (opts) {
 
     },
     onSuccess:function (schema, model) {
@@ -215,34 +217,39 @@ eco.Views.GenericForm = Backbone.View.extend({
         var self = this;
         var schema = this.model;
 
-        var data = this.model.clone();
-        data.set(this.mapper(self.$el));
+        var backup = this.model.clone();
+        if (this.mapper) {
+            schema.set(this.mapper(self.$el));
+        }
 
-        if (this.validator(data)) {
-            data.save(data.toJSON(), {
+        if (this.validator(schema)) {
+            schema.save(schema.toJSON(), {
                 success: function (model, response) {
-                    showSnackbar(self.sanckbarMessage);
+                    showSnackbar(self.snackbarMessage);
                     if (self.collection) {
-                        schema.set(data);
                         self.collection.add(schema);
-                        schema.fetch();
-                        self.model = schema.clone().clear();
-                        // self.render();
+                        if (!self.noclear) {
+                            schema.fetch();
+                            self.model = schema.clone().clear();
+                        }
                     }
                     self.onSuccess(schema, model);
                 },
                 error: function (model, response) {
-                    showSnackbar(self.sanckbarMessageError);
+                    showSnackbar(self.snackbarMessageError);
+                    schema.set(backup.toJSON());
                     if (self.collection) {
                         self.collection.remove(schema);
                     }
-                    self.render();
-                    // self.onError();
+                    self.onError();
                 },
                 wait: true
             });
 
             // this.trigger("formSubmited", schema);
+        }else{
+            this.model.set(backup.toJSON());
+            showSnackbar('Zadaná data nejsou validní.');
         }
         if (this.vent) {
             // this.vent.trigger('formSubmited', this);

@@ -6,3 +6,9 @@ eco.Mappers.SolutionHomeworkMapper = function ($element) {
         'description': $element.find('#task_description').val(),
     }
 };
+
+eco.Mappers.schemaEditMapper = function ($element) {
+    return {
+        'name': $element.find('#schemasNew_name').val(),
+    }
+};

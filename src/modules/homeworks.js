@@ -271,10 +271,10 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         'click #showSubmitVhdl': 'vhdlFileUploadOpen',
         'click #homeworkSchemaModalSubmit': 'hwSubmitClick',
         'click #homeworkVhdlModalSubmit': 'hwVhdlSubmitClick',
-        // 'click .downloadVHDL': 'downloadVHDL',
         'click .delete-solution': 'deleteSolution',
         'click .refresh-solutions': 'refreshSolutionsList',
         'click .showVHDL': 'showVHDL',
+        'click .downloadVHDL': 'downloadVHDL',
         'click .showErrorMessage': 'showErrorMessage',
         'change #vhdl_file_name': 'selectedVhdFileChanged'
     },
@@ -430,6 +430,14 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         $('#vhdlViewModal').find('.modal-title').text("Chybová zpráva (ze simulace Vivado)");
         $('#vhdlViewModal').modal('show');
 
+    },
+    downloadVHDL: function (e) {
+        var cid = $(e.currentTarget).attr('data-cid');
+        var item = this.solutions.get(cid);
+        var vhdl = item.get('vhdl');
+        var name = item.get('name') || item.get('entity');
+        var file_name = name + ".vhd";
+        eco.Utils.downloadAsFile(vhdl, file_name);
     },
     deleteSolution: function (e) {
         this.solutionsView.deleteItem(e);

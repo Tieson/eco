@@ -269,16 +269,9 @@ eco.start = function (data) {
             schema: activeSchemaView,
         });
         if (activeSchemaView) {
-            var a = $('<a href="#" target="_blank" style="display: none">');
             var file_name = activeSchemaView.get('name') + ".vhd";
             var data = vhdlExporter.getVHDL();
-            var uriContent = 'data:application/octet-stream,' + encodeURIComponent(data);
-            a.attr('href', uriContent);
-            a.attr('download', file_name);
-            a.attr('target', "_blank");
-            a.appendTo($('body'));
-            a[0].click(); // automatické stažení
-            a.remove();
+            eco.Utils.downloadAsFile(data, file_name);
         }
     }
 
@@ -852,6 +845,13 @@ eco.start = function (data) {
         schemas.fetch({
             success: function () {
                 var schema = schemas.get(id);
+                if (!schema) {
+                    showSnackbar('Schéma k úpravě nenalezeno!');
+                    router.navigate('schemas', {
+                        trigger: true,
+                        replace: true
+                    });
+                }
                 setPageTitle('Editace schéma ' + schema.get('name'));
                 main.html("");
 
@@ -859,7 +859,10 @@ eco.start = function (data) {
                     model: schema,
                     collection: schemas,
                     submitText: 'Uložit',
-                    titleText: 'Editace schéma'
+                    titleText: 'Editace schéma',
+                    mapper: eco.Mappers.schemaEditMapper,
+                    template: '#schemasNew-template',
+                    validator: eco.Validators.SchemaValidator,
                 });
 
                 view.on('schemaNewSubmit', function (schema) {
@@ -902,7 +905,10 @@ eco.start = function (data) {
         main_tab.show();
 
         var view = new eco.Views.SchemasNew({
-            collection: schemas
+            collection: schemas,
+            validator: eco.Validators.SchemaValidator,
+            mapper: eco.Mappers.schemaEditMapper,
+            template: '#schemasNew-template',
         });
 
         main.append(view.render().$el);
