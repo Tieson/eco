@@ -34,6 +34,10 @@ function homework($id) {
          	ON hw.task_id = t.id AND hw.student_id = u.id
             WHERE hw.id = :id");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+	}else {
+		Util::responseError("Nemáte potřebné oprvánění", 401);
+		$app = \Slim\Slim::getInstance();
+		$app->stop();
 	}
 
 	try
@@ -140,6 +144,10 @@ function homeworkSolutionList($id) {
          	ON g.id=hw.group_id
             WHERE hw.id = :id ORDER BY s.id DESC");
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		}else {
+			Util::responseError("Nemáte potřebné oprvánění", 401);
+			$app = \Slim\Slim::getInstance();
+			$app->stop();
 		}
 
 		$sth->execute();

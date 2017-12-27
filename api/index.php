@@ -76,20 +76,20 @@ $app->get('/foo', AuthRoute::authenticateForRole('admin'), function () {
 
 $app->group('/students', function () use ($app){
 	$app->get('', 'students'); //seznam všech studentů
-	$app->get('/hw', 'studentsHomeworks'); //seznam úkolů pro studenta
-	$app->get('/hw/id', 'studentHomeworkDetail'); //detail úkolu studenta
-	$app->get('/groups', 'studentGroupList');
+	$app->get('/hw', AuthRoute::authenticateForRole('student'), 'studentsHomeworks'); //seznam úkolů pro studenta
+//	$app->get('/hw/:id', 'studentHomeworkDetail'); //detail úkolu studenta
+	$app->get('/groups', AuthRoute::authenticateForRole('student'), 'studentGroupList');
 	$app->get('/:id', 'student'); //informace o konkrétním uživateli - asi není potřeba
-	$app->get('/:id/hw', 'studentHomeworkList'); //seznam úkolů konkrétního studentas
-	$app->get('/:id/hw/:hw_id', 'studentHomeworkDetail');
+	$app->get('/:id/hw', AuthRoute::authenticateForRole('student'), 'studentHomeworkList'); //seznam úkolů konkrétního studentas
+	$app->get('/:id/hw/:hw_id', AuthRoute::authenticateForRole('student'), 'studentHomeworkDetail');
     //$app->get('/:id/groups', 'studentGroupList');
-	$app->delete('/students/:id', 'student');
+//	$app->delete('/:id', 'student'); //Asi nesmysl
 });
 
 
 //Pomocné - měli by být neveřejné
-$app->get('/users', 'users');
-$app->get('/users/:id', 'user');
+$app->get('/users', 'Users::allUsers');
+$app->get('/users/:id', 'Users::getUserDetail');
 
 
 //pro studenta

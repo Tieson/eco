@@ -1,12 +1,5 @@
 <?php
 
-class AuthorizationException extends Exception
-{
-	public function __construct($message, $code = 0, Exception $previous = null)
-	{
-		parent::__construct($message, $code, $previous);
-	}
-}
 
 class Util
 {
@@ -84,5 +77,46 @@ class Util
 		}
 		return $token;
 	}
+
+	public static function validateEmail($email){
+//		$email = self::testInput($email);
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+//			throw new InvalidArgumentException("Chybný formát e-mailu.");
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+	public static function testInput($data)
+	{
+		$data = trim($data);
+		$data = stripslashes($data);
+		$data = htmlspecialchars($data);
+		return $data;
+	}
+
+	public static function hashPassword($data)
+	{
+		return hash('sha256', $data.Config::getKey('salt'));
+	}
+
+	public static function checkPassword($password, $password2)
+	{
+		if (Util::hashPassword($password) != Util::hashPassword($password2)){
+			throw new InvalidArgumentException("Hesla se neshodují.");
+		}
+		if (Util::hashPassword($password)){
+			throw new InvalidArgumentException("Heslo je příliš krátké.");
+		}
+		return TRUE;
+	}
+
 }
 
+class AuthorizationException extends Exception
+{
+	public function __construct($message, $code = 0, Exception $previous = null)
+	{
+		parent::__construct($message, $code, $previous);
+	}
+}

@@ -24,7 +24,6 @@
     <script src="src/application_teacher.js?<?php echo(filemtime('./src/application_teacher.js')) ?>"></script>
 
     <script>
-        eco.basedir = '<?php echo $projectDir ?>';
         $(document).ready(function() {
             eco.start();
         });

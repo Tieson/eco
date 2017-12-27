@@ -10,12 +10,14 @@ function beforeRoute() {
     $(eco.selectors.schemas).hide();
     $(eco.selectors.pages).hide();
 
-    eco.Utils.hideButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
+    eco.Utils.hideButtons([eco.buttons.saveSchema, eco.buttons.exportSchema, eco.buttons.undo, eco.buttons.redo]);
 }
 
 eco.Router = Backbone.Router.extend({
     routes: {
         '': 'home',
+
+        'profile':'profile',
 
         'schemas': 'showSchemas', //seznam schémat uživatele
         'schemas/new': 'schemaCreateNew', //vytvoření nového schema
@@ -52,6 +54,7 @@ eco.start = function (data) {
     });
 
     router.on('route:home', showHome);
+    router.on('route:profile', showProfile);
     router.on('route:showHwList', showStudentsHomeworkList);
     router.on('route:showHwDetail', showHomeworkDetail);
 
@@ -238,6 +241,19 @@ eco.start = function (data) {
     });
 
     /**
+     * Rychlé zpět v editoru
+     */
+    $(eco.buttons.undo).on('click', function () {
+        schemaUndo();
+    });
+    /**
+     * Rychlé dopředu v editoru
+     */
+    $(eco.buttons.redo).on('click', function () {
+        schemaRedo();
+    });
+
+    /**
      * rychlý export schéma do VHDL pomocí tlačítka v hlavičce
      */
     $(eco.buttons.exportSchema).on('click', function (e) {
@@ -282,7 +298,7 @@ eco.start = function (data) {
      */
     function showSchema(schema) {
         schemas_tab.show();
-        eco.Utils.showButtons([eco.buttons.saveSchema, eco.buttons.exportSchema]);
+        eco.Utils.showButtons([eco.buttons.saveSchema, eco.buttons.exportSchema, eco.buttons.undo, eco.buttons.redo]);
         // console.log('%c showSchema ', 'background: yellow; color:white;', schema);
 
 
@@ -533,7 +549,7 @@ eco.start = function (data) {
 
         if (!activeSchemaView) {
             //pokud nemám žádné schéma, tak přejít na stránku pro vytvořenín ebo otevření schéma
-            router.navigate('schemas/new', {
+            router.navigate('schemas', {
                 trigger: true,
                 replace: true
             });
@@ -560,26 +576,12 @@ eco.start = function (data) {
         });
 
         $(document).on('keydown', null, 'ctrl+z', function () {
-            var undomanager = activeSchemaView.get('undomanager');
-            if (undomanager) {
-                undomanager.undo(true);
-                var graph = activeSchemaView.get('graph');
-                var counter = graph.get('counter');
-                counter.emptyAll();
-                eco.Utils.inicilizeCounterbyGraph(counter, graph);
-            }
+            schemaUndo();
             return false;
         });
 
         $(document).on('keydown', null, 'ctrl+shift+z', function () {
-            var undomanager = activeSchemaView.get('undomanager');
-            if (undomanager){
-                undomanager.redo(true);
-                var graph = activeSchemaView.get('graph');
-                var counter = graph.get('counter');
-                counter.emptyAll();
-                eco.Utils.inicilizeCounterbyGraph(counter, graph);
-            }
+            schemaRedo();
             return false;
         });
 
@@ -640,6 +642,31 @@ eco.start = function (data) {
             },
             error: function () {
                 main.html("<div class='alert alert-danger'>Požadované schéma nebylo nalezeno!</div>");
+            }
+        });
+    }
+
+    function showProfile(id) {
+        setPageTitle('Profil');
+
+        main_tab.show();
+
+        eco.ViewGarbageCollector.clear();
+        var user = new eco.Models.User({id:id});
+
+        var view = new eco.Views.GenericDetail({
+            title: "Profil",
+            template: '#userProfile-template',
+            // formater: eco.Formaters.HomeworkFormater,
+            model: user,
+        });
+        main.append(view.render().$el);
+        user.fetch({
+            success: function () {
+                showSnackbar('Načítání dokončeno.');
+            },
+            error: function () {
+                showSnackbar('Nepodařilo se načíst domácí úkoly.');
             }
         });
     }
@@ -893,6 +920,22 @@ eco.start = function (data) {
 
         showNewSchemaForm();
         showSchemas();
+    }
+
+
+    function schemaUndo() {
+        var undomanager = activeSchemaView.get('undomanager');
+        if (undomanager) {
+            undomanager.undo(true);
+            eco.Utils.recoutSchemaCounters(activeSchemaView);
+        }
+    }
+    function schemaRedo() {
+        var undomanager = activeSchemaView.get('undomanager');
+        if (undomanager) {
+            undomanager.redo(true);
+            eco.Utils.recoutSchemaCounters(activeSchemaView);
+        }
     }
 
     Backbone.history.start();

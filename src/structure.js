@@ -27,6 +27,8 @@ eco = {
     },
     buttons: {
         'saveSchema': ".saveSchemaButton",
+        'undo': ".undoButton",
+        'redo': ".redoButton",
         'exportSchema': ".vhdlExportSchemaButton",
         'libDownload': "#menu-file-download_lib",
     },

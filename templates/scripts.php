@@ -4,6 +4,10 @@
 
 <script src="src/structure.js?<?php echo(filemtime('./src/structure.js')) ?>"></script>
 
+<script>
+    eco.basedir = '<?php echo $projectDir ?>';
+</script>
+
 <script src="src/helpers/util.js?<?php echo(filemtime('./src/helpers/util.js')) ?>"></script>
 <script src="src/helpers/formaters.js?<?php echo(filemtime('./src/helpers/formaters.js')) ?>"></script>
 <script src="src/helpers/validators.js?<?php echo(filemtime('./src/helpers/validators.js')) ?>"></script>
@@ -18,7 +22,6 @@
 <script src="src/modules/main.js?<?php echo(filemtime('./src/modules/main.js')) ?>"></script>
 <script src="src/modules/schema.js?<?php echo(filemtime('./src/modules/schema.js')) ?>"></script>
 <script src="src/modules/modal.js?<?php echo(filemtime('./src/modules/modal.js')) ?>"></script>
-<script src="src/modules/settings.js?<?php echo(filemtime('./src/modules/settings.js')) ?>"></script>
 <script src="src/modules/tasks.js?<?php echo(filemtime('./src/modules/tasks.js')) ?>"></script>
 <script src="src/modules/student.js?<?php echo(filemtime('./src/modules/student.js')) ?>"></script>
 <script src="src/modules/homeworks.js?<?php echo(filemtime('./src/modules/homeworks.js')) ?>"></script>

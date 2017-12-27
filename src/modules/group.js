@@ -101,7 +101,7 @@ eco.Collections.UserGroupCollection = Backbone.Collection.extend({
 
 
 var groups = new eco.Collections.GroupCollection(null, {
-    url: '/api/groups/'
+    url: eco.basedir+'/api/groups/'
 });
 
 // eco.Models.StudentGroup = Backbone.Model.extend({

@@ -1,0 +1,42 @@
+
+
+<script type="text/template" id="userProfile-template">
+    <h1><%-title%></h1>
+    <%if(model.valid==1){%>
+    <div class="alert alert-success mt20 mb20">Zadání je validní</div>
+    <%}else {%>
+    <div class="alert alert-danger mt20 mb20" title="">
+        <h4>Nevalidní zadání</h4>
+        Zadání musí mít právě 1 testovací VHDL soubor,
+        právě 1 VHDL soubor se správným řešením a zadaný název entity musí být shodný s entitou v testovacím VHDL.
+    </div>
+    <%}%>
+
+    <form action="#">
+        <div class="row">
+            <div class="col-xs-12 col-sm-3">
+                <div class="form-group">
+                    <label for="task_name">Název</label>
+                    <input type="text" class="form-control" id="task_name" placeholder="Název zadání" required="required"
+                           value="<%=model.name%>">
+                </div>
+                <div class="form-group">
+                    <label for="task_entity">Název Entity <i class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="Jak se má entita jmenovat pro potřebu simulace."></i></label>
+                    <input type="text" class="form-control" id="task_entity" placeholder="HomeWork" required="required"
+                           value="<%=model.entity%>">
+                </div>
+                <div class="form-group">
+                    <label></label>
+                    <button class="btn btn-block button--success">Uložit změny</button>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-9">
+                <div class="form-group">
+                    <label for="task_description">Popis</label>
+                    <textarea class="form-control" rows="5" id="task_description" placeholder="Detailní popis"><%=model.description%></textarea>
+
+                </div>
+            </div>
+        </div>
+    </form>
+</script>

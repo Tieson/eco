@@ -29,13 +29,13 @@
                                             <label for="email">E-mail:</label>
                                             <input type="text" name="email" id="email" value="<?php echo $email_value; ?>"
                                                    class="form-control"/>
-                                            <span class="error"><?php echo $email_error; ?></span>
                                         </div>
+	                                    <?php if (isset($email_error)) { ?><div class="alert alert-danger"><?php echo $email_error; ?></div><?php } ?>
                                         <div class="form-group">
                                             <label for="password">Heslo:</label>
                                             <input type="password" name="password" id="password" class="form-control"/>
-                                            <span class="error"><?php echo $password_error; ?></span>
                                         </div>
+	                                    <?php if (isset($password_error)) { ?><div class="alert alert-danger"><?php echo $password_error; ?></div><?php } ?>
                                         <button type="submit" class="btn btn-success">Přihlásit se</button>
                                     </form>
 

@@ -7,6 +7,7 @@ class Config
 
 		"release" => "local",
 		'secret' => 'secret',
+		'salt' => 'sůl',
 		'db' => array(
 			'host' => '127.0.0.1',
 			'user' => 'root',
@@ -52,7 +53,23 @@ class Config
 				'maxWaitingSolutions' => 3,
 			),
 
-		)
+		),
+		'auth' => array(
+			'guest' => array(
+				'schema'
+			),
+			'student' => array(
+				'schema',
+				'hw',
+				'groupList'
+			),
+			'teacher' => array(
+				'schema',
+				'hw',
+				'groupList',
+				'task',
+			),
+		),
 
 
 //	"release" => "local",

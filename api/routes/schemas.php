@@ -195,7 +195,7 @@ function schemaDetail($id) {
 		exit();
 	}
 
-	if (isStudent($user)){
+	if (isStudent($user) || isGuest($user)){
 		$sth = $db->prepare("SELECT id AS id, user_id AS user_id, name, architecture, created 
             FROM schema_base
             WHERE id = :id AND user_id = :user_id AND deleted IS NULL");
@@ -414,19 +414,17 @@ function schemaDataUpdate($id) {
 	}
 }
 function schemaDataLast($id) {
-	$app = \Slim\Slim::getInstance();
 
 	$db = Database::getDB();
 	try {
 		$user = requestLoggedAny();
 	}
 	catch(Exception $e){
-		$app->response()->setStatus(401);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		Util::responseError($e->getMessage(), 401);
 		exit();
 	}
 
-	if (isStudent($user)){
+	if (isStudent($user) ||isGuest($user)){
 
 		$sth = $db->prepare("SELECT sd.id, sd.data, sd.created, sd.edited, sd.schema_id, sd.typ
             FROM schema_data AS sd
@@ -450,6 +448,10 @@ function schemaDataLast($id) {
 			LIMIT 1");
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
 		$sth->bindParam(':user_id', $user['user_id'], PDO::PARAM_INT);
+	}else {
+		Util::responseError("Nemáte potřebné oprvánění", 401);
+		$app = \Slim\Slim::getInstance();
+		$app->stop();
 	}
 
 	try
@@ -459,16 +461,13 @@ function schemaDataLast($id) {
 		$schema = $sth->fetch(PDO::FETCH_OBJ);
 
 		if($schema) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($schema);
+			Util::response($schema);
 			$db = null;
 		} else {
 			throw new PDOException('No records found.');
 		}
 
 	} catch(PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		Util::responseError($e->getMessage(), 404);
 	}
 }

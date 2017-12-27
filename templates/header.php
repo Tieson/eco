@@ -76,6 +76,16 @@
 				<i class="glyphicon glyphicon-floppy-disk"></i>
 			</div>
 		</div>
+        <div class="main_bar__usermenu__item item redoButton" title="Vpřed (Ctrl+Shift+z)">
+            <div class="menuLabel noselect">
+                <i class="glyphicon glyphicon-arrow-right"></i>
+            </div>
+        </div>
+		<div class="main_bar__usermenu__item item undoButton" title="Zpět (Ctrl+z)">
+			<div class="menuLabel noselect">
+				<i class="glyphicon glyphicon-arrow-left"></i>
+			</div>
+		</div>
 
 	</div>
 </div>

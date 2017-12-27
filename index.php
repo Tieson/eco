@@ -6,6 +6,8 @@ session_start();
 require_once('./config/config.php');
 require_once './vendor/autoload.php';
 require_once './common/database.php';
+require_once './common/utils.php';
+require_once './api/routes/users.php';
 
 $config = Config::getConfig();
 
@@ -94,7 +96,7 @@ $app->get("/login", function () use ($app) {
 	if (isset($_SESSION['urlRedirect'])) {
 		$urlRedirect = $_SESSION['urlRedirect'];
 	}
-	$email_value = $email_error = $password_error = '';
+	$email_value = $email_error = $password_error = NULL;
 	if (isset($flash['email'])) {
 		$email_value = $flash['email'];
 	}
@@ -119,19 +121,7 @@ $app->post("/login", function () use ($app) {
 	$email = $app->request()->post('email');
 	$password = $app->request()->post('password');
 
-//	$errors = array();
-//	if ($email != "brian@nesbot.com") {
-//		$errors['email'] = "Email is not found.";
-//	} else if ($password != "aaaa") {
-////		$app->flash('email', $email);
-//		$errors['password'] = "Password does not match.";
-//	}
-//	if (count($errors) > 0) {
-//		$app->flash('errors', $errors);
-//		$app->redirect($basedir.'/login');
-//	}
-
-	$password_hash = hash('sha256',$password, FALSE);
+	$password_hash = Util::hashPassword($password);
 
 	$db = Database::getDB();
 
@@ -156,6 +146,7 @@ $app->post("/login", function () use ($app) {
 		$app->redirect($basedir.'/');
 	}else {
 		$app->flash('errors', array('email'=>'Přihlašovací jméno nebo heslo není správné.'));
+		$app->flash('email', $email);
 		$app->redirect($basedir.'/login');
 	}
 });
@@ -172,6 +163,64 @@ $app->get("/logout", function () use ($app) {
 	$app->redirect($basedir.'/login');
 });
 
+$app->get("/profile", function () use ($app) {
+
+	$basedir = Config::getKey('projectDir');
+	$user = Users::getUser($_SESSION['user_id']);
+
+	$app->render('profile.php', array(
+		'error' => NULL,
+		'email_value' => $user->mail,
+		'email_error' => NULL,
+		'password_error' => NULL,
+		'basedir' => $basedir,
+		'password_length_error' => NULL,
+	));
+});
+$app->post("/profile", function () use ($app) {
+
+	$user = Users::getUser($_SESSION['user_id']);
+
+	$password = $app->request()->post('password');
+	$password2 = $app->request()->post('password2');
+
+	$ok = TRUE;
+	$success = NULL;
+	$error = NULL;
+	$email_error = NULL;
+	$password_error = NULL;
+	$password_length_error = NULL;
+
+	if (Util::hashPassword($password) != Util::hashPassword($password2)){
+		$password_error = "Hesla se neshodují";
+		$ok = FALSE;
+	}
+
+	if (strlen($password) < 6) {
+		$password_length_error = "Heslo je příliš krátké, musí mít alespoň 6 znaků.";
+		$ok = FALSE;
+	}
+	try {
+		if ($ok) {
+			Users::changePassword($_SESSION['user_id'], Util::hashPassword($password));
+			$success = "Heslo bylo úspěšně změněno.";
+		}
+	}catch (Exception $ex){
+		$password_error = $ex->getMessage();
+	}
+	$basedir = Config::getKey('projectDir');
+
+	$app->render('profile.php', array(
+		'success' => $success,
+		'error' => $error,
+		'email_value' => '',
+		'email_error' => $email_error,
+		'password_error' => $password_error,
+		'password_length_error' => $password_length_error,
+		'basedir' => $basedir,
+	));
+});
+
 $app->get("/register", function () use ($app) {
 	$basedir = Config::getKey('projectDir');
 	$error = NULL;
@@ -179,21 +228,63 @@ $app->get("/register", function () use ($app) {
 	$password_error = NULL;
 	$app->render('register.php', array(
 		'error' => $error,
-//		'email_value' => $email_value,
+		'email_value' => '',
 		'email_error' => $email_error,
 		'password_error' => $password_error,
-//		'urlRedirect' => $urlRedirect,
-		'basedir' => $basedir
+		'basedir' => $basedir,
+		'password_length_error' => NULL,
 	));
 });
+
 $app->post("/register", function () use ($app) {
-	setNullDataToViewAndUnset($app, array(
-		'user_id',
-		'user_name',
-		'user_role',
-		'user_logged',
+	$basedir = Config::getKey('projectDir');
+	$email = $app->request()->post('email');
+	$password = $app->request()->post('password');
+	$password2 = $app->request()->post('password2');
+
+	$error = NULL;
+	$email_error = NULL;
+	$password_error = NULL;
+	$password_length_error = NULL;
+
+	$ok = TRUE;
+
+	if (!Util::validateEmail($email)){
+		$email_error = 'Chybný formát e-mailu.';
+		$ok = FALSE;
+	}
+
+	if (Util::hashPassword($password) != Util::hashPassword($password2)){
+		$password_error = "Hesla se neshodují";
+		$ok = FALSE;
+	}
+
+	if (strlen($password) < 6) {
+		$password_length_error = "Heslo je příliš krátké, musí mít alespoň 6 znaků.";
+		$ok = FALSE;
+	}
+	try {
+		if ($ok) {
+			Users::registerNew($email, $email, Util::hashPassword($password));
+		}
+	}catch (Exception $ex){
+		$email_error = $ex->getMessage();
+		$ok = FALSE;
+	}
+
+	if ($ok){
+		$app->redirect($basedir.'/login');
+	}
+
+	$app->render('register.php', array(
+		'error' => $error,
+		'email_value' => $email,
+		'email_error' => $email_error,
+		'password_error' => $password_error,
+		'password_length_error' => $password_length_error,
+		'basedir' => $basedir
 	));
-	$app->render('homepage.php');
+
 });
 
 $app->get("/student", $authenticate($app), function () use ($app) {

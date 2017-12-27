@@ -46,7 +46,6 @@
     <script src="src/application.js?<?php echo(filemtime('./src/application.js')) ?>"></script>
 
     <script>
-        eco.basedir = '<?php echo $projectDir ?>';
         $(document).ready(function() {
             eco.start();
         });

@@ -22,13 +22,21 @@
 
 class AuthRoute extends \Slim\Route
 {
-	public static function formatPayload($username, $user_id, $email, $role = array('user'))
+	public static function formatPayload($username, $user_id, $email, $role = 'guest')
 	{
 		return array(
 			'id' => $user_id,
 			'name' => $username,
 			'email' => $email,
 			'role' => $role,
+		);
+	}
+
+	public static function createJwtHeader()
+	{
+		return array(
+			'alg' => 'HS256',
+			"typ" => "JWT"
 		);
 	}
 
@@ -47,105 +55,104 @@ class AuthRoute extends \Slim\Route
 		$data = Util::getJwtData($token);
 		$payload = $data['payload'];
 
-		var_dump($payload);
-//		$user = user($payload['id']);
-//		if ($user) {
-//			var_dump($user);
-//			echo '<br>';
-//			var_dump($payload);
-//		}
+//		var_dump($payload);
+		$user = Users::getUserDetail($payload['id']);
 
+		$header = AuthRoute::createJwtHeader();
+		$payload = AuthRoute::formatPayload($user['name'],$user['id'],$user['mail'],$user['type_uctu']);
+
+		$correctToken = Util::jwtEncode($header,$payload,Config::getKey('secret'));
+
+		if (!empty($token) && $token!==FALSE && $token === $correctToken) {
+			return $token;
+		}
+		return FALSE;
 	}
 
-	public static function authenticateForRole($role = 'member')
+	public static function authenticateForRole($role = 'guest', $andSuperRoles = TRUE)
 	{
-//		$app = \Slim\Slim::getInstance();
-//		$token = Util::getToken();
-
-
-
-		return function () use ($role) {
-			AuthRoute::validateToken();
-
-//			$app = \Slim\Slim::getInstance();
-//			$user = User::fetchFromDatabaseSomehow();
-//			if ($user->belongsToRole($role) === false) {
-//				$app->flash('error', 'Login required');
-//				$app->redirect('/login');
+		return function ($route = NULL) use ($role) {
+//			$route->get('');
+			$app = \Slim\Slim::getInstance();
+//			if (self::isLogged()) {
+//				if (self::hasRole($role)){
+//
+//				}
 //			}
+			try {
+				AuthRoute::requestLogged($role);
+			} catch (AuthorizationException $ex) {
+//				$app->flash('error', 'Login required');
+//				$projectDir = Config::getKey('projectDir');
+//				$app->redirect($projectDir.'/login');
+				Util::responseError($ex->getMessage(), 401);
+				$app->stop();
+			}
 		};
 	}
 
-}
+	public static function hasRole($role, $user = NULL)
+	{
+		if ($role==NULL){
+			return TRUE;
+		}
+		if ($user==NULL) {
+			return ($role != FALSE && ($_SESSION['user_role'] === $role || (is_array($user['role']) && in_array($role, $_SESSION['user_role']))));
+		}else {
+			return ($role != FALSE && ($user['role'] === $role || (is_array($user['role']) && in_array($role, $user['role']))));
+		}
+	}
 
+	public static function isLogged(){
+		$user = null;
+		if (isset($_SESSION['user_role']) && isset($_SESSION['user_id'])){
+			$user = array(
+				"user_id" => $_SESSION['user_id'],
+				"name" => $_SESSION['user_name'],
+				"role" => $_SESSION['user_role'],
+				"id" => $_SESSION['user_id'],
+			);
+		}else {
+			return FALSE;
+		}
+		return $user;
+	}
+
+	public static function requestLogged($role){
+		$teacher = null;
+		if (isset($_SESSION['user_role']) && AuthRoute::hasRole($role)){
+			$teacher = array(
+				"user_id" => $_SESSION['user_id'],
+				"name" => $_SESSION['user_name'],
+				"role" => $_SESSION['user_role'],
+				"id" => $_SESSION['user_id'],
+			);
+		}else {
+			throw new AuthorizationException('Nemáte potřebné oprávnění ('.$role.').');
+		}
+		return $teacher;
+	}
+
+}
 
 function requestLoggedTeacher(){
-//	$app = \Slim\Slim::getInstance();
-	$teacher = null;
-	if (isset($_SESSION['user_role']) && $_SESSION['user_role']=='teacher'){
-		$teacher = array(
-			"user_id" => $_SESSION['user_id'],
-			"name" => $_SESSION['user_name'],
-			"role" => $_SESSION['user_role'],
-			"id" => $_SESSION['user_id'],
-		);
-	}else {
-		throw new Exception('Nemáte potřebné oprávnění vyučujícího.');
-	}
-	return $teacher;
+	return AuthRoute::requestLogged('teacher');
 }
-
-//function requestLoggedTeacher(){
-////	$app = \Slim\Slim::getInstance();
-//	$teacher = null;
-//	if (isset($_SESSION['user_role']) && $_SESSION['user_role']=='teacher'){
-//		$teacher = array(
-//			"user_id" => $_SESSION['user_id'],
-//			"name" => $_SESSION['user_name'],
-//			"role" => $_SESSION['user_role'],
-//			"id" => $_SESSION['user_id'],
-//		);
-//	}else {
-//		throw new Exception('Nemáte potřebné oprávnění vyučujícího.');
-//	}
-//	return $teacher;
-//}
 
 function requestLoggedStudent(){
-	$student = null;
-	if (isset($_SESSION['user_role']) && $_SESSION['user_role']=='student'){
-		$student = array(
-			"user_id" => $_SESSION['user_id'],
-			"name" => $_SESSION['user_name'],
-			"role" => $_SESSION['user_role'],
-			"id" => $_SESSION['user_id'],
-		);
-	}else {
-		throw new Exception('Nemáte potřebné oprávnění studenta.');
-//		echo "Nemáte potřebné oprávnění!";
-//		exit();
-	}
-	return $student;
+	return AuthRoute::requestLogged('student');
 }
+
 function requestLoggedAny(){
-	$app = \Slim\Slim::getInstance();
-	$user = null;
-	if (isset($_SESSION['user_role']) && isset($_SESSION['user_id'])){
-		$user = array(
-			"user_id" => $_SESSION['user_id'],
-			"name" => $_SESSION['user_name'],
-			"role" => $_SESSION['user_role'],
-			"id" => $_SESSION['user_id'],
-		);
-	}else {
-		throw new Exception('Nemáte potřebné oprávnění.');
-	}
-	return $user;
+	return AuthRoute::requestLogged(NULL);
 }
 
 function isStudent($user){
-	return $user['role']==='student';
+	return AuthRoute::hasRole('student', $user);
 }
 function isTeacher($user){
-	return $user['role']==='teacher';
+	return AuthRoute::hasRole('teacher', $user);
+}
+function isGuest($user){
+	return AuthRoute::hasRole('guest', $user);
 }

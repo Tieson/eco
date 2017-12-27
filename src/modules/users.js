@@ -1,9 +1,9 @@
-eco.Models.Users = Backbone.Model.extend({
-    // urlRoot: eco.basedir+'/api/users'
+eco.Models.User = Backbone.Model.extend({
+    urlRoot: eco.basedir+'/api/users'
 });
 
 eco.Collections.Users = Backbone.Collection.extend({
-    model: eco.Models.Users,
+    model: eco.Models.User,
     initialize: function (models, opts) {
         this.urlString = (opts && opts.url) || eco.basedir+'/api/users';
     },
