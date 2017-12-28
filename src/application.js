@@ -80,17 +80,16 @@ eco.start = function (data) {
     // router.on('route:showGroupHomeworks', showGroupHomeworks);
 
     // router.on('route:showTasks', showTasks);
-    router.on('route:showAllTasks', showAllTasks);
-    router.on('route:showTaskDetail', showTaskDetail);
-    router.on('route:editTask', editTask);
+    // router.on('route:showAllTasks', showAllTasks);
+    // router.on('route:showTaskDetail', showTaskDetail);
+    // router.on('route:editTask', editTask);
 
     router.on('route:defaultRoute', defaultRoute);
 
 
     //global Variables
     var main = $(eco.selectors.main),
-        main_tab = $(eco.selectors.pages),
-        main_bar = $(eco.selectors.main_bar);
+        main_tab = $(eco.selectors.pages);
     var schemaContainer = $(eco.selectors.canvasWrapper),
         schemas_tab = $(eco.selectors.schemas);
 
@@ -305,13 +304,15 @@ eco.start = function (data) {
         var paper = eco.createPaper(schema, schemaContainer);
         var counter = createSetCounter(0);
         var sim = new eco.Models.Simulation({paper: paper});
-        var undomanager = new Backbone.UndoManager();
+        var undomanager = new Backbone.UndoManager({
+            // maximumStackLength: 50,
+        });
         schema.set('undomanager', undomanager);
 
         schema.loadGraph(function () {
             var graph = schema.get('graph');
             graph.set('counter', counter);
-            schema.set('opened', true); // nastavení indikátoru, že je otevřeno
+            // schema.set('opened', true); // nastavení indikátoru, že je otevřeno
             openedSchemas.add(schema); //přidáme schéma do kolekce otevřených
             addOpenedPaper(schema, paper);
             showSchemaPaper(schema);
@@ -319,6 +320,7 @@ eco.start = function (data) {
             eco.Utils.inicilizeCounterbyGraph(counter, graph);
             sim.startSimulation();
             undomanager.register(graph);
+            Backbone.UndoManager.removeUndoType("change");
             undomanager.startTracking();
 
             paper.$el.droppable({
@@ -346,11 +348,9 @@ eco.start = function (data) {
     }
 
     function hideSchemaPaper(schema) {
-        // console.log('%c hideSchemaPaper ', 'background: yellow', schema);
         if (schema) {
             var paper = openedSchemasPapers[schema.get('id')];
             if (paper) {
-                // console.log('paper:', paper);
                 paper.$el.hide();
             }
         }
@@ -387,106 +387,8 @@ eco.start = function (data) {
         setPageTitle('404 Stránka nenalezena');
         main.html('<h1>404 Stránka nenalezena</h1>');
         main_tab.show();
-
     }
 
-
-    //Deprecated - needitovat a nerozvýjet používá se verze ze souboru teacher.js
-    function editTask(id) {
-        setPageTitle('Seznam zadání');
-        main.html('');
-        main_tab.show();
-
-        eco.ViewGarbageCollector.clear();
-
-        var vent = _.extend({}, Backbone.Events);
-
-        var model = new eco.Models.Task({
-            url: eco.basedir + "/api/tasks/" + id,
-        });
-
-        var viewAddNew = new eco.Views.EditTask({
-            title: "Upravit zadání",
-            template: '#taskEditForm-template',
-            mapper: eco.Mappers.TaskEditMapper,
-            model: model,
-        });
-        model.fetch();
-        main.append(viewAddNew.$el);
-
-        var files = new eco.Collections.Files(null, {
-            url: eco.basedir + '/api/tasks/' + id + '/files',
-        });
-
-        console.log("FILES", files);
-
-        // část pro výpis souborů
-        var filesView = new eco.Views.Files({
-            title: "Soubory",
-            noRecordsMessage: 'Zatím zde nejsou žádné soubory.',
-            template: '#tasksFilesList-template',
-            itemTemplate: '#tasksFilesItem-template',
-            formater: eco.Formaters.FileFormater,
-            collection: files,
-            searchNames: [
-                'list-file',
-                'list-type',
-            ],
-            vent: vent,
-        });
-        main.append(filesView.$el);
-
-        files.fetch();
-
-        // část s formulářem pro nové zadání
-        var addFileView = new eco.Views.AddFileForm({
-            template: '#taskFilleAddForm-template',
-            vent: vent,
-            model: model,
-            task_id: id,
-        });
-        main.append(addFileView.render().$el);
-    }
-
-    function showAllTasks() {
-        //TODO: omezit práva pouze pro vyučující (i na serrveru)
-        setPageTitle('Seznam zadání');
-        main_tab.show();
-        eco.ViewGarbageCollector.clear();
-
-        var collection = new eco.Collections.Tasks(null, {
-            url: eco.basedir + "/api/tasks",
-        });
-
-        var view = new eco.Views.GenericList({
-            template: '#tasksList-template',
-            itemTemplate: '#tasksListItem-template',
-            formater: eco.Formaters.TasksFormater,
-            collection: collection,
-            el: main
-        });
-
-        collection.fetch();
-    }
-
-    function showTaskDetail(id) {
-        //TODO: omezit práva pouze pro vyučující (i na serrveru)
-        setPageTitle('Seznam zadání');
-        main_tab.show();
-        eco.ViewGarbageCollector.clear();
-
-        var model = new eco.Models.Task({id: id});
-        console.log(model);
-
-        var view = new eco.Views.GenericDetail({
-            template: '#taskDetail-template',
-            formater: eco.Formaters.TasksFormater,
-            model: model,
-            el: main
-        });
-
-        model.fetch();
-    }
 
     function showHome() {
         schemas_tab.show();

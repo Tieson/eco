@@ -99,7 +99,6 @@ function createSetCounter(start) {
     var counter = {
         set: function (key, value) {
             if(value < start){
-                // throw new Exception("Value ("+value+") already exists.");
                 return undefined;
             }
             if (_.find(counts[key], function(o){return o === value;}) === undefined){
@@ -123,7 +122,6 @@ function createSetCounter(start) {
         getNextEmpty: function(key){
             var set = counts[key];
             if(set !== undefined && _.size(set)>0){
-
                 var last = start;
                 var result;
                 _.forEach(set, function(value){
@@ -141,7 +139,6 @@ function createSetCounter(start) {
                     result = last;
                 }
                 return result;
-
             }else{
                 counts[key] = [start];
                 return start;
@@ -153,6 +150,9 @@ function createSetCounter(start) {
             if (index >= 0){
                 set.splice(index, 1);
             }
+        },
+        getCounts: function(){
+            return counts;
         }
     };
     return counter;

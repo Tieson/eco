@@ -11,8 +11,7 @@
  * Veřejné funkce:
  */
 function VhdExporter() {
-    this.types = {IN: 'mylib.INPUT', OUT: 'mylib.OUTPUT', GATE: 'mylib.Gate', CLK: 'mylib.CLK'};
-    this.notConnectedInputDefault = 1;
+    this.notConnectedInputDefault = eco.Utils.notConnectedInputDefault;
 };
 
 /**
@@ -73,12 +72,12 @@ VhdExporter.prototype.getAllEntities = function(graph) {
 };
 
 VhdExporter.prototype.getInputs = function(graph) {
-    var inputs = this.getElemByType(graph, this.types.IN);
+    var inputs = this.getElemByType(graph, eco.Utils.types.IN);
     // console.log('getInputs', inputs);
     return inputs;
 };
 VhdExporter.prototype.getOutputs = function(graph) {
-    var outputs = this.getElemByType(graph, this.types.OUT);
+    var outputs = this.getElemByType(graph, eco.Utils.types.OUT);
     // console.log('getOutputs', outputs);
     return outputs;
 };
@@ -99,7 +98,7 @@ VhdExporter.prototype.getSignals = function(graph, elements) {
     for (var i = 0; i < elements.length; i++) {
         type = elements[i].get('exportType');
         custom = elements[i].attr('custom');
-        if (type === self.types.GATE) {
+        if (type === eco.Utils.types.GATE) {
 
             var cLinks = graph.getConnectedLinks(elements[i], {outbound: true});
             for (var j = 0; j < cLinks.length; j++) {
@@ -110,11 +109,9 @@ VhdExporter.prototype.getSignals = function(graph, elements) {
                 targetType = graph.getCell(tId).get('exportType');
                 sigName = sig.get('source').port + '_' + custom.uniqueName;
                 index = duplicitCounter.inc(sigName);
-                // console.log(sigName, index);
-
 
                 if (index < 1) {
-                    if (targetType === self.types.GATE || targetType === self.types.OUT) {
+                    if (targetType === eco.Utils.types.GATE || targetType === eco.Utils.types.OUT) {
                         sigs.push("\tsignal " + sigName + " : std_logic;\r\n");
                     }
                 } else {
@@ -134,7 +131,7 @@ VhdExporter.prototype.gatesToVHDL = function(graph, elements) {
         ins = elements[i].attr('custom');
         type = elements[i].get('exportType');
         pos = elements[i].attributes.position;
-        if (type === self.types.GATE) {
+        if (type === eco.Utils.types.GATE) {
             var name = ins.name || ins.label || 'gate';
             var portmap = this.getPortMap(graph, elements[i]);
             result.push("\r\n\t" + name + "_" + ins.number + " : entity work." + ins.type + (portmap!==false?"":";")
@@ -169,8 +166,6 @@ VhdExporter.prototype.portsToVHDL = function(inputs, outputs) {
     return result.join("\r\n");
 };
 
-//TODO : dodělat tuto funkci
-
 VhdExporter.prototype.getOutputMap = function(graph, outputs) {
     var portmap = [];
     var self = this;
@@ -190,10 +185,10 @@ VhdExporter.prototype.getOutputMap = function(graph, outputs) {
             other = graph.getCell(source.id);
             customOther = other.attr('custom');
             switch (other.get('exportType')) {
-                case self.types.GATE:
+                case eco.Utils.types.GATE:
                     portmap.push(outputs[j].attr('custom').name + outputs[j].attr('custom').number + " <= " + source.port + '_' + customOther.uniqueName);
                     break;
-                case self.types.IN:
+                case eco.Utils.types.IN:
                     portmap.push(outputs[j].attr('custom').name + outputs[j].attr('custom').number +" <= " + customOther.name + customOther.number);
                     break;
                 default :
@@ -227,11 +222,11 @@ VhdExporter.prototype.getPortMap = function(graph, gate) {
         other = graph.getCell(source.id);
         customOther = other.attr('custom');
         switch (other.get('exportType')) {
-            case self.types.GATE:
+            case eco.Utils.types.GATE:
                 portmap.push(target.port + " => " + source.port + '_' + customOther.uniqueName);
                 usedPorts[target.port] = 1;
                 break;
-            case self.types.IN:
+            case eco.Utils.types.IN:
                 portmap.push(target.port + " => " + customOther.name+customOther.number);
                 usedPorts[target.port] = 1;
                 break;
@@ -257,8 +252,8 @@ VhdExporter.prototype.getPortMap = function(graph, gate) {
         // console.log('x ',target, source, other, customOther);
         if (duplicitCounter.inc(source.port) < 1) {
             switch (other.get('exportType')) {
-                case self.types.GATE:
-                case self.types.OUT:
+                case eco.Utils.types.GATE:
+                case eco.Utils.types.OUT:
                     portmap.push(source.port + " => " + source.port + '_' + gCustom.uniqueName);
                     break;
                 default :

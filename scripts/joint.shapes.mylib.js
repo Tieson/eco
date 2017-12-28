@@ -265,6 +265,19 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
     operation: function() { return true; },
     getInPortValues: function(p){
         return _.pick(p, this.get('inPorts'));
+    },
+    isVisualyActive: function(){
+        // var self = this;
+        // var result = self.operation(self.getInPortValues());
+        // console.log('result', result, self, self.getInPortValues());
+        // if (result != null && result != undefined){
+        //     if (result.length && result.length() > 0 && result['q'] != undefined){
+        //         return result['q'] >0;
+        //     }else {
+        //         return result;
+        //     }
+        // }
+        return false;
     }
 });
 
@@ -326,7 +339,7 @@ joint.shapes.mylib.CLK = joint.shapes.mylib.HradloIO.extend({
     markup: '<g class="rotatable"><g class="scalable"><rect class="entitybody"/></g><text class="label"/><path class="wire"/><circle class="output output1"/></g><g><text class="jm"/></g>',
     clock: 0,
     interval: 250,
-    signal: 1,
+    signal: 0,
     lastTime: Date.now(),
     tickOn: false,
     defaults: joint.util.deepSupplement({
@@ -2769,15 +2782,13 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
 
     pointerclick: function (evt, x, y) {
         var self = this;
-
-        console.log('pointerclick', self, self.model.get('id'), self.model.graph);
         var className = evt.target.parentNode.getAttribute('class');
         switch (className) {
             case 'element-tool-remove':
-                if (activeSchemaView) {
-                    var graph = activeSchemaView.get('graph');
+                if (activeSchemaModel !== null) {
+                    var graph = activeSchemaModel.get('graph');
                     var id = $(evt.target.parentNode).attr("data-id");
-                    if (id==self.model.get('id') ){
+                    if (id===self.model.get('id') ){
                         evt.stopPropagation();
                         // var graph = self.model.graph;
                         var counter = graph.get('counter');

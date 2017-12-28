@@ -4,6 +4,7 @@
 
 
 window.eco.Utils = {
+    notConnectedInputDefault: 1, // 1 nebo 0, projeví se jak v exportu do VHDL tak v simulátoru
     types: {
         IN: 'mylib.INPUT',
         OUT: 'mylib.OUTPUT',
