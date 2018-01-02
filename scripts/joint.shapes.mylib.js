@@ -94,7 +94,6 @@ function logicFunction(params, foo, first, negate){
  * @returns {boolean|*}
  */
 function rising_edge(memory, port){
-    console.log("rising_edge", memory, port);
     return memory != port && isHigh(port);
 }
 function decrease_edge(memory, port){
@@ -267,22 +266,9 @@ joint.shapes.mylib.Hradlo = joint.shapes.basic.Generic.extend({
         return _.pick(p, this.get('inPorts'));
     },
     isVisualyActive: function(){
-        // var self = this;
-        // var result = self.operation(self.getInPortValues());
-        // console.log('result', result, self, self.getInPortValues());
-        // if (result != null && result != undefined){
-        //     if (result.length && result.length() > 0 && result['q'] != undefined){
-        //         return result['q'] >0;
-        //     }else {
-        //         return result;
-        //     }
-        // }
         return false;
     }
 });
-
-// Every logic gate needs to know how to handle a situation, when a signal comes to their ports.
-
 
 //---------------------- HRADLA IO --------------------------------------------//
 
@@ -1433,9 +1419,7 @@ joint.shapes.mylib.TUL_NAND = joint.shapes.mylib.Hradlo21N.extend({
         outPorts: ['q'],
     }, joint.shapes.mylib.Hradlo21N.prototype.defaults),
     operation: function (p) {
-        // console.log("IN", this.get('inPorts'), "OUT", this.get('outPorts'));
         if (inputsAreInvalid(p, this.get('inPorts'))) return -1;
-        // return !logExecute(p, this.get('inPorts'), executerAnd);
         return !logicExecuter(p, this.get('inPorts'), logAnd, true);
     }
 });
@@ -1452,7 +1436,6 @@ joint.shapes.mylib.TUL_NOR = joint.shapes.mylib.Hradlo21N.extend({
     }, joint.shapes.mylib.Hradlo21N.prototype.defaults),
     operation: function (p) {
         if (inputsAreInvalid(p)) return -1;
-        // return !(p['a'] || p['b']);
         return !logicExecuter(p, this.get('inPorts'), logOr, false);
     }
 });
@@ -1518,7 +1501,6 @@ joint.shapes.mylib.NAND3 = joint.shapes.mylib.Hradlo31N.extend({
               '.jm4': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -70 },            
         }
     }, joint.shapes.mylib.Hradlo31N.prototype.defaults),
-    //ram: [],
     operation: function (p) {
         if (inputsAreInvalid(p)) return -1;
         return !logicExecuter(p, this.get('inPorts'), logAnd, 1);
@@ -1753,12 +1735,6 @@ joint.shapes.mylib.MUX4 = joint.shapes.mylib.HradloMux61.extend({
     }, joint.shapes.mylib.HradloMux61.prototype.defaults),
     operation: function (p) {
         var result = p['sel1']?(p['sel0']?p['a3']:p['a2']):(p['sel0']?p['a1']:p['a0']);
-        // _.each(arguments, function(value){
-        //     if (value < 0){
-        //         result = -1;
-        //         return;
-        //     }
-        // });
         return result;
     }
 });
@@ -1906,6 +1882,7 @@ joint.shapes.mylib.RS = joint.shapes.mylib.HradloRS22.extend({
         this.state = p['r'] ? (p['s'] ? -1 : 0) : (p['s'] ? 1 : this.state);
     }
 });
+
 //RST není implementován ve VHDL knihovně
 joint.shapes.mylib.RST = joint.shapes.mylib.HradloRS32.extend({
   state: false,
@@ -2099,7 +2076,6 @@ joint.shapes.mylib.DFFAR = joint.shapes.mylib.HradloD42.extend({
             this.state = p['d'];
         }
         this.clk_edge = p['clk'];
-        console.log("state", this.state);
     }
 });
 joint.shapes.mylib.DFFSR = joint.shapes.mylib.HradloD42SR.extend({
@@ -2634,7 +2610,7 @@ joint.shapes.mylib.RAM4x256 = joint.shapes.mylib.HradloRAM4256.extend({
     }
 });
 
-//TODO: implemetovat simulační funkci u DPRAM4x256
+//TODO: není implementována simulační funkce
 joint.shapes.mylib.DPRAM4x256 = joint.shapes.mylib.HradloDPRAM4256.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.DPRAM4x256',
@@ -2704,24 +2680,18 @@ joint.shapes.mylib.Vodic = joint.dia.Link.extend({
     ].join(''),
 
     defaults: joint.util.deepSupplement({
-
         type: 'mylib.Vodic',
-
         attrs: {
             '.connection': { 'stroke-width': 2 },
             '.marker-vertex': {r: 12}
         },
-
-        // manhattan: true
         router: { name: 'orthogonal' },
         connector: { name: 'rounded', args: { radius: 10 }}
 
     }, joint.dia.Link.prototype.defaults)
-
 });
 
 if (typeof exports === 'object') {
-
     module.exports = joint.shapes.devs;
 }
 
@@ -2765,7 +2735,6 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
                     var id = $(evt.target.parentNode).attr("data-id");
                     if (id===self.model.get('id') ){
                         evt.stopPropagation();
-                        // var graph = self.model.graph;
                         var counter = graph.get('counter');
                         counter.removeOne(self.model.attr('custom').type, this.model.attr('custom').number);
                         self.model.remove();
