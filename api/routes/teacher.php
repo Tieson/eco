@@ -207,9 +207,8 @@ function showTasks()
 		$teacher = requestLoggedTeacher();
 
 	} catch (Exception $e) {
-		$app->response()->setStatus(401);
-		echo '{"error":{"text":' . $e->getMessage() . '}}';
-		exit;
+		Util::responseError($e->getMessage(),401);
+		$app->stop();
 	}
 	try {
 
@@ -220,19 +219,11 @@ function showTasks()
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-		if ($items) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($items);
-			$db = null;
-		} else {
-			throw new PDOException('No records found.');
-		}
+		Util::response($items);
 
 	} catch (PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":' . $e->getMessage() . '}}';
-		exit;
+		Util::responseError($e->getMessage(), 404);
+		$app->stop();
 	}
 }
 function showValidTasks()
@@ -241,11 +232,9 @@ function showValidTasks()
 
 	try {
 		$teacher = requestLoggedTeacher();
-
 	} catch (Exception $e) {
-		$app->response()->setStatus(401);
-		echo '{"error":{"text":' . $e->getMessage() . '}}';
-		exit;
+		Util::responseError($e->getMessage(),401);
+		$app->stop();
 	}
 	try {
 
@@ -256,19 +245,11 @@ function showValidTasks()
 		$sth->execute();
 		$items = $sth->fetchAll(PDO::FETCH_OBJ);
 
-		if ($items) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($items);
-			$db = null;
-		} else {
-			throw new PDOException('No records found.');
-		}
+		Util::response($items);
 
 	} catch (PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":' . $e->getMessage() . '}}';
-		exit;
+		Util::responseError($e->getMessage(),404);
+		$app->stop();
 	}
 }
 
@@ -279,9 +260,8 @@ function task($id)
 	try {
 		$teacher = requestLoggedTeacher();
 	} catch (Exception $e) {
-		$app->response()->setStatus(401);
-		echo '{"error":{"text":' . $e->getMessage() . '}}';
-		exit();
+		Util::responseError($e->getMessage(),401);
+		$app->stop();
 	}
 
 	try {
@@ -293,17 +273,14 @@ function task($id)
 		$items = $sth->fetch(PDO::FETCH_OBJ);
 
 		if ($items) {
-			$app->response->setStatus(200);
-			$app->response()->headers->set('Content-Type', 'application/json');
-			echo json_encode($items);
-			$db = null;
+			Util::response($items);
 		} else {
-			throw new PDOException('No records found.');
+			throw new PDOException('No record found.');
 		}
 
 	} catch (PDOException $e) {
-		$app->response()->setStatus(404);
-		echo '{"error":{"text":' . $e->getMessage() . '}}';
+		Util::responseError($e->getMessage(),404);
+		$app->stop();
 	}
 }
 

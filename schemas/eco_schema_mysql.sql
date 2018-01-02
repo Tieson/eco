@@ -6,7 +6,7 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 SET NAMES utf8;
 SET CHARACTER SET utf8;
-
+SET foreign_key_checks = 0;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -30,18 +30,12 @@ CREATE TABLE IF NOT EXISTS `entities` (
   `id_cat` int(11) NOT NULL,
   `name` varchar(50) NOT NULL,
   `label` varchar(50) NOT NULL,
-  `architecture` varchar(50) NOT NULL,
-  `vhdl` text NOT NULL,
-  `inputs_count` int(11) NOT NULL,
-  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `active` BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (`id_entity`),
   UNIQUE KEY `name` (`name`),
   KEY `id_cat` (`id_cat`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Vypisuji data pro tabulku `entities`
---
 
 
 -- --------------------------------------------------------
@@ -58,35 +52,6 @@ CREATE TABLE IF NOT EXISTS `entity_cat` (
   PRIMARY KEY (`id_cat`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Vypisuji data pro tabulku `entity_cat`
---
-
-INSERT INTO `entity_cat` (`id_cat`, `name`, `active`) VALUES
-(1, 'Vstupy a výstupy', 1),
-(2, 'Základní kombinační', 1),
-(3, 'Komplexní kombinační', 1),
-(4, 'Sekvenční', 1),
-(5, 'Matematické', 1),
-(6, 'Komplexní sekvenční obvody', 1);
-
--- --------------------------------------------------------
-
---
--- Struktura tabulky `groups`
---
-DROP TABLE IF EXISTS `groups`;
-CREATE TABLE IF NOT EXISTS `groups` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `subject` varchar(30) COLLATE latin2_czech_cs NOT NULL,
-  `day` enum('po','ut','st','ct','pa','so','ne') COLLATE latin2_czech_cs NOT NULL,
-  `weeks` enum('both','odd','even') COLLATE latin2_czech_cs NOT NULL,
-  `block` int(11) NOT NULL,
-  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `teacher_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_teacher_key` (`teacher_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
 
 -- --------------------------------------------------------
 
@@ -103,44 +68,6 @@ CREATE TABLE IF NOT EXISTS `group_assigment` (
   PRIMARY KEY (`group_id`,`student_id`),
   KEY `group_id` (`group_id`),
   KEY `student_id` (`student_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
-
--- --------------------------------------------------------
-
---
--- Struktura tabulky `hw_assigment`
---
-
-DROP TABLE IF EXISTS `hw_assigment`;
-CREATE TABLE IF NOT EXISTS `hw_assigment` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `task_id` int(11) NOT NULL,
-  `student_id` int(11) NOT NULL,
-  `group_id` int(11) NOT NULL,
-  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `deadline` timestamp NULL,
-  `status` enum('open','done','failed') COLLATE latin2_czech_cs NOT NULL DEFAULT 'open',
-  PRIMARY KEY (`id`),
-  KEY `task_id` (`task_id`),
-  KEY `student_id` (`student_id`),
-  KEY `group_id` (`group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
-
--- --------------------------------------------------------
-
---
--- Struktura tabulky `schema_base`
---
-
-DROP TABLE IF EXISTS `schema_base`;
-CREATE TABLE IF NOT EXISTS `schema_base` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `name` varchar(50) COLLATE latin2_czech_cs NOT NULL,
-  `architecture` varchar(50) COLLATE latin2_czech_cs NOT NULL,
-  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
 
 -- --------------------------------------------------------
@@ -171,18 +98,41 @@ DROP TABLE IF EXISTS `solution`;
 CREATE TABLE IF NOT EXISTS `solution` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `homework_id` int(11) NOT NULL,
-  `schema_id` int(11) NOT NULL,
+  `schema_id` int(11) NULL,
+  `user_id` INT NOT NULL,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` enum('done','waiting') COLLATE latin2_czech_cs NOT NULL DEFAULT 'waiting',
+  `status` enum('done','waiting','processing') COLLATE latin2_czech_cs NOT NULL DEFAULT 'waiting',
   `test_result` tinyint(1) DEFAULT NULL,
   `test_message` text COLLATE latin2_czech_cs,
   `vhdl` text COLLATE latin2_czech_cs NOT NULL,
   `name` varchar(50) COLLATE latin2_czech_cs NOT NULL,
   `architecture` varchar(50) COLLATE latin2_czech_cs NOT NULL,
   PRIMARY KEY (`id`),
+  INDEX `fk_user_id` (`user_id`),
   KEY `homework_id` (`homework_id`),
   KEY `schema_id` (`schema_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE IF NOT EXISTS `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mail` varchar(256) COLLATE latin2_czech_cs NOT NULL,
+  `name` varchar(100) COLLATE latin2_czech_cs NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `type_uctu` enum('guest','student','teacher') COLLATE latin2_czech_cs NOT NULL DEFAULT 'guest',
+  `password` varchar(256) COLLATE latin2_czech_cs DEFAULT NULL,
+  `activated` BOOLEAN NOT NULL DEFAULT FALSE,
+  `token` varchar(256) NOT NULL DEFAULT 'x',
+  PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_mail` (`mail`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
+
 
 -- --------------------------------------------------------
 
@@ -197,6 +147,8 @@ CREATE TABLE IF NOT EXISTS `task` (
   `name` varchar(150) COLLATE latin2_czech_cs NOT NULL,
   `description` text COLLATE latin2_czech_cs NOT NULL,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `entity` VARCHAR(255) NOT NULL DEFAULT 'HomeWork',
+  `valid` BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (`id`),
   KEY `teacher_id` (`teacher_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
@@ -218,34 +170,66 @@ CREATE TABLE IF NOT EXISTS `task_files` (
   KEY `task_id` (`task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
 
+
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `user`
+-- Struktura tabulky `schema_base`
 --
 
-DROP TABLE IF EXISTS `user`;
-CREATE TABLE IF NOT EXISTS `user` (
+DROP TABLE IF EXISTS `schema_base`;
+CREATE TABLE IF NOT EXISTS `schema_base` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `mail` varchar(256) COLLATE latin2_czech_cs NOT NULL,
-  `name` varchar(100) COLLATE latin2_czech_cs NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `name` varchar(50) COLLATE latin2_czech_cs NOT NULL,
+  `architecture` varchar(50) COLLATE latin2_czech_cs NOT NULL,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `type_uctu` enum('guest','student','teacher') COLLATE latin2_czech_cs NOT NULL DEFAULT 'guest',
-  `password` varchar(256) COLLATE latin2_czech_cs DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `deleted` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
 
+
+-- --------------------------------------------------------
+
 --
--- Vypisuji data pro tabulku `user`
+-- Struktura tabulky `groups`
+--
+DROP TABLE IF EXISTS `groups`;
+CREATE TABLE IF NOT EXISTS `groups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `subject` varchar(30) COLLATE latin2_czech_cs NOT NULL,
+  `day` enum('po','ut','st','ct','pa','so','ne') COLLATE latin2_czech_cs NOT NULL,
+  `weeks` enum('both','odd','even') COLLATE latin2_czech_cs NOT NULL,
+  `block` int(11) NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `teacher_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_teacher_key` (`teacher_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
+
+
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `hw_assigment`
 --
 
-INSERT INTO `user` (`id`, `mail`, `name`, `created`, `type_uctu`, `password`) VALUES
-  (1, 'tjerice@seznam.cz', 'Tomáš Jeřický', '2017-04-07 08:28:35', 'student', NULL),
-  (2, 'omacka@seznam.cz', 'Jan Omáčka', '2017-04-07 08:28:35', 'teacher', NULL),
-  (3, 'martin.rozkovec@tul.cz', 'Martin Rozkovec', '2017-04-07 12:19:49', 'teacher', NULL),
-  (4, 'tomas.vaclavik@tul.cz', 'Tomáš Václavík', '2017-04-07 12:19:49', 'student', NULL),
-  (5, 'test@test.cz', 'Tester Testovač', '2017-09-04 15:58:53', 'student', NULL),
-  (6, 'karel.novak@tul.cz', 'Karel Novák', '2017-09-04 15:59:14', 'student', NULL);
+DROP TABLE IF EXISTS `hw_assigment`;
+CREATE TABLE IF NOT EXISTS `hw_assigment` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `deadline` timestamp NULL,
+  `status` enum('open','done','failed') COLLATE latin2_czech_cs NOT NULL DEFAULT 'open',
+  PRIMARY KEY (`id`),
+  KEY `task_id` (`task_id`),
+  KEY `student_id` (`student_id`),
+  KEY `group_id` (`group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;
 
 
 
@@ -258,6 +242,16 @@ CREATE TABLE IF NOT EXISTS `version` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `version` (version) VALUES (0);
+
+SET foreign_key_checks = 1;
+
+DROP TABLE IF EXISTS `autotest_status`;
+CREATE TABLE `autotest_status` ( `status` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `start` ENUM('idle','running') NOT NULL DEFAULT 'idle' ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `autotest_status` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
+ALTER TABLE `autotest_status` CHANGE `start` `start` BIGINT NOT NULL;
+ALTER TABLE `autotest_status` CHANGE `status` `status` ENUM('running','idle','done') CHARACTER SET latin2 COLLATE latin2_czech_cs NOT NULL DEFAULT 'idle';
+
+
 
 
 --
@@ -293,8 +287,7 @@ ALTER TABLE `schema_base`
 --
 -- Omezení pro tabulku `schema_data`
 --
-ALTER TABLE `schema_data`
-  ADD CONSTRAINT `fk_data_schema_id` FOREIGN KEY (`schema_id`) REFERENCES `schema_base` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `schema_data` ADD CONSTRAINT `fk_data_schema_id` FOREIGN KEY (`schema_id`) REFERENCES `schema_base` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Omezení pro tabulku `solution`
@@ -312,11 +305,8 @@ ALTER TABLE `task` ADD CONSTRAINT `fk_task_teacher_id` FOREIGN KEY (`teacher_id`
 --
 -- Omezení pro tabulku `task_files`
 --
-ALTER TABLE `task_files`
-  ADD CONSTRAINT `task_id_fk` FOREIGN KEY (`task_id`) REFERENCES `task` (`id`);
+ALTER TABLE `task_files` ADD CONSTRAINT `task_id_fk` FOREIGN KEY (`task_id`) REFERENCES `task` (`id`);
 
-
-UPDATE `version` SET version=1, updated=NOW();
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

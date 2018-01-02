@@ -81,67 +81,8 @@ eco.start = function (data) {
         url: eco.basedir + "/api/groups"
     });
 
-    var entities = new eco.Collections.Entities([
-        {id: "2", id_category: "2", name: "TUL_BUF", label: "Buffer"},
-        {id: "3", id_category: "2", name: "TUL_INV", label: "INV"},
-        {id: "4", id_category: "2", name: "TUL_AND", label: "AND"},
-        {id: "5", id_category: "2", name: "TUL_OR", label: "OR"},
-        {id: "6", id_category: "2", name: "TUL_NAND", label: "NAND"},
-        {id: "7", id_category: "2", name: "TUL_NOR", label: "NOR"},
-        {id: "8", id_category: "2", name: "TUL_XOR", label: "XOR"},
-        {id: "10", id_category: "2", name: "NAND3", label: "NAND3"},
-        {id: "11", id_category: "2", name: "AND3", label: "AND3"},
-        {id: "12", id_category: "2", name: "OR3", label: "OR3"},
-        {id: "49", id_category: "2", name: "NOR3", label: "NOR3"},
-        {id: "13", id_category: "2", name: "NAND4", label: "NAND4"},
-        {id: "14", id_category: "2", name: "AND4", label: "AND4"},
-        {id: "48", id_category: "2", name: "OR4", label: "OR4"},
-        {id: "15", id_category: "2", name: "NOR4", label: "NOR4"},
-        {id: "50", id_category: "2", name: "XOR4", label: "XOR4"},
-        {id: "51", id_category: "2", name: "XNOR4", label: "XNOR4"},
-        {id: "16", id_category: "3", name: "MUX2", label: "MUX2"},
-        {id: "17", id_category: "3", name: "MUX4", label: "MUX4"},
-        {id: "18", id_category: "3", name: "MUX8", label: "MUX8"},
-        {id: "19", id_category: "3", name: "DEC14", label: "DEC14"},
-        {id: "20", id_category: "3", name: "DEC18", label: "DEC18"},
-        {id: "21", id_category: "3", name: "PRIOCOD42", label: "Prioritní kodér 42"},
-        {id: "22", id_category: "3", name: "PRIOCOD83", label: "Prioritní kodér 83"},
-        {id: "23", id_category: "4", name: "RS", label: "RS"},
-        // {id:"52", id_category:"4",  name:"RST",           label:"RST" },
-        {id: "24", id_category: "4", name: "DL1", label: "DL1"},
-        {id: "25", id_category: "4", name: "DL1AR", label: "DL1AR"},
-        {id: "26", id_category: "4", name: "JKFF", label: "JKFF"},
-        {id: "27", id_category: "4", name: "JKFFAR", label: "JKFFAR"},
-        {id: "28", id_category: "4", name: "JKFFSR", label: "JKFFSR"},
-        {id: "29", id_category: "4", name: "DFF", label: "DFF"},
-        {id: "30", id_category: "4", name: "DFFAR", label: "DFFAR"},
-        {id: "31", id_category: "4", name: "DFFSR", label: "DFFSR"},
-        {id: "32", id_category: "5", name: "HALFADDER", label: "HALFADDER"},
-        {id: "33", id_category: "5", name: "FULLADDER", label: "FULLADDER"},
-        {id: "34", id_category: "5", name: "ADD4", label: "ADD4"},
-        {id: "35", id_category: "5", name: "MUL8", label: "MUL8"},
-        {id: "36", id_category: "5", name: "COMPARATORLEQ", label: "COMPARATORLEQ"},
-        {id: "37", id_category: "6", name: "UPDOWNCOUNTER", label: "UPDOWNCOUNTER"},
-        {id: "38", id_category: "6", name: "ARAM1x16", label: "ARAM1x16"},
-        {id: "39", id_category: "6", name: "ARAM4x16", label: "ARAM4x16"},
-        {id: "40", id_category: "6", name: "ARAM4x256", label: "ARAM4x256"},
-        {id: "41", id_category: "6", name: "RAM1x16", label: "RAM1x16"},
-        {id: "42", id_category: "6", name: "RAM4x16", label: "RAM4x16"},
-        {id: "43", id_category: "6", name: "RAM4x256", label: "RAM4x256"},
-        // {id:"44", id_category:"6",  name:"DPRAM4x256",    label:"DPRAM4x256" },
-        {id: "45", id_category: "1", name: "INPUT", label: "INPUT"},
-        {id: "46", id_category: "1", name: "OUTPUT", label: "OUTPUT"},
-        {id: "47", id_category: "1", name: "CLK", label: "clock"},
-    ]);
-
-    var categories = new eco.Collections.Categories([
-        {id: 1, name: 'Vstupy a výstupy', active: 1},
-        {id: 2, name: 'Základní kombinační', active: 1},
-        {id: 3, name: 'Komplexní kombinační', active: 1},
-        {id: 4, name: 'Sekvenční', active: 1},
-        {id: 5, name: 'Matematické', active: 1},
-        {id: 6, name: 'Komplexní sekvenční obvody', active: 1},
-    ]);
+    var entities = new eco.Collections.Entities();
+    var categories = new eco.Collections.Categories();
 
     var openedSchemas = new eco.Collections.Schemas(null, {local: true}), // seznam otevřených schémat.
         openedSchemasPapers = {};
@@ -363,6 +304,12 @@ eco.start = function (data) {
     }
 
     function showOpenSchema(id) {
+        if (entities.length<=1){
+            entities.fetch();
+        }
+        if (categories.length<=1){
+            categories.fetch();
+        }
         $(document).on('keydown', null, 'ctrl+s', function () {
             saveSchema(eco.activeSchemaModel);
             return false;

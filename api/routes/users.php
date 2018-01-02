@@ -89,7 +89,7 @@ class Users{
 
 	public static function getUserDetail($id) {
 			$db = Database::getDB();
-			$sth = $db->prepare("SELECT name, mail, id FROM user WHERE id = :id");
+			$sth = $db->prepare("SELECT name, mail, id, type_uctu FROM user WHERE id = :id");
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
 			$sth->execute();
 			$user = $sth->fetch(PDO::FETCH_OBJ);

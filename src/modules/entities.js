@@ -123,7 +123,7 @@ eco.Views.CategoriesView = Backbone.View.extend({
         this.vent = opts.vent;
         this.listenTo(this.model.get('categories'), 'sync', this.render);
         this.listenTo(this.model.get('entities'), 'sync', this.render);
-        this.render();
+        // this.render();
     },
     events: {
         'click .entity': 'onEntityClick',

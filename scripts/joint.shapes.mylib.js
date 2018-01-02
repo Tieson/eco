@@ -1939,8 +1939,8 @@ joint.shapes.mylib.DL1 = joint.shapes.mylib.HradloD22.extend({
     }, joint.shapes.mylib.HradloD22.prototype.defaults),
 
     changeState: function(p){
-        if (p['clk'] && p['d']){
-            this.state = !this.state;
+        if (p['clk']){
+            this.state = !p['d'];
         }
     }
 });
@@ -1965,7 +1965,6 @@ joint.shapes.mylib.DL1AR = joint.shapes.mylib.HradloD42.extend({
         } else if (portIsHigh(p,'clk')){
             this.state = p['d'];
         }
-        console.log("state", this.state);
     }
 });
 joint.shapes.mylib.JKFF = joint.shapes.mylib.HradloJK32.extend({
