@@ -16,20 +16,14 @@ function beforeRoute() {
 eco.Router = Backbone.Router.extend({
     routes: {
         '': 'home',
-
-        'profile':'profile',
-
         'schemas': 'showSchemas', //seznam schémat uživatele
         'schemas/new': 'schemaCreateNew', //vytvoření nového schema
         'schemas/:id/vhdl': 'schemaExportVhdl', //exportuje schéma do hdl souboru
         'schemas/:id': 'openedSchema', //otevře schéma
         'schemas/:id/edit': 'showSchemaEdit', //upraví údaje schéma
-
         'students/groups': 'showUserGroups', //seznam skupin studenta
-
         'homeworks': 'showHwList', //seznam úkolů
         'homeworks/:id': 'showHwDetail', //detail úkolů
-
         '*path':  'defaultRoute', // defaultní: error 404
     },
     route: function(route, name, callback) {
@@ -44,29 +38,20 @@ eco.Router = Backbone.Router.extend({
     },
 });
 
-activeSchemaModel = null;
+eco.activeSchemaModel = null;
 
 eco.start = function (data) {
     var router = new eco.Router();
 
-    router.on('all', function () {
-
-    });
+    router.on('all', function () { });
 
     router.on('route:home', showHome);
     router.on('route:profile', showProfile);
     router.on('route:showHwList', showStudentsHomeworkList);
     router.on('route:showHwDetail', showHomeworkDetail);
 
-    /** Skupiny **/
-    router.on('route:showGroups', showGroups);
-    router.on('route:showGroupDetail', showGroupDetail);
-    // router.on('route:addGroup', showAddGroup);
-
-    /** Studenti **/
+    /** Skupiny studenta **/
     router.on('route:showUserGroups', showUserGroups);
-    router.on('route:showUserGroupDetail', showUserGroupDetail);
-    // router.on('route:showStudentsHwList', showStudentsHwList);
 
     /** Schémata **/
     router.on('route:showSchemas', showSchemaListAndNew);
@@ -75,14 +60,6 @@ eco.start = function (data) {
     router.on('route:showSchemaEdit', showSchemaEdit);
 
     router.on('route:schemaExportVhdl', schemaExportVhdl);
-
-
-    // router.on('route:showGroupHomeworks', showGroupHomeworks);
-
-    // router.on('route:showTasks', showTasks);
-    // router.on('route:showAllTasks', showAllTasks);
-    // router.on('route:showTaskDetail', showTaskDetail);
-    // router.on('route:editTask', editTask);
 
     router.on('route:defaultRoute', defaultRoute);
 
@@ -156,7 +133,7 @@ eco.start = function (data) {
         {id: "46", id_category: "1", name: "OUTPUT", label: "OUTPUT"},
         {id: "47", id_category: "1", name: "CLK", label: "clock"},
     ]);
-    // entities.fetch();
+
     var categories = new eco.Collections.Categories([
         {id: 1, name: 'Vstupy a výstupy', active: 1},
         {id: 2, name: 'Základní kombinační', active: 1},
@@ -165,30 +142,10 @@ eco.start = function (data) {
         {id: 5, name: 'Matematické', active: 1},
         {id: 6, name: 'Komplexní sekvenční obvody', active: 1},
     ]);
-    // categories.fetch();
 
     var openedSchemas = new eco.Collections.Schemas(null, {local: true}), // seznam otevřených schémat.
         openedSchemasPapers = {};
-
-    var openedSchemasButtonsView = new eco.Views.SchemasListView({collection: openedSchemas, active: activeSchemaModel});
-
-
-    //MOCK user object
-    var user = {
-        get: function (key) {
-            console.log('%cMOCK user.get', 'color: white; backbround: red;', key);
-            //TODO: odstranit mock objekt
-            switch (key) {
-                case 'id':
-                    return 1;
-                case 'student_id':
-                    return 9;
-                default:
-                    return null;
-            }
-        }
-    };
-
+    var openedSchemasButtonsView = new eco.Views.SchemasListView({collection: openedSchemas, active: eco.activeSchemaModel});
 
     this.vent = _.extend({}, Backbone.Events);
     var categoriesView = new eco.Views.CategoriesView({
@@ -200,9 +157,8 @@ eco.start = function (data) {
     });
 
     categoriesView.listenTo(this.vent, 'onEntityClick', function (item, event) {
-
-        if (activeSchemaModel) {
-            var graph = activeSchemaModel.get('graph');
+        if (eco.activeSchemaModel) {
+            var graph = eco.activeSchemaModel.get('graph');
 
             var entityId = $(event.currentTarget).attr('data-entityid');
             var foundEntity = entities.get(entityId);
@@ -212,9 +168,7 @@ eco.start = function (data) {
                 x: 40,
                 y: 40
             }, graph, foundEntity);
-
         }
-
     });
 
     /**
@@ -236,7 +190,7 @@ eco.start = function (data) {
      * Rychlé uložení schéma pomocí tlačítka
      */
     $(eco.buttons.saveSchema).on('click', function () {
-        saveSchema(activeSchemaModel);
+        saveSchema(eco.activeSchemaModel);
     });
 
     /**
@@ -265,10 +219,10 @@ eco.start = function (data) {
 
     function exportActiveSchema() {
         var vhdlExporter = new eco.Models.VhdlExporter({
-            schema: activeSchemaModel,
+            schema: eco.activeSchemaModel,
         });
-        if (activeSchemaModel) {
-            var file_name = activeSchemaModel.get('name') + ".vhd";
+        if (eco.activeSchemaModel) {
+            var file_name = eco.activeSchemaModel.get('name') + ".vhd";
             var data = vhdlExporter.getVHDL();
             eco.Utils.downloadAsFile(data, file_name);
         }
@@ -291,7 +245,7 @@ eco.start = function (data) {
     function showSchema(schema) {
         schemas_tab.show();
         eco.Utils.showButtons([eco.buttons.saveSchema, eco.buttons.exportSchema, eco.buttons.undo, eco.buttons.redo]);
-        hideSchemaPaper(activeSchemaModel); //schovat posledně zobrazené schéma
+        hideSchemaPaper(eco.activeSchemaModel); //schovat posledně zobrazené schéma
         if (isSchemaOpen(schema)) {
             reopenSchema(schema);
         } else {
@@ -308,6 +262,7 @@ eco.start = function (data) {
             // maximumStackLength: 50,
         });
         schema.set('undomanager', undomanager);
+        schema.set('sim', sim);
 
         schema.loadGraph(function () {
             var graph = schema.get('graph');
@@ -365,7 +320,7 @@ eco.start = function (data) {
     }
 
     function setSchemaActive(schema) {
-        activeSchemaModel = schema;
+        eco.activeSchemaModel = schema;
         openedSchemasButtonsView.setActiveSchema(schema);
     }
 
@@ -389,19 +344,17 @@ eco.start = function (data) {
         main_tab.show();
     }
 
-
     function showHome() {
         schemas_tab.show();
 
-        if (!activeSchemaModel) {
-            //pokud nemám žádné schéma, tak přejít na stránku pro vytvořenín ebo otevření schéma
+        if (!eco.activeSchemaModel) {
             router.navigate('schemas', {
                 trigger: true,
                 replace: true
             });
         } else {
             //přejít na poslední otevřené schéma
-            router.navigate('schemas/' + activeSchemaModel.get('id'), {
+            router.navigate('schemas/' + eco.activeSchemaModel.get('id'), {
                 trigger: true,
                 replace: true
             });
@@ -411,7 +364,7 @@ eco.start = function (data) {
 
     function showOpenSchema(id) {
         $(document).on('keydown', null, 'ctrl+s', function () {
-            saveSchema(activeSchemaModel);
+            saveSchema(eco.activeSchemaModel);
             return false;
         });
         $(document).on('keydown', null, 'ctrl+e', function () {
@@ -451,9 +404,7 @@ eco.start = function (data) {
      */
     function schemaExportVhdl(id) {
         setPageTitle('Domácí úkoly');
-
         main_tab.show();
-
 
         var nSchema = new eco.Models.Schema({id: id});
         var vhdlExporter = new eco.Models.VhdlExporter({
@@ -503,11 +454,8 @@ eco.start = function (data) {
 
     function showStudentsHomeworkList() {
         setPageTitle('Domácí úkoly');
-
         main_tab.show();
-
         eco.ViewGarbageCollector.clear();
-        console.log('route:showHwList');
         var homeworsk = new eco.Collections.Homeworks(null,
             {url: eco.basedir + '/api/students/hw'}
         );
@@ -571,109 +519,9 @@ eco.start = function (data) {
             itemTemplate: '#userGroupsListItem-template',
             formater: eco.Formaters.StudentGroupFormater,
             collection: groups,
-            // el: main
         });
-        console.log("group url", groups);
         groups.fetch();
         main.append(groupsView.render().$el);
-    }
-
-    function showUserAddGroups() {
-        setPageTitle('Přidání do skupiny');
-        main_tab.show();
-
-        var groups = new eco.Collections.GroupCollection(null, {
-            url: eco.basedir + "/api/students/" + user.get('student_id') + "/groups",
-            //TODO: odstranit mock objekt
-        });
-        eco.ViewGarbageCollector.clear();
-        var groupsView = new eco.Views.GroupList({
-            template: '#userInviteGroupsList-template',
-            collection: groups,
-            el: main
-        });
-        eco.ViewGarbageCollector.add(groupsView);
-        console.log("group url", groups);
-        groups.fetch();
-    }
-
-    function showUserGroupDetail(id) {
-        setPageTitle('Detail skupiny');
-        main_tab.show();
-
-        var group = new eco.Models.Group({id: id});
-        eco.ViewGarbageCollector.clear();
-        var groupsView = new eco.Views.GroupDetail({
-            model: group,
-            el: main
-        });
-        group.fetch();
-    }
-
-    function showGroups() {
-        setPageTitle('Skupiny');
-
-        main_tab.show();
-
-        eco.ViewGarbageCollector.clear();
-        var groupsView = new eco.Views.GroupsList({
-            template: '#groupsList-template',
-            itemTemplate: '#groupsListItem-template',
-            formater: eco.Formaters.GroupFormater,
-            searchNames: [
-                'list-subject',
-                'list-day',
-                'list-block',
-                'list-weeks',
-                'list-teacher',
-                'list-created',
-            ],
-            collection: groups,
-        });
-        main.append(groupsView.$el);
-
-        var newModel = new eco.Models.Group({});
-
-        var addGroupView = new eco.Views.GroupAddForm({
-            title: "Vytvoření nové skupiny",
-            template: "#addGroupForm-template",
-            mapper: function ($element) {
-                var result = eco.Utils.mapValues({
-                    'subject': eco.Utils.inputParsers.byValue,
-                    'day': eco.Utils.inputParsers.byValue,
-                    'weeks': eco.Utils.inputParsers.byValue,
-                    'block': eco.Utils.inputParsers.byValue,
-                }, "#nova_skupina-", $element);
-                return result;
-            },
-            model: newModel,
-            collection: groups,
-        });
-        addGroupView.render();
-
-        main.append(addGroupView.$el);
-
-        groups.fetch();
-    }
-
-    function showGroupDetail(id) {
-        setPageTitle('Detail skupiny');
-
-        main_tab.show();
-
-        // eco.ViewGarbageCollector.clear();
-        // var students = new eco.Collections.Students();
-        console.log('route:circleDetail', id);
-        var group = new eco.Models.Group({id: id});
-        // students.url = 'api/groups/'+id+'/students';
-        // console.log('route:circleDetail', id, students);
-        var groupsDetailView = new eco.Views.GroupDetail({
-            // collection: students,
-            model: group,
-        });
-        group.fetch();
-        // students.fetch();
-        main.append(groupsDetailView.$el);
     }
 
     function showSchemaEdit(id) {
@@ -767,17 +615,17 @@ eco.start = function (data) {
 
 
     function schemaUndo() {
-        var undomanager = activeSchemaModel.get('undomanager');
+        var undomanager = eco.activeSchemaModel.get('undomanager');
         if (undomanager) {
             undomanager.undo(true);
-            eco.Utils.recoutSchemaCounters(activeSchemaModel);
+            eco.Utils.recoutSchemaCounters(eco.activeSchemaModel);
         }
     }
     function schemaRedo() {
-        var undomanager = activeSchemaModel.get('undomanager');
+        var undomanager = eco.activeSchemaModel.get('undomanager');
         if (undomanager) {
             undomanager.redo(true);
-            eco.Utils.recoutSchemaCounters(activeSchemaModel);
+            eco.Utils.recoutSchemaCounters(eco.activeSchemaModel);
         }
     }
 

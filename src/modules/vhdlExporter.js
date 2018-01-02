@@ -19,34 +19,26 @@ function VhdExporter() {
  * @returns {vhdl|String}
  */
 VhdExporter.prototype.exportSchema = function (c_name_en, c_name_arch, graph) {
-    // console.log('exportSchema', graph );
     var elements = this.getAllEntities(graph),
         inputs = this.getInputs(graph),
         outputs = this.getOutputs(graph);
+    var inputOutputs = this.portsToVHDL(inputs, outputs);
+    var signals = this.getSignals(graph, elements);
+    var gates = this.gatesToVHDL(graph, elements);
+    var outputsMap = this.getOutputMap(graph, outputs);
 
-    // print jednotlivých částí jako VHDL
-    var ios = this.portsToVHDL(inputs, outputs); //back_ios(io);
-    var sig = this.getSignals(graph, elements);
-    var hrd = this.gatesToVHDL(graph, elements);
-    var out = this.getOutputMap(graph, outputs);
-    //var positions = getAllEntities().join(";");
-
-    // struktura vystupniho souboru - celkové spojení
-    var vhdl = "library IEEE;\r\nuse IEEE.std_logic_1164.all;\r\n\r\nentity " + c_name_en + " is\r\n" +
-        "\tport (\r\n" +
-        ios +
+    var vhdl = "library IEEE;\r\nuse IEEE.std_logic_1164.all;" +
+        "\r\n\r\nentity " + c_name_en + " is\r\n" +
+        "\tport (\r\n" + inputOutputs +
         "\r\n\t);\r\nend entity " + c_name_en + ";\r\n\r\n" +
         "architecture " + c_name_arch + " of " + c_name_en + " is\r\n" +
-        sig +
-        "\r\n" +
+        signals + "\r\n" +
         "begin" +
-        hrd +
-        "\r\n\t"+
-        out.join(';\r\n\t') +
-        ((out.length > 0)?";":"") +
+        gates + "\r\n\t" +
+        outputsMap.join(';\r\n\t') +
+        ((outputsMap.length > 0)?";":"") +
         "\r\nend architecture " + c_name_arch + ";\r\n" +
         "\r\n";
-
     return vhdl;
 };
 

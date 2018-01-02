@@ -4,11 +4,9 @@
 . /etc/profile.d/xil_ISE14.6_settings64.sh
 . /etc/profile.d/xil_Vivado2016.4_settings64.sh
 
-
 #nastaveni domovskeho adresare, nutne pro beh vivada - neni dulezite samotny nazev adresare
 HOME="/var/www/apache_fake_home"
 export HOME
-
 
 #presun pripravevneho TCL scriptu do adresare, kde se daji spoustet scripty
 cp /var/www/html/eco/test.tcl /var/www/cgi-bin/test.tcl

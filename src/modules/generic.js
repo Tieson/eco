@@ -3,113 +3,102 @@
  */
 
 eco.Views.GenericList = Backbone.View.extend({
-    views: [],
-    initialize: function (opts) {
-        this.title = opts.title || "";
-        this.noRecordsMessage = opts.noRecordsMessage || 'Zatím zde nejsou žádné záznamy.';
-        this.template = _.template($(opts.template).html());
-        this.itemTemplate = opts.itemTemplate;
-        this.itemView = opts.itemView || eco.Views.GenericItem;
-        this.formater = opts.formater || eco.Formaters.GenericFormater;
-        this.collection = opts.collection;
-        this.searchNames = opts.searchNames || ['list-one'];
-        this.deleteConfirm = _.merge({}, {
-            needConfirm: true,
-            swal: {
-                title: "Opravdu chtete položku odstranit?",
-                text: "Odebrání nelze vzít zpět!",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Ano, smazat!",
-                cancelButtonText: "Ne",
-                closeOnConfirm: false
-            }
-        }, opts.deleteConfirm);
-        this.renderLoading();
-        this.listenTo(this.collection, 'sync', this.render);
-        this.afterInitialization();
-        this.vent = opts.vent;
-        this.uniqueId = opts.uniqueId || '';
-    },
-    renderLoading: function () {
-        this.$el.html('<div class="loader">Načítám</div>');
-    },
-    afterInitialization: function () {
+  initialize: function (opts) {
+    this.title = opts.title || "";
+    this.noRecordsMessage = opts.noRecordsMessage || 'Zatím zde nejsou žádné záznamy.';
+    this.template = _.template($(opts.template).html());
+    this.itemTemplate = opts.itemTemplate;
+    this.itemView = opts.itemView || eco.Views.GenericItem;
+    this.formater = opts.formater || eco.Formaters.GenericFormater;
+    this.collection = opts.collection;
+    this.searchNames = opts.searchNames || ['list-one'];
+    this.deleteConfirm = _.merge({}, {
+      needConfirm: true,
+      swal: {
+        title: "Opravdu chtete položku odstranit?",
+        text: "Odebrání nelze vzít zpět!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Ano, smazat!",
+        cancelButtonText: "Ne",
+        closeOnConfirm: false
+      }
+    }, opts.deleteConfirm);
+    this.renderLoading();
+    this.listenTo(this.collection, 'sync', this.render);
+    this.afterInitialization();
+    this.vent = opts.vent;
+    this.uniqueId = opts.uniqueId || '';
+  },
+  renderLoading: function () {
+      this.$el.html('<div class="loader">Načítám</div>');
+  },
+  afterInitialization: function () {
 
-    },
-    events: {},
-    renderOne: function (item) {
-        var itemView = new this.itemView({
-            model: item,
-            template: this.itemTemplate,
-            formater: this.formater,
-            uniqueId: this.uniqueId,
-        });
-        eco.ViewGarbageCollector.add(itemView);
-        this.$('.items-container').append(itemView.render().$el);
-    },
-    render: function () {
-        var html = this.template({title: this.title, recordsLength: this.collection.length, noRecordsMessage: this.noRecordsMessage});
-        var self = this;
-        this.$el.html(html);
-        this.$el.attr('id', "genericList"+this.uniqueId);
-        if(this.collection.length > 0){
-            this.collection.each(this.renderOne, this);
-        }else {
-            var $element = $('<div class="alert alert-warning">' + this.noRecordsMessage + '</div>');
-            this.$el.append($element);
-            // this.$el.append('<td>'+this.noRecordsMessage+'</td>');
-        }
-        try {
-            var options = {
-                valueNames: this.searchNames
-            };
-            this.$('.items-container').addClass('list');
-            this.userList = new List('genericList'+this.uniqueId, options);
-        } catch (err) {
-            ;
-        }
+  },
+  events: {},
+  renderOne: function (item) {
+      var itemView = new this.itemView({
+          model: item,
+          template: this.itemTemplate,
+          formater: this.formater,
+          uniqueId: this.uniqueId,
+      });
+      eco.ViewGarbageCollector.add(itemView);
+      this.$('.items-container').append(itemView.render().$el);
+  },
+  render: function () {
+      var html = this.template({title: this.title, recordsLength: this.collection.length, noRecordsMessage: this.noRecordsMessage});
+      this.$el.html(html);
+      this.$el.attr('id', "genericList"+this.uniqueId);
+      if(this.collection.length > 0){
+          this.collection.each(this.renderOne, this);
+      }else {
+          var $element = $('<div class="alert alert-warning">' + this.noRecordsMessage + '</div>');
+          this.$el.append($element);
+      }
+      try {
+          this.$('.items-container').addClass('list');
+          this.userList = new List('genericList'+this.uniqueId, {valueNames: this.searchNames});
+      } catch (err) {}
+      return this;
+  },
+  deleteItem: function (event) {
+      event.preventDefault();
+      var self = this;
 
-        return this;
-    },
-    deleteItem: function (event) {
-        event.preventDefault();
-        var self = this;
+      function del(){
+          var cid = $(event.currentTarget).attr('data-cid'),
+              model = self.collection.get(cid);
+          model.destroy({
+              wait: true,
+              success: function (model, response) {
+                  if (self.deleteConfirm.needConfirm) {
+                      swal.close();
+                  }
+                  self.render();
+                  showSnackbar('Položka byla smazána.');
+              },
+              error: function (model, response) {
+                  self.collection.add(model);
+                  if (self.deleteConfirm.needConfirm) {
+                      swal("Chyba!", "Položku nelze smazat.", "error");
+                  }else{
+                      showSnackbar('Položku nelze smazat.');
+                  }
+              }
+          });
 
+          self.render();
+      }
 
-        function del(){
-
-            var cid = $(event.currentTarget).attr('data-cid'),
-                model = self.collection.get(cid);
-            model.destroy({
-                wait: true,
-                success: function (model, response) {
-                    if (self.deleteConfirm.needConfirm) {
-                        swal.close();
-                    }
-                    self.render();
-                    showSnackbar('Položka byla smazána.');
-                },
-                error: function (model, response) {
-                    self.collection.add(model);
-                    if (self.deleteConfirm.needConfirm) {
-                        swal("Chyba!", "Položku nelze smazat.", "error");
-                    }else{
-                        showSnackbar('Položku nelze smazat.');
-                    }
-                }
-            });
-
-            self.render();
-        }
-
-        if (this.deleteConfirm.needConfirm){
-            swal(this.deleteConfirm.swal, del);
-        }else{
-            del();
-        }
-    }
+      if (this.deleteConfirm.needConfirm){
+          swal(this.deleteConfirm.swal, del);
+      }else{
+          del();
+      }
+  }
 });
 
 eco.Views.GenericItem = Backbone.View.extend({

@@ -14,15 +14,11 @@ eco.Models.Simulation = Backbone.Model.extend({
 
     stopSimulation: function () {
         var paper = this.paper;
-
         paper.off('cell:pointerclick');
         paper.model.off('change:source change:target');
         paper.model.off('change:signal');
-
-        // vynulování všech signálů
-        _.invoke(graph.getLinks(), 'set', 'signal', 0);
-
-        // odebrání všech aktivních tříd
+        paper.model.off('remove');
+        _.invoke(paper.model.getLinks(), 'set', 'signal', 0);
         paper.$el.find('.live').each(function () {
             V(this).removeClass('live');
         });
@@ -30,67 +26,47 @@ eco.Models.Simulation = Backbone.Model.extend({
 
     startSimulation: function () {
         var self = this;
+        self.onSignal = self.createOnSignalHandler();
         this.initializeSignal(self.paper, self.paper.model);
 
-        this.paper.on('cell:pointerclick', createCellDoubleclickHandler(function (cellView, evt, x, y) {
-        }));
-
+        this.paper.on('cell:pointerclick', createCellDoubleclickHandler(function (cellView, evt, x, y) {}));
         this.paper.on('cell:pointerclick', function (cellView) {
             var gate = cellView.model;
-
-            if (gate instanceof joint.shapes.mylib.INPUT) {
-                gate.switchSignal();
-                self.broadcastSignal(gate, {q: gate.signal}, self.paper.model);
-                V(cellView.el).toggleClass('live', gate.isVisualyActive());
-            }
-            if (gate instanceof joint.shapes.mylib.CLK) {
+            if (gate instanceof joint.shapes.mylib.INPUT || gate instanceof joint.shapes.mylib.CLK) {
                 gate.switchSignal();
                 self.broadcastSignal(gate, {q: gate.signal}, self.paper.model);
                 V(cellView.el).toggleClass('live', gate.isVisualyActive());
             }
         });
-
-        /**
-         * Reinitialyze signals when wire was connected or disconnected.
-         */
         this.paper.model.on('change:source change:target', function (model, end) {
-            console.log('change:source change:target');
             var e = 'target' in model.changed ? 'target' : 'source';
             if ((model.previous(e).id && !model.get(e).id) || (!model.previous(e).id && model.get(e).id) || model.previous(e).port != model.get(e).port) {
-                console.log('change:source change:target----initializeSignal');
                 self.initializeSignal(self.paper, self.paper.model);
             }
         });
         this.paper.model.on('remove', function (model,a, b) {
-            console.log('remove', model, a,b);
-            var e = 'target' in model.changed ? 'target' : 'source';
-                self.initializeSignal(self.paper, self.paper.model);
+            self.initializeSignal(self.paper, self.paper.model);
         });
-
-        var onSignal = self.onSignalChangeFactory();
         this.paper.model.on('change:signal', function (wire, signal) {
             self.toggleLive(wire, signal, self.paper);
             var gate = self.paper.model.getCell(wire.get('target').id);
 
-            //Rozsvítit cílové hradlo pokud přijde log.1 a je to výstup
             if (gate instanceof joint.shapes.mylib.OUTPUT) {
                 self.toggleLive(gate, signal, self.paper);
             }
             if (gate instanceof joint.shapes.mylib.Hradlo) {
-                gate.onSignal(signal, onSignal);
+                gate.onSignal(signal, self.onSignal);
             }
         });
     },
 
-    onSignalChangeFactory: function() {
+    createOnSignalHandler: function() {
         var self = this;
         return function (gate) {
-            var ports = {}; //pole portů
+            var ports = {};
             _.each(gate.ports, function (x) {
                 ports[x.id] = eco.Utils.notConnectedInputDefault;
-            }); // výchozí hodnota nezapojených vstupů
-
-            // získání pole signálů pro všechny vstupní porty
+            });
             _.chain(_.sortBy(self.paper.model.getConnectedLinks(gate, {inbound: true}), function (x) {
                 return x.get('target').port;
             })).groupBy(function (wire) {
@@ -111,10 +87,7 @@ eco.Models.Simulation = Backbone.Model.extend({
                 outputs["q"] = ops;
             }
             self.broadcastSignal(gate, outputs, self.paper.model);
-
-            // self.paper.findViewByModel(gate).$el.toggleClass('live', gate.isVisualyActive());
         };
-
     },
 
     broadcastSignal: function (gate, signals, graph) {
@@ -122,13 +95,11 @@ eco.Models.Simulation = Backbone.Model.extend({
             .map(function (x) {
                 return x;
             });
-
         var result = _.reduce(outLinks, function (result, item) {
             var key = item.get('source').port;
             (result[key] || (result[key] = [])).push(item);
             return result;
         }, {});
-
         _.each(result, function (wires, key) {
             _.defer(_.invoke, wires, 'set', 'signal', signals[key]);
         });
@@ -145,19 +116,18 @@ eco.Models.Simulation = Backbone.Model.extend({
         }
     },
 
-    startClock: function (gate, signal, graph) {
+    startClock: function (clock, signal, graph) {
         var self = this;
         window.setInterval(function () {
-            if (gate.tryTick()) {
-                self.broadcastSignal(gate, {q: gate.signal}, graph);
+            if (clock.tryTick()) {
+                self.broadcastSignal(clock, {q: clock.signal}, graph);
             }
-        }, gate.interval);
+        }, clock.interval);
         return true;
     },
 
-    startHradlo: function (gate, signal, graph) {
-        var onSignal = this.onSignalChangeFactory();
-        gate.onSignal(signal, onSignal);
+    startGate: function (gate, signal, graph) {
+        gate.onSignal(signal, this.onSignal);
         return true;
     },
 
@@ -169,20 +139,17 @@ eco.Models.Simulation = Backbone.Model.extend({
      */
     initializeSignal: function (paper, graph) {
         var self = this;
-
         _.invoke(graph.getLinks(), 'set', 'signal', 0);
         paper.$el.find('.live').each(function () {
             V(this).removeClass('live');
         });
-
         var signalProducers = {
             INPUT: this.broadcastSignal,
             VCC: this.broadcastSignal,
             GND: this.broadcastSignal,
             CLK: this.startClock,
-            Hradlo: this.startHradlo,
+            Hradlo: this.startGate,
         };
-
         _.each(graph.getElements(), function (element) {
             var view = paper.findViewByModel(element);
             _.each(signalProducers, function (item, key) {
@@ -192,6 +159,4 @@ eco.Models.Simulation = Backbone.Model.extend({
             });
         });
     },
-
-
 });

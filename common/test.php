@@ -22,10 +22,10 @@ main();
  * @param $db Připojení k DB
  * @return bool Objekt řešení načtený z DB, nebo FALSE pokud nebylo nic nalezeno
  */
-function getNextSolution($db, $config)
+function getNextSolution()
 {
-
 	$db = Database::getDB();
+	$procStatus = Config::getKey('data/solutionStatuses/processing');
 	$selectNextSolution = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, hw.task_id, s.vhdl
             FROM solution AS s 
             JOIN `hw_assigment` AS hw
@@ -33,8 +33,6 @@ function getNextSolution($db, $config)
             WHERE s.status='waiting'
             ORDER BY s.created ASC 
             LIMIT 1");
-	//TODO, simuluje se vše, jen nejde vše odevzdat - možná zvolit jiný přístup, odevzdávat jak che, ale simulovat jen určité množství uživatele za hodinu
-	// AND (SELECT COUNT(*) FROM user_limits WHERE user_id=sch.user_id AND time >= NOW() - 3600) <= 10
 	$result = $selectNextSolution->execute();
 	if ($result) {
 		$responseResult = $selectNextSolution->fetchAll(PDO::FETCH_OBJ);
@@ -42,7 +40,7 @@ function getNextSolution($db, $config)
 			foreach ($responseResult as $object) {
 				$markSelectedSolution = $db->prepare("UPDATE solution SET status=:status WHERE id=:id");
 				$markSelectedSolution->execute(array(
-					'status' => $config['data']['solutionStatuses']['processing'],
+					'status' => $procStatus,
 					'id' => (int)$object->id,
 				));
 				return $object;
@@ -62,12 +60,8 @@ function saveSolutionResult($db, $solution, $result)
 	);
 	$sth = $db->prepare("UPDATE solution
 			SET status = :status, test_result = :result, test_message = :message
-            WHERE id=:id"); //status='processing'
-
-	$response = $sth->execute($values);
-	if ($response) {
-		//TODO: its OK, refresh data (push notify)
-	}
+            WHERE id=:id");
+	$sth->execute($values);
 	return false;
 }
 
@@ -75,8 +69,7 @@ function canStartProcessing($db, $ignoreId, $start)
 {
 	$selectNextSolution = $db->prepare("SELECT count(*) as pocet
 			FROM autotest_status
-            WHERE status='running' AND id!=:id AND start < :start
-            ");
+            WHERE status='running' AND id!=:id AND start < :start");
 	$result = $selectNextSolution->execute(array(
 		'id' => $ignoreId,
 		'start' => $start
@@ -89,9 +82,10 @@ function canStartProcessing($db, $ignoreId, $start)
 	return false;
 }
 
-function startProcessingStatus($db)
+function changeProcessingStatus()
 {
-	$start = round(microtime(true) * 1000); //$date->getTimestamp();
+	$db = Database::getDB();
+	$start = round(microtime(true) * 1000);
 
 	$db->beginTransaction();
 	$markRuning_sql = $db->prepare("INSERT INTO autotest_status (status, start) VALUES(:status, :start)");
@@ -265,19 +259,13 @@ function generateVhdlFileFolder($solution, $entityName, $prefix)
  */
 function analyzeOutput($result)
 {
-// escape special characters in the query
 	$pattern = preg_quote("error: ", '/');
-// finalise the regular expression, matching the whole line
 	$pattern = "/^.*$pattern(.*)\$/mi";
-// search, and store all matching occurences in $matches
 	if (preg_match_all($pattern, $result, $matches)) {
-
 		$errors = $matches[1];
-
-		for ($i = 0; $i < count($errors); $i++) {
+//		for ($i = 0; $i < count($errors); $i++) {
 //			$errors[$i] = preg_replace('/\[[\s\S]+?\]/g', '', $errors[$i]);
-		}
-
+//		}
 		return $errors;
 	} else {
 		return array();
@@ -302,7 +290,7 @@ function main()
 	 * Nastavení stavu probíhající simulace, žádná další tak nemůže být spuštěna.
 	 */
 	global $runningStatus;
-	$runningStatus = startProcessingStatus($db);
+	$runningStatus = changeProcessingStatus();
 
 	global $runningSolution;
 	$runningSolution = null;
@@ -313,7 +301,6 @@ function main()
 
 		global $runningSolution;
 		if ($runningSolution != null) {
-			var_dump($runningSolution);
 			$resultData = array(
 				"result" => 0,
 				"status" => "waiting",
@@ -341,8 +328,6 @@ function main()
 			exit();
 		}
 
-		//TODO: zabezpečit uživatelské vstupy, názvy souborů atp. Vzít v potaz vše, co může uživatel ovlivnit.
-
 		/*
 		 * Smyčka pro spuštění několika simulací
 		 */
@@ -350,7 +335,7 @@ function main()
 			/**
 			 * Získání dalšího řešení
 			 */
-			$solution = getNextSolution($db, $config);
+			$solution = getNextSolution();
 			$runningSolution = $solution;
 
 			/**
@@ -361,12 +346,6 @@ function main()
 				echo "There is no more solution to verify. \n";
 				exit();
 			}
-
-//			if (!canSim($solution->user_id)){
-//				stopProcessingStatus($db, $runningStatus['recordId']);
-//				echo "Uživatel vyčerpal limit simulací za daný čas. \n";
-//				exit();
-//			}
 
 			/**
 			 * Kontrola validity zadání.
@@ -393,8 +372,7 @@ function main()
 
 			/**
 			 * Získání souborů řešení
-			 * správného řešení a
-			 * testbenche
+			 * správného řešení a testbenche
 			 */
 			$files = getSolutionsFiles($db, $config, $solution->task_id);
 
@@ -425,20 +403,15 @@ function main()
 
 
 			/**
-			 * Cesta ke spouštěcímu scriptu
-			 */
-			$cmd = $config["cgipath"] . "eco.sh 2>&1";
-
-
-			/**
 			 * Spuštění samotné simulace a čekání na výstup, který je uložen do pole řádků.
 			 * Je zde také testovací větev podmínky, která nespouští simulaci a výstup načítá z připraveného souboru (pro lokální tetování)
 			 */
 			$outputLines = array();
 			if ($config["release"] && $config["release"] == "local") {
-				$output = 'error: failed @ file test.php - Local developer testing!!'; //file_get_contents("vivado.log");
+				$output = 'error: failed @ file test.php - Local developer testing!!';
 				sleep(3); // umělá doba čekání napodobující samotnou simulaci
 			} else {
+				$cmd = $config["cgipath"] . "eco.sh 2>&1";
 				exec($cmd, $outputLines);
 				$output = implode("\n", $outputLines);
 			}

@@ -2467,30 +2467,6 @@ joint.shapes.mylib.ARAM4x16 = joint.shapes.mylib.HradloARAM416.extend({
         return result;
     }
 
-    // operation: function(a0, a1, a2, a3, ce, d0, d1, d2, d3, we) {
-    //     var key = [a0, a1, a2, a3].join('');
-    //     var result = {
-    //         q0: 0,
-    //         q1: 0,
-    //         q2: 0,
-    //         q3: 0
-    //     };
-    //     if (ce === 1) {
-    //         if (we === 1){
-    //             this.memory[key] = [d0, d1, d2, d3];
-    //         }
-    //         if (this.memory[key]){
-    //             var data = this.memory[key];
-    //             result = {
-    //                 q0: data[0],
-    //                 q1: data[1],
-    //                 q2: data[2],
-    //                 q3: data[3]
-    //             }
-    //         }
-    //     }
-    //     return result;
-    // }
 });
 joint.shapes.mylib.RAM4x16 = joint.shapes.mylib.HradloRAM416.extend({
     defaults: joint.util.deepSupplement({
@@ -2785,8 +2761,8 @@ joint.shapes.mylib.ToolElementView = joint.dia.ElementView.extend({
         var className = evt.target.parentNode.getAttribute('class');
         switch (className) {
             case 'element-tool-remove':
-                if (activeSchemaModel !== null) {
-                    var graph = activeSchemaModel.get('graph');
+                if (eco.activeSchemaModel !== null) {
+                    var graph = eco.activeSchemaModel.get('graph');
                     var id = $(evt.target.parentNode).attr("data-id");
                     if (id===self.model.get('id') ){
                         evt.stopPropagation();

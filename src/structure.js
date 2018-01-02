@@ -41,8 +41,8 @@ eco = {
     },
     start: function () {
         var msg = "Start methode is not implemented";
-        console.console.log(msg);
         alert(msg);
-    }
+    },
+    Router: null,
 };
 
