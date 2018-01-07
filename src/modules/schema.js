@@ -116,7 +116,6 @@ eco.Views.OpenedSchemaView = Backbone.Collection.extend({
 
     },
     addItem: function (item) {
-        console.log(this, item);
     }
 });
 
@@ -146,7 +145,6 @@ eco.Views.SchemaItemView = Backbone.View.extend({
         this.$el.html(this.template(this.model.toJSON()));
         this.$el.attr('data-id', this.model.get('id'));
         this.$el.attr('href', '#schemas/'+this.model.get('id'));
-        console.log(this.model.toJSON());
         return this;
     }
 });
@@ -164,7 +162,6 @@ eco.Views.SchemasListView = Backbone.View.extend({
     el: "#schema_list_container",
     activeSchema: null,
     initialize: function (opts) {
-        console.log("SchemasListView init", this.collection);
         this.listenTo(this.collection, 'sync, change, add', this.render);
     },
     events: {
@@ -183,7 +180,7 @@ eco.Views.SchemasListView = Backbone.View.extend({
         this.$('.groups-container').append(itemView.render().$el);
     },
     render: function () {
-        console.log("%cSchemasListView: render Schemas ", "color: red;", this.activeSchema);
+        // console.log("%cSchemasListView: render Schemas ", "color: red;", this.activeSchema);
         var self = this;
         this.$el.html("");
         this.collection.each(function (schema) {

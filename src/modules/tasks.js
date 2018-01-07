@@ -66,7 +66,6 @@ eco.Views.Task = Backbone.View.extend({
         var data = _.extend({}, this.model.toJSON(), {
             created: moment(this.model.get('created')).format('LLL')
         });
-        console.log(data);
         var html = this.template(data);
         this.$el.append(html);
         this.$el.attr('data-id', data.id);
@@ -113,11 +112,9 @@ eco.Views.Tasks = eco.Views.GenericList.extend({
             function () {
                 var cid = $(event.currentTarget).attr('data-cid'),
                     model = self.collection.get(cid);
-                console.log(cid, self.collection, model);
 
                 model.destroy({
                     success: function () {
-                        console.log("succes");
                     }
                 });
 
@@ -135,12 +132,10 @@ eco.Views.EditTask = eco.Views.GenericForm.extend({
         this.listenTo(this.model, 'sync', this.updateTitle);
     },
     updateTitle: function () {
-        console.log("updateTitle");
         this.title = this.origTitle + ": " + this.model.get('name');
         this.render();
     },
     onSuccess:function (schema, model) {
-        console.log("saved", schema, model);
         this.model = model;
         this.updateTitle();
     },

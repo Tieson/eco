@@ -95,7 +95,6 @@ function schemaCreate() {
 	}
 }
 function schemaUpdate($id) {
-	//TODO: dodělat oprávnění
 	$app = \Slim\Slim::getInstance();
 
 	$allPostVars = json_decode($app->request->getBody(), true);

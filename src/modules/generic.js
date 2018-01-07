@@ -143,7 +143,6 @@ eco.Views.GenericDetail = Backbone.View.extend({
     afterInitialization: function () {
     },
     render: function () {
-        console.log(this.model);
         var self = this;
         var data = this.formater(this.model);
         var html = this.template(_.extend({}, {title: this.title}, data));

@@ -27,7 +27,20 @@ eco.Models.Simulation = Backbone.Model.extend({
     startSimulation: function () {
         var self = this;
         self.onSignal = self.createOnSignalHandler();
+
         this.initializeSignal(self.paper, self.paper.model);
+
+        this.paper.model.on('change:signal', function (wire, signal) {
+            self.toggleLive(wire, signal, self.paper);
+            var gate = self.paper.model.getCell(wire.get('target').id);
+
+            if (gate instanceof joint.shapes.mylib.OUTPUT) {
+                self.toggleLive(gate, signal, self.paper);
+            }
+            if (gate instanceof joint.shapes.mylib.Hradlo) {
+                gate.onSignal(signal, self.onSignal);
+            }
+        });
 
         this.paper.on('cell:pointerclick', createCellDoubleclickHandler(function (cellView, evt, x, y) {}));
         this.paper.on('cell:pointerclick', function (cellView) {
@@ -41,23 +54,72 @@ eco.Models.Simulation = Backbone.Model.extend({
         this.paper.model.on('change:source change:target', function (model, end) {
             var e = 'target' in model.changed ? 'target' : 'source';
             if ((model.previous(e).id && !model.get(e).id) || (!model.previous(e).id && model.get(e).id) || model.previous(e).port != model.get(e).port) {
-                self.initializeSignal(self.paper, self.paper.model);
+                // self.initializeSignal(self.paper, self.paper.model);
+
+                var gate = self.paper.model.getCell(model.get('target').id);
+                var oldGate = self.paper.model.getCell(model.previous('target').id);
+                if (oldGate){
+                    if (oldGate instanceof joint.shapes.mylib.OUTPUT) {
+                        self.toggleLive(oldGate, 0, self.paper);
+                    }
+                    if (oldGate instanceof joint.shapes.mylib.Hradlo) {
+                        oldGate.onSignal(null, self.onSignal);
+                    }
+                }else {
+                    if (gate instanceof joint.shapes.mylib.OUTPUT) {
+                        self.toggleLive(gate, model.get('signal'), self.paper);
+                    }
+                    if (gate instanceof joint.shapes.mylib.Hradlo) {
+                        gate.onSignal(null, self.onSignal);
+                    }
+                }
             }
         });
         this.paper.model.on('remove', function (model,a, b) {
-            self.initializeSignal(self.paper, self.paper.model);
-        });
-        this.paper.model.on('change:signal', function (wire, signal) {
-            self.toggleLive(wire, signal, self.paper);
-            var gate = self.paper.model.getCell(wire.get('target').id);
+            //1. get connected entities
+            //2. trigger on signal
+            var outputWires = [];
 
-            if (gate instanceof joint.shapes.mylib.OUTPUT) {
-                self.toggleLive(gate, signal, self.paper);
+            if (model instanceof joint.shapes.mylib.Vodic) {
+                outputWires.push(model);
+            }else {
+                outputWires = self.paper.model.getConnectedLinks(model, { outbound: true });
             }
-            if (gate instanceof joint.shapes.mylib.Hradlo) {
-                gate.onSignal(signal, self.onSignal);
+
+            _.each(outputWires, function (wire) {
+                var gate = self.paper.model.getCell(wire.get('target').id);
+
+                if (gate instanceof joint.shapes.mylib.OUTPUT) {
+                    self.toggleLive(gate, 0, self.paper);
+                }
+                if (gate instanceof joint.shapes.mylib.Hradlo) {
+                    gate.onSignal(null, self.onSignal);
+                }
+            });
+
+            //self.initializeSignal(self.paper, self.paper.model);
+        });
+        this.paper.model.on('add', function (model) {
+            if (model instanceof joint.shapes.mylib.Vodic) {
+                var gate = self.paper.model.getCell(model.get('source').id);
+
+                var signalProducers = {
+                    INPUT: self.broadcastSignal,
+                    VCC: self.broadcastSignal,
+                    GND: self.broadcastSignal,
+                    CLK: self.startClock,
+                    Hradlo: self.startGate,
+                };
+
+                var view = self.paper.findViewByModel(gate);
+                    _.each(signalProducers, function (item, key) {
+                        (gate instanceof joint.shapes.mylib[key])
+                        && item.call(self,gate, {q: gate.signal}, self.paper.model)
+                        && view.$el.toggleClass('live', gate.isVisualyActive());
+                    });
             }
         });
+
     },
 
     createOnSignalHandler: function() {
@@ -128,7 +190,11 @@ eco.Models.Simulation = Backbone.Model.extend({
 
     startGate: function (gate, signal, graph) {
         gate.onSignal(signal, this.onSignal);
-        return true;
+        return false;
+    },
+    startInput: function (gate, signals, graph) {
+        this.broadcastSignal(gate, signals, graph);
+        return false;
     },
 
     /**
@@ -143,19 +209,22 @@ eco.Models.Simulation = Backbone.Model.extend({
         paper.$el.find('.live').each(function () {
             V(this).removeClass('live');
         });
+
         var signalProducers = {
-            INPUT: this.broadcastSignal,
+            INPUT: this.startInput,
             VCC: this.broadcastSignal,
             GND: this.broadcastSignal,
             CLK: this.startClock,
             Hradlo: this.startGate,
         };
-        _.each(graph.getElements(), function (element) {
-            var view = paper.findViewByModel(element);
-            _.each(signalProducers, function (item, key) {
-                (element instanceof joint.shapes.mylib[key])
-                && item.call(self,element, {q: element.signal}, graph)
-                && view.$el.toggleClass('live', element.isVisualyActive());
+        _.each(signalProducers, function (item, key) {
+            _.each(graph.getElements(), function (element) {
+                if (element instanceof joint.shapes.mylib[key]) {
+                    if (item.call(self, element, {q: element.signal}, graph)) {
+                        var view = paper.findViewByModel(element);
+                        view.$el.toggleClass('live', element.isVisualyActive());
+                    }
+                }
             });
         });
     },

@@ -389,11 +389,11 @@ joint.shapes.mylib.VCC = joint.shapes.mylib.HradloIO.extend({
             '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
-            '.label': { text: 'vcc', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
+            '.label': { text: 'VCC', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}
         }
         
     }, joint.shapes.mylib.HradloIO.prototype.defaults),
-    operation: function() { return false; }
+    operation: function() { return true; }
 });
 
 joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
@@ -408,11 +408,11 @@ joint.shapes.mylib.GND = joint.shapes.mylib.HradloIO.extend({
             '.output1': { ref: 'rect', 'ref-dx': 24, 'ref-y': .5, magnet: true, port: 'q' },
              '.jm': { text: 'q', ref: 'rect', 'ref-dx': 45, 'ref-dy': -45 },
             
-            '.label': { text: 'gnd', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}            
+            '.label': { text: 'GND', ref: 'rect', 'ref-x': 15, 'ref-y': 10, stroke: 'black'}
         }
         
     }, joint.shapes.mylib.HradloIO.prototype.defaults),
-    operation: function() { return true; }
+    operation: function() { return false; }
 });
 
 
@@ -1627,35 +1627,33 @@ joint.shapes.mylib.AND4 = joint.shapes.mylib.Hradlo41.extend({
         return logicExecuter(p, this.get('inPorts'), logAnd, 1);
     }
 });
-joint.shapes.mylib.OR4 = joint.shapes.mylib.Hradlo41N.extend({
+joint.shapes.mylib.OR4 = joint.shapes.mylib.Hradlo41.extend({
     defaults: joint.util.deepSupplement({
         type: 'mylib.OR4',
         attrs: {
-             '.wire': { 'ref-dx': 15, d: 'M 0 0 L 30 0' },
-            '.label': { text: '≥1', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
-               '.jm': { text: 'a', ref: 'rect', 'ref-dx': -80, 'ref-dy': -100 },
-              '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -80, 'ref-dy': -77 },
-              '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -80, 'ref-dy': -58 },
-              '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },            
-              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },            
+            '.label': { text: '≥1', ref: 'rect', 'ref-x': .3, 'ref-y': .1, stroke: 'black'},
+            '.jm': { text: 'a', ref: 'rect', 'ref-dx': -80, 'ref-dy': -100 },
+            '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -80, 'ref-dy': -77 },
+            '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -80, 'ref-dy': -58 },
+            '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },
+            '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -75 },
         }                                 
-    }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
+    }, joint.shapes.mylib.Hradlo41.prototype.defaults),
     operation: function (p) {
         if (inputsAreInvalid(p)) return -1;
         return logicExecuter(p, this.get('inPorts'), logOr, 0);
     }
 });
-joint.shapes.mylib.XOR4 = joint.shapes.mylib.Hradlo41N.extend({
+joint.shapes.mylib.XOR4 = joint.shapes.mylib.Hradlo41.extend({
     defaults: joint.util.deepSupplement({
-        type: 'mylib.OR4',
+        type: 'mylib.XOR4',
         attrs: {
-             '.wire': { 'ref-dx': 15, d: 'M 0 0 L 30 0' },
             '.label': { text: '≥1', ref: 'rect', 'ref-x': .2, 'ref-y': .1, stroke: 'black'},
                '.jm': { text: 'a', ref: 'rect', 'ref-dx': -80, 'ref-dy': -100 },
               '.jm2': { text: 'b', ref: 'rect', 'ref-dx': -80, 'ref-dy': -77 },
               '.jm3': { text: 'c', ref: 'rect', 'ref-dx': -80, 'ref-dy': -58 },
               '.jm4': { text: 'd', ref: 'rect', 'ref-dx': -80, 'ref-dy': -36 },
-              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 50, 'ref-dy': -75 },
+              '.jm5': { text: 'q', ref: 'rect', 'ref-dx': 10, 'ref-dy': -75 },
         }
     }, joint.shapes.mylib.Hradlo41N.prototype.defaults),
     operation: function (p) {
@@ -2763,7 +2761,7 @@ joint.shapes.mylib.TUL_NANDView = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.TUL_XORView = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.TUL_BUFView = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.TUL_NORView = joint.shapes.mylib.ToolElementView;
-joint.shapes.mylib.TUL_NXORView = joint.shapes.mylib.ToolElementView;
+joint.shapes.mylib.TUL_XNORView = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.NAND3View = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.AND3View = joint.shapes.mylib.ToolElementView;
 joint.shapes.mylib.OR3View = joint.shapes.mylib.ToolElementView;

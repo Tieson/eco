@@ -47,7 +47,7 @@ eco.Views.BaseModalView = Backbone.View.extend({
     },
 
     save: function (event) {
-        console.log("saving");
+        // console.log("saving");
     },
 
 });
@@ -80,7 +80,7 @@ eco.Views.SchemaModalView = eco.Views.BaseModalView.extend({
     },
 
     save: function (event) {
-        console.log("saving");
+        // console.log("saving");
         this.model.set('name', this.$el.find("#schema_name").val());
         this.model.set('architecture', this.$el.find("#schema_architecture").val());
         if (this.model.validateParams()) {
@@ -96,7 +96,7 @@ eco.Views.SchemaModalView = eco.Views.BaseModalView.extend({
      * @returns {boolean}
      */
     keypress: function (event) {
-        console.log($(event.target));
+        // console.log($(event.target));
         if (this.inputValidator) {
             this.inputValidator(this, event);
         }

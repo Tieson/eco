@@ -7,11 +7,13 @@ require_once('./config/config.php');
 require_once './vendor/autoload.php';
 require_once './common/database.php';
 require_once './common/utils.php';
+require_once './common/Mail.class.php';
+require_once './templates/mail.php';
+require_once './api/routes/auth.php';
 require_once './api/routes/users.php';
 
 $config = Config::getConfig();
 
-//$basedir = Config::getKey('projectDir');
 
 $slim_config = array(
 	'displayErrorDetails' => true,
@@ -96,7 +98,7 @@ $app->get("/login", function () use ($app) {
 	if (isset($_SESSION['urlRedirect'])) {
 		$urlRedirect = $_SESSION['urlRedirect'];
 	}
-	$email_value = $email_error = $password_error = NULL;
+	$email_value = $email_error = $password_error = $success_message = NULL;
 	if (isset($flash['email'])) {
 		$email_value = $flash['email'];
 	}
@@ -106,13 +108,17 @@ $app->get("/login", function () use ($app) {
 	if (isset($flash['errors']['password'])) {
 		$password_error = $flash['errors']['password'];
 	}
+	if (isset($flash['success_message'])) {
+		$success_message = $flash['success_message'];
+	}
 	$app->render('login.php', array(
 		'error' => $error,
 		'email_value' => $email_value,
 		'email_error' => $email_error,
 		'password_error' => $password_error,
 		'urlRedirect' => $urlRedirect,
-		'basedir' => $basedir
+		'basedir' => $basedir,
+		'success_message' => $success_message
 	));
 });
 
@@ -133,9 +139,26 @@ $app->post("/login", function () use ($app) {
 	$user = $user_prepare->fetchObject();
 
 	if ($user){
+		try {
+			$token = Util::getJwtData($user->token);
+			$curTime = time();
+			$created = $token['payload']->created;
+			if (!$user->activated) {
+				if (($curTime - $created) < Config::getKey('token/secondsLifetime')) {
+					$app->flash('errors', array('email'=>'E-mail je registrován, ale není ověřen. Oveřte prosím svůj e-mail.'));
+					$app->redirect($basedir.'/login');
+				}else{
+					$app->flash('errors', array('email'=>'Vypršel limit pro ověření e-mailu, prosím znovu se registrujte.'));
+					$app->redirect($basedir.'/register');
+				}
+			}
+		}catch(AuthorizationException $ex){
+
+		}
 		$_SESSION['user_name'] = $user->name;
 		$_SESSION['user_id'] = $user->id;
 		$_SESSION['user_role'] = $user->type_uctu;
+		$_SESSION['user_activated'] = $user->activated;
 		$_SESSION['user_logged'] = TRUE;
 
 		if (isset($_SESSION['urlRedirect'])) {
@@ -221,16 +244,45 @@ $app->post("/profile", function () use ($app) {
 	));
 });
 
+$app->get("/activateAccount", function () use ($app) {
+	$passed_token = $app->request->get('token');
+
+	$basedir = Config::getKey('projectDir');
+	if (Users::activateAccount($passed_token)) {
+		$app->flash('success_message', 'E-mail byl ověřen. Nyní se můžete přihlásit.');
+		$app->redirect($basedir.'/login');
+	}else{
+		$app->flash('errors', array('email'=>'Vypršel časový limit pro ověření e-mailu. prosím opakujte registraci.'));
+		$app->redirect($basedir.'/register');
+	}
+});
+
 $app->get("/register", function () use ($app) {
 	$basedir = Config::getKey('projectDir');
 	$error = NULL;
 	$email_error = NULL;
+	$email_value = NULL;
 	$password_error = NULL;
+	$success_message = NULL;
+	$flash = $app->view()->getData('flash');
+	if (isset($flash['email'])) {
+		$email_value = $flash['email'];
+	}
+	if (isset($flash['errors']['email'])) {
+		$email_error = $flash['errors']['email'];
+	}
+	if (isset($flash['errors']['password'])) {
+		$password_error = $flash['errors']['password'];
+	}
+	if (isset($flash['success_message'])) {
+		$success_message = $flash['success_message'];
+	}
 	$app->render('register.php', array(
 		'error' => $error,
-		'email_value' => '',
+		'email_value' => $email_value,
 		'email_error' => $email_error,
 		'password_error' => $password_error,
+		'success_message' => $success_message,
 		'basedir' => $basedir,
 		'password_length_error' => NULL,
 	));
@@ -259,13 +311,16 @@ $app->post("/register", function () use ($app) {
 		$ok = FALSE;
 	}
 
+
 	if (strlen($password) < 6) {
 		$password_length_error = "Heslo je příliš krátké, musí mít alespoň 6 znaků.";
 		$ok = FALSE;
 	}
 	try {
 		if ($ok) {
-			Users::registerNew($email, $email, Util::hashPassword($password));
+			if (Users::isAccountEmpty($email)) {
+				Users::registerNew($email, $email, Util::hashPassword($password));
+			}
 		}
 	}catch (Exception $ex){
 		$email_error = $ex->getMessage();
@@ -287,9 +342,9 @@ $app->post("/register", function () use ($app) {
 
 });
 
-$app->get("/student", $authenticate($app), function () use ($app) {
-	$app->render('student.php');
-});
+//$app->get("/student", $authenticate($app), function () use ($app) {
+//	$app->render('student.php');
+//});
 $app->get("/teacher", $authenticateTeacher($app), function () use ($app) {
 	$app->render('teacher.php');
 });

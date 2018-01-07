@@ -22,13 +22,14 @@
 
 class AuthRoute extends \Slim\Route
 {
-	public static function formatPayload($username, $user_id, $email, $role = 'guest')
+	public static function formatPayload($userId, $username, $user_id, $email, $role = 'guest')
 	{
+		$user = Users::getUserDetail($userId);
 		return array(
-			'id' => $user_id,
-			'name' => $username,
-			'email' => $email,
-			'role' => $role,
+			'id' => $user['id'],
+			'name' => $user['name'],
+			'email' => $user['mail'],
+			'role' => $user['type_uctu'],
 		);
 	}
 
@@ -48,20 +49,19 @@ class AuthRoute extends \Slim\Route
 		$app->stop();
 	}
 
-	public static function validateToken()
+	public static function validateToken($new_payload)
 	{
 		//$token, $user_id, $password
 		$token = Util::getToken();
 		$data = Util::getJwtData($token);
-		$payload = $data['payload'];
+//		$payload = $data['payload'];
 
 //		var_dump($payload);
-		$user = Users::getUserDetail($payload['id']);
 
 		$header = AuthRoute::createJwtHeader();
-		$payload = AuthRoute::formatPayload($user['name'],$user['id'],$user['mail'],$user['type_uctu']);
+		$payload = self::formatPayload($data['payload']['id']); //AuthRoute::formatPayload($user['name'],$user['id'],$user['mail'],$user['type_uctu']);
 
-		$correctToken = Util::jwtEncode($header,$payload,Config::getKey('secret'));
+		$correctToken = Util::jwtEncode($header,$payload,Config::getKey('token/secret'));
 
 		if (!empty($token) && $token!==FALSE && $token === $correctToken) {
 			return $token;
@@ -97,9 +97,9 @@ class AuthRoute extends \Slim\Route
 			return TRUE;
 		}
 		if ($user==NULL) {
-			return ($role != FALSE && ($_SESSION['user_role'] === $role || (is_array($user['role']) && in_array($role, $_SESSION['user_role']))));
+			return ($role != FALSE && ($_SESSION['user_role'] === $role || (is_array($role) && in_array($_SESSION['user_role'], $role))));
 		}else {
-			return ($role != FALSE && ($user['role'] === $role || (is_array($user['role']) && in_array($role, $user['role']))));
+			return ($role != FALSE && ($user['role'] === $role || (is_array($role) && in_array($user['role'], $role))));
 		}
 	}
 
@@ -128,7 +128,7 @@ class AuthRoute extends \Slim\Route
 				"id" => $_SESSION['user_id'],
 			);
 		}else {
-			throw new AuthorizationException('Nemáte potřebné oprávnění ('.$role.').');
+			throw new AuthorizationException('Nemáte potřebné oprávnění!');
 		}
 		return $teacher;
 	}

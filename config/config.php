@@ -3,10 +3,9 @@
 class Config
 {
 	private static $path = '';
+	private static $loaded = FALSE;
 	private static $config = array(
-
 		"release" => "local",
-		'secret' => 'secret',
 		'salt' => 'sůl',
 		'db' => array(
 			'host' => '127.0.0.1',
@@ -14,98 +13,46 @@ class Config
 			'password' => '',
 			'database' => 'editorobvodu',
 			'port' => '',
-			'url_path' => '',
-			'table_prefix' => '',
 		),
+
 		'libPath' => 'lib.vhd',
-		'basepathApi' => '/eco/api',		//cesta k API
-		'dir' => __DIR__,
-		'admin' => array(
-			'name' => 'admin',
-			'password' => 'heslo',
-		),
 		'absoluthPathBase' => 'C:\Users\Tom\TUL\ING\semestr-2\DipProjekt\EditorObvodu\source/',
-		'base' => '.',
 		'cgipath' => 'cgi-bin/',
 		'projectDir' => '',
-		'datapath' => '',  //cesta k datům aplikace - využívána pro vivado
-		'vivadoFileBase' => "/vivado/",
-		'rootpath' => '../',
-		'filetypes' => array(
-			'normal' => 'normal',
-			'etalon' => 'etalon',
-			'test' => 'test'),
+		'vivadoProjectsDir' => '/var/www/cgi-bin/vivado/projects/',
 
-		'data' => array(
-			'solutionStatuses' => array(
-				'waiting' => 'waiting',
-				'processing' => 'processing',
-				'done' => 'done',
-			)
+		'token' => array(
+			'secondsLifetime' => 3600,
+			'secret' => 'djo9816s2RBQ69Kkpx012b3m009bdImK',
+		),
+		'admin' => array(
+			'name' => 'Administrátor',
+			'password' => 'prenastavteprosimhesloadministratorovi',
+		),
+		'organizationMailDomain' => 'tul.cz',
+		'activationMail' => array(
+			'from' => 'tomas.vaclavik@tul.cz',
+			'fromName' => 'tomas.vaclavik@tul.cz',
+			'subject' => 'Editor číslicových obvodů - ověření e-mailu',
+			'page' => 'eco.local/'
 		),
 		'settings' => array(
 			'check' => array(
-				'isHomeworkDone' => FALSE,
-				'checkSolutionsLimit' => TRUE,
+				'disableAfterHomeworkDone' => FALSE,
 				'disableAfterDeadline' => FALSE,
 			),
 			'limits' => array(
 				'maxWaitingSolutions' => 3,
 			),
-
 		),
-		'auth' => array(
-			'guest' => array(
-				'schema'
-			),
-			'student' => array(
-				'schema',
-				'hw',
-				'groupList'
-			),
-			'teacher' => array(
-				'schema',
-				'hw',
-				'groupList',
-				'task',
-			),
-		),
-
-
-//	"release" => "local",
-//	# Připojení k databázi
-//	'db' => array(
-//		'host' => '127.0.0.1',
-//		'user' => 'root',
-//		'password' => '',
-//		'database' => 'editorobvodu',
-//		'port' => '',
-//		'url_path' => '',
-//		'table_prefix' => '', #TODO: not implemented
-//	),
-//	'absoluthPathBase ' => $_SERVER['DOCUMENT_ROOT'],
-//	'vendor' => 'vendor/',
-//	'cgipath' => 'cgi-bin/',
-//	'projectDir' => '',  # cesta od kořenového adresáře k výchozímu souboru aplikace (index.php)  #example: url: rlab.tul.cz/eco/index.php, basepath => '/eco' # cesta nesmí končit lomítkem
-//	'datapath' => '',  #TODO: cesta k datům aplikace - využívána pro vivado
-//	'rootpath' => './',
-//
-//	'filetypes' => array(
-//	'normal' => 'normal',
-//	'etalon' => 'etalon',
-//	'test' => 'test'),
-//
-//	'data' => array(
-//		'solutionStatuses' => array(
-//			'waiting' => 'waiting',
-//			'processing' => 'processing',
-//			'done' => 'done',
-//		)
-//	)
 	);
 
 	public static function getConfig()
 	{
+		if (self::$loaded){
+			return self::$config;
+		}
+
 		$path = __DIR__.'/config-data.php';
 		self::$path = $path;
 		if (file_exists($path)) {
@@ -113,6 +60,7 @@ class Config
 		} else {
 			$data = array();
 		}
+		self::$loaded = TRUE;
 
 //		echo '<pre>';
 //		var_dump(__FILE__);
@@ -132,7 +80,6 @@ class Config
 		if(count($parts) == 0){
 			return false;
 		}
-
 		$result = $config;
 		foreach ($parts as $part){
 			if(isset($result[$part])){

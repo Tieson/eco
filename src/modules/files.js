@@ -69,7 +69,7 @@ eco.Views.AddFileForm = Backbone.View.extend({
         return this;
     },
     formSubmit: function (e) {
-        console.log("FORM file upload SUBMIT");
+        // console.log("FORM file upload SUBMIT");
     }
 });
 
@@ -96,7 +96,7 @@ eco.Views.Files = eco.Views.GenericList.extend({
 
                 model.destroy({
                     success: function () {
-                        console.log("succes");
+                        // console.log("succes");
                     }
                 });
 

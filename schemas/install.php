@@ -65,34 +65,12 @@
 		print "<div class=\"alert alert-info\">$msg</div>";
 	}
 
-	function db_connect($host, $user, $pass, $db, $type, $port = false)
+	function db_connect($host, $user, $pass, $db, $port = false)
 	{
-		if ($type == "pgsql") {
-
-			$string = "dbname=$db user=$user";
-
-			if ($pass) {
-				$string .= " password=$pass";
-			}
-
-			if ($host) {
-				$string .= " host=$host";
-			}
-
-			if ($port) {
-				$string = "$string port=" . $port;
-			}
-
-			$link = pg_connect($string);
-
-			return $link;
-
-		} elseif ($type == "mysql") {
-			if ($port)
-				return mysqli_connect($host, $user, $pass, $db, $port);
-			else
-				return mysqli_connect($host, $user, $pass, $db);
-		}
+		if ($port)
+			return mysqli_connect($host, $user, $pass, $db, $port);
+		else
+			return mysqli_connect($host, $user, $pass, $db);
 	}
 
 
@@ -169,7 +147,7 @@
 
 			if ($config) {
 				try {
-					$link = db_connect($config['db']['host'], $config['db']['user'], $config['db']['password'], $config['db']['database'], 'mysql', '');
+					$link = db_connect($config['db']['host'], $config['db']['user'], $config['db']['password'], $config['db']['database'], $config['db']['port']);
 					@$DB_USER = $config['db']['user'];
 					@$DB_NAME = $config['db']['database'];
 					@$DB_TYPE = 'mysql';

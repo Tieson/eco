@@ -250,7 +250,7 @@ function homeworkSolutionCreate($id) {
 			/**
 			 * Kontrola jestli je úkol již úspěšně odevzdán
 			 */
-			if (Config::getKey('settings/check/isHomeworkDone') && isHomeworkDone($hw)){
+			if (Config::getKey('settings/check/disableAfterHomeworkDone') && isHomeworkDone($hw)){
 				Util::responseError("Řešení k úkol nelze odevzdat, protože úkol je již úspěšně odevzdaný.");
 				return;
 			}
@@ -267,7 +267,7 @@ function homeworkSolutionCreate($id) {
 			 * Kontrola maximálního počtu čekajících řešení
 			 */
 			$pocetReseni = Config::getKey('settings/limits/maxWaitingSolutions');
-			if(Config::getKey('settings/check/checkSolutionsLimit') && getWaitingCount($student['id'])>=$pocetReseni) {
+			if($pocetReseni>0 && getWaitingCount($student['id'])>=$pocetReseni) {
 				Util::responseError("Překročili jste max. $pocetReseni čekajících řešení.", 429);
 				return;
 			}

@@ -226,7 +226,6 @@ eco.Views.GroupDetail = Backbone.View.extend({
             target.addClass('studentSelected');
             this.selectedStudents[cid] = item;
         }
-        console.log(this.selectedStudents);
     },
     groupTaskClick: function (e) {
         var target = $(e.currentTarget);
@@ -247,7 +246,6 @@ eco.Views.GroupDetail = Backbone.View.extend({
         var cid = target.attr('data-cid');
         var item = this.allStudents.get(cid);
 
-        console.log('addStudentToGroup', cid, item, item.get('id'), this.students);
 
         var student = new eco.Models.Student({student_id: item.get('id')});
         if(!this.students.get(item.get('id'))){
@@ -324,14 +322,12 @@ eco.Views.GroupDetail = Backbone.View.extend({
         this.$el.append(this.groupDetailView.$el);
         this.$el.append(this.studentsView.$el);
 
-        console.log("this.$el.find('.datepicker')", this.$el.find('.datepicker'));
         return this;
     },
     render: function () {
         return this;
     },
     groupStudentDoubleClick:function () {
-        console.log('groupStudentDoubleClick');
     },
     /**
      * Vytvoří pro vybrané studenty úkoly s vybranými zadáními.
@@ -359,7 +355,6 @@ eco.Views.GroupDetail = Backbone.View.extend({
                     }, {
                         url: eco.basedir+'/api/homework',
                     });
-                    // console.log('student', student);
                     homework_for_student.save(null, {
                         success: function (model, response, options) {
                             createdHw++;
@@ -374,7 +369,6 @@ eco.Views.GroupDetail = Backbone.View.extend({
         }else{
             showSnackbar('Vyberte studenty a alespoň jedno zadání.');
         }
-        console.log(student_task);
     }
 });
 
@@ -399,7 +393,6 @@ eco.Views.GroupAddForm = eco.Views.GenericForm.extend({
         if (this.validator(data)) {
             schema.save(data.toJSON(), {
                 success: function (model, response) {
-                    console.log("GroupAddForm formSubmit success", self.collection);
                     if (self.collection) {
                         self.collection.add(model);
                         self.model = new eco.Models.Group();

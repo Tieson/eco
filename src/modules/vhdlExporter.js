@@ -106,8 +106,6 @@ VhdExporter.prototype.getSignals = function(graph, elements) {
                     if (targetType === eco.Utils.types.GATE || targetType === eco.Utils.types.OUT) {
                         sigs.push("\tsignal " + sigName + " : std_logic;\r\n");
                     }
-                } else {
-                    console.log('Duplicit signal warning!');
                 }
             }
         }
@@ -163,7 +161,6 @@ VhdExporter.prototype.getOutputMap = function(graph, outputs) {
     var self = this;
     for (var j = 0, max_out = outputs.length; j < max_out; j++) {
         var linksIn = graph.getConnectedLinks(outputs[j], {inbound: true});
-        console.log(linksIn, graph, outputs);
         var sig,
             target,
             source,
@@ -256,7 +253,6 @@ VhdExporter.prototype.getPortMap = function(graph, gate) {
         }
     }
     if (portmap.length > 0) {
-        console.log("portmap", portmap);
         return portmap.join(', ');
     }else {
         return false;

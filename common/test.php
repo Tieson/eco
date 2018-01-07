@@ -25,7 +25,7 @@ main();
 function getNextSolution()
 {
 	$db = Database::getDB();
-	$procStatus = Config::getKey('data/solutionStatuses/processing');
+//	$procStatus = Util::$solutionStatuses['processing'];// Config::getKey('data/solutionStatuses/processing');
 	$selectNextSolution = $db->prepare("SELECT s.id, s.homework_id, s.created, s.status, s.test_result, s.test_message, hw.task_id, s.vhdl
             FROM solution AS s 
             JOIN `hw_assigment` AS hw
@@ -40,7 +40,7 @@ function getNextSolution()
 			foreach ($responseResult as $object) {
 				$markSelectedSolution = $db->prepare("UPDATE solution SET status=:status WHERE id=:id");
 				$markSelectedSolution->execute(array(
-					'status' => $procStatus,
+					'status' => Util::$solutionStatuses['processing'],
 					'id' => (int)$object->id,
 				));
 				return $object;
@@ -194,8 +194,8 @@ function getSolutionsFiles($db, $config, $taskId)
 	if ($result) {
 		$responseResult = $sth->fetchAll(PDO::FETCH_OBJ);
 		if ($responseResult) {
-			$test = getFileOfType($responseResult, $config['filetypes']['test']);
-			$etalon = getFileOfType($responseResult, $config['filetypes']['etalon']);
+			$test = getFileOfType($responseResult, Util::$tasksFiletypes['test']);
+			$etalon = getFileOfType($responseResult, Util::$tasksFiletypes['etalon']);
 		}
 	}
 
@@ -395,7 +395,7 @@ function main()
 			$tclScript = makeTclContent($projectId, $files['etalon'], $files['test'], $solutionVhdlPath,
 				$config['libPath'], //'/eco/lib.vhd',
 				$config['absoluthPathBase'], //'/var/www/html',
-				$config['cgipath'] . "vivado/projects/" //'/var/www/cgi-bin/vivado/projects/'
+				$config['vivadoProjectsDir'] //'/var/www/cgi-bin/vivado/projects/'
 			);
 
 			$tclScriptPath = "/var/www/html/eco/test.tcl";

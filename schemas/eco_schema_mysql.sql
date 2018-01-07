@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `type_uctu` enum('guest','student','teacher') COLLATE latin2_czech_cs NOT NULL DEFAULT 'guest',
   `password` varchar(256) COLLATE latin2_czech_cs DEFAULT NULL,
   `activated` BOOLEAN NOT NULL DEFAULT FALSE,
-  `token` varchar(256) NOT NULL DEFAULT 'x',
+  `token` varchar(2048) NOT NULL DEFAULT 'x',
   PRIMARY KEY (`id`),
     UNIQUE KEY `uniq_mail` (`mail`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_czech_cs;

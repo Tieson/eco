@@ -23,6 +23,7 @@
 			                        <?php if (!empty($error)): ?>
                                         <p class="error"><?PHP echo $error; ?></p>
 			                        <?php endif; ?>
+	                                <?php if (isset($success_message)) { ?><div class="alert alert-success"><?php echo $success_message; ?></div><?php } ?>
 
                                     <form action="<?php echo $basedir ?>/register" method="POST">
                                         <div class="form-group">

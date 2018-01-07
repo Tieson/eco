@@ -4,6 +4,18 @@
 class Util
 {
 
+	public static $solutionStatuses = array(
+		'waiting' => 'waiting',
+		'processing' => 'processing',
+		'done' => 'done',
+	);
+
+	public static $tasksFiletypes = array(
+		'normal' => 'normal',
+		'etalon' => 'etalon',
+		'test' => 'test'
+	);
+
 	public static function responseError($msg, $status = 400)
 	{
 		$app = \Slim\Slim::getInstance();
@@ -109,6 +121,21 @@ class Util
 			throw new InvalidArgumentException("Heslo je příliš krátké.");
 		}
 		return TRUE;
+	}
+
+	public static function sendTokenByMail($mail, $name, $token){
+		$subject=Config::getKey('activationMail/subject');
+		$url = Config::getKey('activationMail/page');
+		$mailSender = new Mail();
+		$mailSender->addTo($mail, $name)
+			->setFrom(Config::getKey('activationMail/from'),Config::getKey('activationMail/fromName'))
+			->setSubject($subject)
+			->setText(formatMailMessage($subject, self::getValidationTokenUrl($url,'activateAccount',$token), $url))
+			->sendMail();
+	}
+
+	public static function getValidationTokenUrl($url, $token, $route) {
+		return $url.$route."?token=".urlencode($token);
 	}
 
 }

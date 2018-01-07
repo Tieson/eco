@@ -135,7 +135,7 @@ eco.Views.TaskStudent = Backbone.View.extend({
     },
     formSubmit: function (e) {
         e.preventDefault();
-        console.log("submit form");
+        // console.log("submit form");
         this.model = new eco.Models.TaskStudent();
     },
     selectStudent: function (e) {
@@ -145,7 +145,7 @@ eco.Views.TaskStudent = Backbone.View.extend({
         elem.html($(target).find('.list-name').text()+" ("+$(target).find('.list-mail').text()+")");
         var model = this.students_collection.get(cid);
         this.model.set({student_id: model.get('id')});
-        console.log(this.model);
+        // console.log(this.model);
     },
     selectTask: function (e) {
         var elem = this.$el.find("#hw_form-task");
@@ -154,7 +154,7 @@ eco.Views.TaskStudent = Backbone.View.extend({
         var cid = $(target).attr('data-cid');
         var model = this.tasks_collection.get(cid);
         this.model.set({task_id: model.get('id')});
-        console.log(this.model);
+        // console.log(this.model);
     },
     renderOne: function (item) {
         var itemView = new eco.Views.Homework({model: item});
@@ -309,7 +309,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
         var cid = $(e.currentTarget).attr('data-cid');
         var item = this.schemas.get(cid);
         this.selectedSchema = item;
-        console.log(item);
+        // console.log(item);
     },
     hwSolutionOpenClick: function (e) {
         this.schemas.fetch();
@@ -387,7 +387,7 @@ eco.Views.HomeworkDetail = eco.Views.GenericDetail.extend({
                     self.selectedSchema.get('graph')
                 );
 
-                console.log("Odevzdávám", self.selectedSchema, vhdl, self.model.get('entity'));
+                // console.log("Odevzdávám", self.selectedSchema, vhdl, self.model.get('entity'));
                 self.solutions.create({
                     homework_id: self.model.get('id'),
                     schema_id: self.selectedSchema.get('id'),
