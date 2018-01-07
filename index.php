@@ -64,11 +64,11 @@ function setNullDataToView($app, $collection){
 }
 
 $app->hook('slim.before.dispatch', function() use ($app) {
-	setSessionDataToView($app, AuthRoute::DEFINED_SESSIONS);
+	setSessionDataToView($app, AuthRoute::$DEFINED_SESSIONS);
 
 	$basedir = Config::getKey('projectDir');
 
-	$app->view()->setData('projectDir', $basedir); //TODO: toto implementovat v masteru
+	$app->view()->setData('projectDir', $basedir);
 });
 
 $app->get('/', function() use($app) {
@@ -76,7 +76,7 @@ $app->get('/', function() use($app) {
 		$app->response->setStatus(200);
 		$app->render('homepage.php');
 	}else {
-		$app->redirect('/login');
+		$app->redirect(Config::getKey('projectDir').'/login');
 	}
 });
 
@@ -149,7 +149,7 @@ $app->post("/login", function () use ($app) {
 });
 
 $app->get("/logout", function () use ($app) {
-	setNullDataToView($app, AuthRoute::DEFINED_SESSIONS);
+	setNullDataToView($app, AuthRoute::$DEFINED_SESSIONS);
 	AuthRoute::setUserUnlogged();
 //	$app->render('homepage.php');
 	$basedir = Config::getKey('projectDir');

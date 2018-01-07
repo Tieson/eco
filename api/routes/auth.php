@@ -158,7 +158,7 @@ class AuthRoute extends \Slim\Route
 		throw new AuthorizationException('Přihlašovací jméno nebo heslo není správné.');
 	}
 
-	const DEFINED_SESSIONS = array(
+	public static $DEFINED_SESSIONS = array(
 		'name' => 'user_name',
 		'id' => 'user_id',
 		'role' => 'user_role',
@@ -167,15 +167,15 @@ class AuthRoute extends \Slim\Route
 	);
 
 	public static function setUserLogged($user){
-		$_SESSION[self::DEFINED_SESSIONS['name']] = $user->name;
-		$_SESSION[self::DEFINED_SESSIONS['id']] = $user->id;
-		$_SESSION[self::DEFINED_SESSIONS['role']] = $user->type_uctu;
-		$_SESSION[self::DEFINED_SESSIONS['activated']] = $user->activated;
-		$_SESSION[self::DEFINED_SESSIONS['logged']] = TRUE;
+		$_SESSION[self::$DEFINED_SESSIONS['name']] = $user->name;
+		$_SESSION[self::$DEFINED_SESSIONS['id']] = $user->id;
+		$_SESSION[self::$DEFINED_SESSIONS['role']] = $user->type_uctu;
+		$_SESSION[self::$DEFINED_SESSIONS['activated']] = $user->activated;
+		$_SESSION[self::$DEFINED_SESSIONS['logged']] = TRUE;
 	}
 
 	public static function setUserUnlogged(){
-		foreach (self::DEFINED_SESSIONS as $key => $name){
+		foreach (self::$DEFINED_SESSIONS as $key => $name){
 			unset($_SESSION[$name]);
 		}
 	}

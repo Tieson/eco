@@ -1,14 +1,4 @@
 <?php
-/**
- * Created by Tom on 23.02.2017.
- */
-/**
- * Created by PhpStorm.
- * User: Tom
- * Date: 23.02.2017
- * Time: 22:37
- */
-
 
 $app->get('/categories', function () {
 	$app = \Slim\Slim::getInstance();

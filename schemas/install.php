@@ -1,3 +1,9 @@
+<?php
+session_cache_limiter(false);
+date_default_timezone_set('Europe/Berlin');
+
+?>
+
 <html>
 <head>
     <title>ECO - Installer</title>
@@ -377,7 +383,7 @@
 					 * Instalace databáze
 					 */
 					if ($op == 'installschema') {
-						print "<h2>Inicilizace databáze...</h2>";
+						print "<h2>Inicilizace databáze...</h2>";;
 						queryFile($link, "./eco_schema_mysql.sql");
 						queryFile($link, "./eco_data_mysql.sql");
 						print_notice("Instalace databáze dokončena.");

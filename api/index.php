@@ -27,56 +27,57 @@ $app = new \Slim\Slim(array("settings" => $slim_config));
 
 $app->get('/', function() use($app) {
 	$app->response->setStatus(200);
+	$baseDir = Config::getKey('projectDir');
 	?>
 
 
 <table>
-	<tr><td>get       </td><td><a href="/api/students">/students</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/students/hw">/students/hw</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/students/groups">/students/groups</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/students/:id">/students/:id</a>  </td></tr>
-	<tr><td>post      </td><td><a href="/api/homework">/homework</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/homework/:id">/homework/:id</a>  </td></tr>
-	<tr><td>delete    </td><td><a href="/api/homework/:id">/homework/:id</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/homework/:id/solutions">/homework/:id/solutions</a>  </td></tr>
-	<tr><td>post      </td><td><a href="/api/homework/:id/solutions">/homework/:id/solutions</a>  </td></tr>
-	<tr><td>delete    </td><td><a href="/api/homework/:hw_id/solutions/:id">/homework/:hw_id/solutions/:id</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/schemas">/schemas</a>  </td></tr>
-	<tr><td>post      </td><td><a href="/api/schemas">/schemas</a>  </td></tr>
-	<tr><td>put       </td><td><a href="/api/schemas/:id">/schemas/:id</a>  </td></tr>
-	<tr><td>delete    </td><td><a href="/api/schemas/:id">/schemas/:id</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/schemas/:id">/schemas/:id</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/schemas/:id/vhdls">/schemas/:id/vhdls</a>  </td></tr>
-	<tr><td>post      </td><td><a href="/api/schemas/:id/vhdls">/schemas/:id/vhdls</a>  </td></tr>
-	<tr><td>put       </td><td><a href="/api/schemas/:id/vhdls">/schemas/:id/vhdls</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/schemas/:id/vhdls/last">/schemas/:id/vhdls/last</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/groups">/groups</a>  </td></tr>
-	<tr><td>post      </td><td><a href="/api/groups">/groups</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/groups/:id">/groups/:id</a>  </td></tr>
-	<tr><td>put       </td><td><a href="/api/groups/:id">/groups/:id</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/groups/:id/students">/groups/:id/students</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/groups/:id/homeworks">/groups/:id/homeworks</a>  </td></tr>
-	<tr><td>post      </td><td><a href="/api/groups/:id/students">/groups/:id/students</a>  </td></tr>
-	<tr><td>delete    </td><td><a href="/api/groups/:id">/groups/:id</a>  </td></tr>
-	<tr><td>delete    </td><td><a href="/api/groups/:group_id/students/:student_id">/groups/:group_id/students/:student_id</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/teachers">/teachers</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/teachers/:id">/teachers/:id</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/teachers/:id/groups">/teachers/:id/groups</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/teachers/:id/hw">/teachers/:id/hw</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/teachers/:id/tasks">/teachers/:id/tasks</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/tasks">/tasks</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/tasks/valid">/tasks/valid</a>  </td></tr>
-	<tr><td>post      </td><td><a href="/api/tasks">/tasks</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/tasks/:id">/tasks/:id</a>  </td></tr>
-	<tr><td>put       </td><td><a href="/api/tasks/:id">/tasks/:id</a>  </td></tr>
-	<tr><td>delete    </td><td><a href="/api/tasks/:id">/tasks/:id</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/tasks/:id/files">/tasks/:id/files</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/tasks/:id/files_normal">/tasks/:id/files_normal</a>  </td></tr>
-	<tr><td>put       </td><td><a href="/api/tasks/:id/files">/tasks/:id/files</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/files/:id">/files/:id</a>  </td></tr>
-	<tr><td>get       </td><td><a href="/api/files/:id/download">/files/:id/download</a>  </td></tr>
-	<tr><td>delete    </td><td><a href="/api/files/:id">/files/:id</a>  </td></tr>
-	<tr><td>post      </td><td><a href="/api/files">/files</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/students">/students</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/students/hw">/students/hw</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/students/groups">/students/groups</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/students/:id">/students/:id</a>  </td></tr>
+	<tr><td>post      </td><td><a href="<?php echo $baseDir; ?>/api/homework">/homework</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/homework/:id">/homework/:id</a>  </td></tr>
+	<tr><td>delete    </td><td><a href="<?php echo $baseDir; ?>/api/homework/:id">/homework/:id</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/homework/:id/solutions">/homework/:id/solutions</a>  </td></tr>
+	<tr><td>post      </td><td><a href="<?php echo $baseDir; ?>/api/homework/:id/solutions">/homework/:id/solutions</a>  </td></tr>
+	<tr><td>delete    </td><td><a href="<?php echo $baseDir; ?>/api/homework/:hw_id/solutions/:id">/homework/:hw_id/solutions/:id</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/schemas">/schemas</a>  </td></tr>
+	<tr><td>post      </td><td><a href="<?php echo $baseDir; ?>/api/schemas">/schemas</a>  </td></tr>
+	<tr><td>put       </td><td><a href="<?php echo $baseDir; ?>/api/schemas/:id">/schemas/:id</a>  </td></tr>
+	<tr><td>delete    </td><td><a href="<?php echo $baseDir; ?>/api/schemas/:id">/schemas/:id</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/schemas/:id">/schemas/:id</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/schemas/:id/vhdls">/schemas/:id/vhdls</a>  </td></tr>
+	<tr><td>post      </td><td><a href="<?php echo $baseDir; ?>/api/schemas/:id/vhdls">/schemas/:id/vhdls</a>  </td></tr>
+	<tr><td>put       </td><td><a href="<?php echo $baseDir; ?>/api/schemas/:id/vhdls">/schemas/:id/vhdls</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/schemas/:id/vhdls/last">/schemas/:id/vhdls/last</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/groups">/groups</a>  </td></tr>
+	<tr><td>post      </td><td><a href="<?php echo $baseDir; ?>/api/groups">/groups</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/groups/:id">/groups/:id</a>  </td></tr>
+	<tr><td>put       </td><td><a href="<?php echo $baseDir; ?>/api/groups/:id">/groups/:id</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/groups/:id/students">/groups/:id/students</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/groups/:id/homeworks">/groups/:id/homeworks</a>  </td></tr>
+	<tr><td>post      </td><td><a href="<?php echo $baseDir; ?>/api/groups/:id/students">/groups/:id/students</a>  </td></tr>
+	<tr><td>delete    </td><td><a href="<?php echo $baseDir; ?>/api/groups/:id">/groups/:id</a>  </td></tr>
+	<tr><td>delete    </td><td><a href="<?php echo $baseDir; ?>/api/groups/:group_id/students/:student_id">/groups/:group_id/students/:student_id</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/teachers">/teachers</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/teachers/:id">/teachers/:id</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/teachers/:id/groups">/teachers/:id/groups</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/teachers/:id/hw">/teachers/:id/hw</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/teachers/:id/tasks">/teachers/:id/tasks</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/tasks">/tasks</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/tasks/valid">/tasks/valid</a>  </td></tr>
+	<tr><td>post      </td><td><a href="<?php echo $baseDir; ?>/api/tasks">/tasks</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/tasks/:id">/tasks/:id</a>  </td></tr>
+	<tr><td>put       </td><td><a href="<?php echo $baseDir; ?>/api/tasks/:id">/tasks/:id</a>  </td></tr>
+	<tr><td>delete    </td><td><a href="<?php echo $baseDir; ?>/api/tasks/:id">/tasks/:id</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/tasks/:id/files">/tasks/:id/files</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/tasks/:id/files_normal">/tasks/:id/files_normal</a>  </td></tr>
+	<tr><td>put       </td><td><a href="<?php echo $baseDir; ?>/api/tasks/:id/files">/tasks/:id/files</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/files/:id">/files/:id</a>  </td></tr>
+	<tr><td>get       </td><td><a href="<?php echo $baseDir; ?>/api/files/:id/download">/files/:id/download</a>  </td></tr>
+	<tr><td>delete    </td><td><a href="<?php echo $baseDir; ?>/api/files/:id">/files/:id</a>  </td></tr>
+	<tr><td>post      </td><td><a href="<?php echo $baseDir; ?>/api/files">/files</a>  </td></tr>
 </table>
 
 <?php

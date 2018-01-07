@@ -1,11 +1,9 @@
--- Počítač: 127.0.0.1
 -- Verze serveru: 5.7.11
 -- Verze PHP: 5.3.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 SET NAMES utf8;
-SET CHARACTER SET utf8;
 SET foreign_key_checks = 0;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -50,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `entity_cat` (
   `name` varchar(120) NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_cat`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin2;
 
 
 -- --------------------------------------------------------
