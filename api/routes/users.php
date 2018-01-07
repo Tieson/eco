@@ -10,7 +10,7 @@ class Users{
 		try
 		{
 			$db = Database::getDB();
-			$sth = $db->prepare("SELECT * FROM user");
+			$sth = $db->prepare("SELECT name, mail, id, type_uctu, activated, created FROM user");
 			$sth->execute();
 			$users = $sth->fetchAll(PDO::FETCH_OBJ);
 
@@ -98,10 +98,39 @@ class Users{
 		}
 	}
 
+	public static function updateUser($id){
+		try
+		{
+			$app = \Slim\Slim::getInstance();
+			$allPostVars= json_decode($app->request->getBody(), true);
+			$values = array(
+				'id' => $id,
+				'type_uctu' => $allPostVars['type_uctu'],
+				'name' => $allPostVars['name'],
+				'activated' => $allPostVars['activated'],
+			);
+			$db = Database::getDB();
+			$sth = $db->prepare("UPDATE user SET type_uctu=:type_uctu, activated=:activated, name=:name  WHERE id=:id");
+			$result = $sth->execute($values);
+
+			if ($result){
+				$user = self::getUserDetail($id);
+				if($user) {
+					Util::response($user);
+				} else {
+					throw new Exception('Data uživatele se nepodařilo změnit.');
+				}
+			}
+
+		} catch(PDOException $ex) {
+			throw new Exception($ex->getMessage());
+		}
+	}
+
 
 	public static function getUserDetail($id) {
 			$db = Database::getDB();
-			$sth = $db->prepare("SELECT name, mail, id, type_uctu FROM user WHERE id = :id");
+			$sth = $db->prepare("SELECT name, mail, id, type_uctu, activated, created FROM user WHERE id = :id");
 			$sth->bindParam(':id', $id, PDO::PARAM_INT);
 			$sth->execute();
 			$user = $sth->fetch(PDO::FETCH_OBJ);
@@ -177,6 +206,15 @@ class Users{
 		}
 	}
 
+	public static function activateAccountById($id){
+		$db = Database::getDB();
+		$sth = $db->prepare("UPDATE user SET activated=1 WHERE id = :id");
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		if ($sth->execute()) {
+			return TRUE;
+		}
+	}
+
 	public static function activateAccount($passed_token)
 	{
 		try {
@@ -192,6 +230,7 @@ class Users{
 
 			if ($user->token == $passed_token) {
 				if ($curTime - $created < Config::getKey('token/secondsLifetime')){
+					self::activateAccountById($user->id);
 					$db = Database::getDB();
 					$sth = $db->prepare("UPDATE user SET activated=1 WHERE id = :id");
 					$sth->bindParam(':id', $user->id, PDO::PARAM_INT);

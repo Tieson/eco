@@ -26,6 +26,7 @@ class Config
 			'secret' => 'djo9816s2RBQ69Kkpx012b3m009bdImK',
 		),
 		'admin' => array(
+			'login' => 'admin',
 			'name' => 'Administrátor',
 			'password' => 'prenastavteprosimhesloadministratorovi',
 		),

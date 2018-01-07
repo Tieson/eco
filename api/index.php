@@ -95,11 +95,15 @@ require_once './routes/homeworks.php';
 
 
 $app->group('/students', function () use ($app){
-	$app->get('', AuthRoute::authenticateForRole('teacher'), 'students'); //seznam všech studentů
+	$app->get('', AuthRoute::authenticateForRole('teacher'), 'studentsCandidates'); //seznam všech studentů
 	$app->get('/hw', AuthRoute::authenticateForRole('student'),'studentsHomeworks'); //seznam úkolů pro studenta
 	$app->get('/groups', AuthRoute::authenticateForRole('student'), 'studentGroupList');
 	$app->get('/:id', AuthRoute::authenticateForRole('student'), 'student'); //informace o konkrétním uživateli - asi není potřeba
 });
+
+$app->get('/users', AuthRoute::authenticateForRole(array('admin')), 'Users::allUsers');
+$app->get('/users/:id', AuthRoute::authenticateForRole(array('admin')), 'Users::getUserDetail');
+$app->put('/users/:id', AuthRoute::authenticateForRole(array('admin')), 'Users::updateUser');
 
 //pro studenta
 $app->group('/homework', function () use ($app) {

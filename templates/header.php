@@ -1,6 +1,8 @@
 
 <div class="main_bar" id="main_bar">
     <div class="main_menu">
+
+	    <?php if(!empty($user_role) && $user_role!="admin"): ?>
         <div class="dropdown">
             <a href="#"
                id="menuToggler"
@@ -17,6 +19,7 @@
                 <li><a href="<?php echo $projectDir ?>/lib.vhd" download="lib.vhd" target="_blank" id="menu-file-download_lib"><i class="glyphicon glyphicon-cloud-download"></i> Stáhnout lib.vdl</a></li>
             </ul>
         </div>
+	    <?php endif; ?>
 
         <?php if (!empty($user_role) && $user_role=="student"): ?>
             <a href="<?php echo $projectDir ?>/#homeworks" id="menu-task-show" class="button button--primary main_bar__menu noselect">
@@ -36,6 +39,12 @@
             <a href="<?php echo $projectDir ?>/teacher#tasks" class="button button--primary main_bar__menu noselect">
                 <i class=" glyphicon glyphicon-briefcase"></i>
                 <span class="title">Úlohy</span>
+            </a>
+        <?php endif; ?>
+        <?php if(!empty($user_role) && $user_role=="admin"): ?>
+            <a href="<?php echo $projectDir ?>/#admin/rights" class="button button--primary main_bar__menu noselect">
+                <i class=" glyphicon glyphicon-star"></i>
+                <span class="title">Vyučující</span>
             </a>
         <?php endif; ?>
     </div>

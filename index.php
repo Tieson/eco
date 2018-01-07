@@ -49,28 +49,22 @@ $authenticateTeacher = function ($app) {
 
 
 function setSessionDataToView($app, $collection){
-	foreach ($collection as $key){
+	foreach ($collection as $key => $name){
 		$value = null;
-		if(isset($_SESSION[$key])){
-			$value = $_SESSION[$key];
+		if(isset($_SESSION[$name])){
+			$value = $_SESSION[$name];
 		}
-		$app->view()->setData($key, $value);
+		$app->view()->setData($name, $value);
 	}
 }
-function setNullDataToViewAndUnset($app, $collection){
-	foreach ($collection as $key){
-		unset($_SESSION[$key]);
-		$app->view()->setData($key, null);
+function setNullDataToView($app, $collection){
+	foreach ($collection as $key => $name){
+		$app->view()->setData($name, null);
 	}
 }
 
 $app->hook('slim.before.dispatch', function() use ($app) {
-	setSessionDataToView($app, array(
-		'user_id',
-		'user_name',
-		'user_role',
-		'user_logged',
-	));
+	setSessionDataToView($app, AuthRoute::DEFINED_SESSIONS);
 
 	$basedir = Config::getKey('projectDir');
 
@@ -78,8 +72,12 @@ $app->hook('slim.before.dispatch', function() use ($app) {
 });
 
 $app->get('/', function() use($app) {
-	$app->response->setStatus(200);
-	$app->render('homepage.php');
+	if (isset($_SESSION['user_logged'])) {
+		$app->response->setStatus(200);
+		$app->render('homepage.php');
+	}else {
+		$app->redirect('/login');
+	}
 });
 
 $app->get("/login", function () use ($app) {
@@ -116,7 +114,7 @@ $app->get("/login", function () use ($app) {
 		'email_value' => $email_value,
 		'email_error' => $email_error,
 		'password_error' => $password_error,
-		'urlRedirect' => $urlRedirect,
+		'urlRedirect' => '', //$urlRedirect,
 		'basedir' => $basedir,
 		'success_message' => $success_message
 	));
@@ -127,60 +125,32 @@ $app->post("/login", function () use ($app) {
 	$email = $app->request()->post('email');
 	$password = $app->request()->post('password');
 
-	$password_hash = Util::hashPassword($password);
+	try {
+		$user = AuthRoute::login($email, $password);
+		AuthRoute::setUserLogged($user);
 
-	$db = Database::getDB();
-
-	$user_prepare = $db->prepare("SELECT * FROM user WHERE mail = :mail AND (password = :password OR password IS NULL) LIMIT 1");
-	$user_prepare->bindParam(':mail', $email, PDO::PARAM_STR);
-	$user_prepare->bindParam(':password', $password_hash, PDO::PARAM_STR);
-
-	$user_prepare->execute();
-	$user = $user_prepare->fetchObject();
-
-	if ($user){
-		try {
-			$token = Util::getJwtData($user->token);
-			$curTime = time();
-			$created = $token['payload']->created;
-			if (!$user->activated) {
-				if (($curTime - $created) < Config::getKey('token/secondsLifetime')) {
-					$app->flash('errors', array('email'=>'E-mail je registrován, ale není ověřen. Oveřte prosím svůj e-mail.'));
-					$app->redirect($basedir.'/login');
-				}else{
-					$app->flash('errors', array('email'=>'Vypršel limit pro ověření e-mailu, prosím znovu se registrujte.'));
-					$app->redirect($basedir.'/register');
-				}
-			}
-		}catch(AuthorizationException $ex){
-
-		}
-		$_SESSION['user_name'] = $user->name;
-		$_SESSION['user_id'] = $user->id;
-		$_SESSION['user_role'] = $user->type_uctu;
-		$_SESSION['user_activated'] = $user->activated;
-		$_SESSION['user_logged'] = TRUE;
-
-		if (isset($_SESSION['urlRedirect'])) {
-			$tmp = $_SESSION['urlRedirect'];
-			unset($_SESSION['urlRedirect']);
-			$app->redirect($tmp);
-		}
+//		if (isset($_SESSION['urlRedirect'])) {
+//			$tmp = $_SESSION['urlRedirect'];
+//			unset($_SESSION['urlRedirect']);
+//			$app->redirect($tmp);
+//		}
 		$app->redirect($basedir.'/');
-	}else {
-		$app->flash('errors', array('email'=>'Přihlašovací jméno nebo heslo není správné.'));
+
+	}catch (AccountActivationException $ex){
+		$app->flash('errors', array('email'=>$ex->getMessage()));
+		$app->flash('email', $email);
+		$app->redirect($basedir.'/login');
+
+	}catch (AuthorizationException $ex){
+		$app->flash('errors', array('email'=>$ex->getMessage()));
 		$app->flash('email', $email);
 		$app->redirect($basedir.'/login');
 	}
 });
 
 $app->get("/logout", function () use ($app) {
-	setNullDataToViewAndUnset($app, array(
-		'user_id',
-		'user_name',
-		'user_role',
-		'user_logged',
-	));
+	setNullDataToView($app, AuthRoute::DEFINED_SESSIONS);
+	AuthRoute::setUserUnlogged();
 //	$app->render('homepage.php');
 	$basedir = Config::getKey('projectDir');
 	$app->redirect($basedir.'/login');

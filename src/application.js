@@ -24,6 +24,9 @@ eco.Router = Backbone.Router.extend({
         'students/groups': 'showUserGroups', //seznam skupin studenta
         'homeworks': 'showHwList', //seznam úkolů
         'homeworks/:id': 'showHwDetail', //detail úkolů
+
+        'admin/rights': 'showAdmin', //detail úkolů
+
         '*path':  'defaultRoute', // defaultní: error 404
     },
     route: function(route, name, callback) {
@@ -46,7 +49,6 @@ eco.start = function (data) {
     router.on('all', function () { });
 
     router.on('route:home', showHome);
-    router.on('route:profile', showProfile);
     router.on('route:showHwList', showStudentsHomeworkList);
     router.on('route:showHwDetail', showHomeworkDetail);
 
@@ -62,6 +64,9 @@ eco.start = function (data) {
     router.on('route:schemaExportVhdl', schemaExportVhdl);
 
     router.on('route:defaultRoute', defaultRoute);
+
+
+    router.on('route:showAdmin', showAdminSetRights);
 
 
     //global Variables
@@ -303,6 +308,37 @@ eco.start = function (data) {
 
     }
 
+    function showAdminSetRights() {
+        main_tab.show();
+        eco.ViewGarbageCollector.clear();
+        var users = new eco.Collections.Users();
+
+        var view = new eco.Views.UsersAdminList({
+            title: "Uživatelé a jejich oprávnění",
+            template: '#adminList-template',
+            itemTemplate: '#adminListItem-template',
+            formater: eco.Formaters.UserFormater,
+            collection: users,
+            searchNames: [
+                'list-mail',
+                'list-name',
+                'list-created',
+                'list-activated',
+                'list-role',
+            ]
+        });
+        main.append(view.render().$el);
+        users.fetch({
+            success: function () {
+                showSnackbar('Načítání dokončeno.');
+            },
+            error: function () {
+                showSnackbar('Nepodařilo se načíst seznam uživatelů.');
+            }
+        });
+
+    }
+
     function showOpenSchema(id) {
         if (entities.length<=1){
             entities.fetch();
@@ -374,30 +410,6 @@ eco.start = function (data) {
         });
     }
 
-    function showProfile(id) {
-        setPageTitle('Profil');
-
-        main_tab.show();
-
-        eco.ViewGarbageCollector.clear();
-        var user = new eco.Models.User({id:id});
-
-        var view = new eco.Views.GenericDetail({
-            title: "Profil",
-            template: '#userProfile-template',
-            // formater: eco.Formaters.HomeworkFormater,
-            model: user,
-        });
-        main.append(view.render().$el);
-        user.fetch({
-            success: function () {
-                showSnackbar('Načítání dokončeno.');
-            },
-            error: function () {
-                showSnackbar('Nepodařilo se načíst domácí úkoly.');
-            }
-        });
-    }
 
     function showStudentsHomeworkList() {
         setPageTitle('Domácí úkoly');

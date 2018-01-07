@@ -1,0 +1,34 @@
+
+<script type="text/template" id="adminListItem-template">
+    <td class="list-mail"><%= data.mail %></td>
+    <td class="list-name"><%= data.name %></td>
+    <td class="list-created"><%= data.created %></td>
+    <td class="list-activated"><%= data.activated_text %></td>
+    <td class="list-role"><%= data.role_text %></td>
+    <td>
+        <% if(data.role!='teacher') { %><button class="btn btn-xs btn-warning   user_set-teacher" data-setRole="teacher" data-cid="<%=data.cid%>">Vyučuící</button><% } %>
+        <% if(data.role!='student') { %><button class="btn btn-xs btn-info      user_set-student"   data-setRole="student" data-cid="<%=data.cid%>">Student</button><% } %>
+        <% if(data.role!='guest') { %><button class="btn btn-xs btn-default   user_set-guest"      data-setRole="guest" data-cid="<%=data.cid%>">Host</button><% } %>
+    </td>
+</script>
+
+<script type="text/template" id="adminList-template">
+    <h1><%-title%></h1>
+    <input class="search form-control" placeholder="Filtr"/>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <th>E-mail</th>
+            <th>jméno</th>
+            <th>Registrován</th>
+            <th>Ověřen e-mail</th>
+            <th>Role</th>
+            <th>Akce</th>
+            </thead>
+            <tbody class="items-container">
+
+            </tbody>
+        </table>
+    </div>
+</script>

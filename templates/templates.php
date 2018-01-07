@@ -5,6 +5,7 @@
 	<?php require 'templates/templates/schemas.html' ?>
 	<?php require 'templates/templates/groups.html' ?>
 	<?php require 'templates/templates/tasks.html' ?>
+	<?php require 'templates/templates/admin.html' ?>
 
 	<script type="text/template" id="schemaListItem-template">
 		<%=name%>

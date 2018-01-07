@@ -35,6 +35,12 @@ window.eco.Utils = {
         odd: 'Lichý',
         even: 'Sudý'
     },
+    role: {
+        teacher: '<span class="label label-success">Vyučující</span>',
+        student: '<span class="label label-info">Student</span>',
+        guest: '<span class="label label-default">Host</span>',
+        admin: '<span class="label label-warning">Admin</span>'
+    },
     fileTypes: {
         normal: "Normální",
         etalon: "Správné řešení VHDL",
@@ -77,6 +83,9 @@ window.eco.Utils = {
     },
     getWeeks: function (key) {
         return getTranslate(key, this.weeks);
+    },
+    getRole: function (key) {
+        return getTranslate(key, this.role);
     },
     getType: function (key) {
         return getTranslate(key, this.types);

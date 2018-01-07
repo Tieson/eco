@@ -347,7 +347,6 @@ eco.Router = Backbone.Router.extend({
         }
 
         function showGroupHomeworks(id) {
-            //TODO: omezit práva pouze pro vyučující (i na serrveru)
             setPageTitle('Seznam úkolů');
             main.html('');
             main_tab.show();
@@ -372,6 +371,7 @@ eco.Router = Backbone.Router.extend({
                 formater: eco.Formaters.HwTeacherFormater,
                 collection: collection,
                 uniqueId: 'groupsHwList',
+                title: 'Úkoly studentů skupiny',
                 searchNames: [
                     "list-name",
                     "list-user",

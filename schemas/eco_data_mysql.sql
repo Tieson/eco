@@ -9,9 +9,9 @@ SET CHARACTER SET utf8;
 
 
 
-INSERT INTO `user` (`mail`, `name`, `created`, `type_uctu`, `password`) VALUES
-  ('martin.rozkovec@tul.cz', 'Martin Rozkovec', '2017-01-01 12:12:12', 'teacher', NULL),
-  ('tomas.vaclavik@tul.cz', 'Tomáš Václavík', '2017-01-01 12:12:12', 'student', NULL);
+INSERT INTO `user` (`mail`, `name`, `created`, `type_uctu`, `password`, `activated`) VALUES
+  ('martin.rozkovec@tul.cz', 'Martin Rozkovec', '2017-01-01 12:12:12', 'teacher', NULL, 1),
+  ('tomas.vaclavik@tul.cz', 'Tomáš Václavík', '2017-01-01 12:12:12', 'student', NULL, 1);
 
 
 INSERT INTO `entity_cat` (`id_cat`, `name`, `active`) VALUES

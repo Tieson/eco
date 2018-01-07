@@ -89,10 +89,16 @@
 
 
 <script type="text/template" id="groupsDetail-template">
-
-    <h1>
-        <span>Detail skupiny: <%-subject%></span>
-    </h1>
+<div class="row">
+    <div class="col-xs-12 col-sm-9">
+        <h1>
+            <span>Detail skupiny: <%-subject%></span>
+        </h1>
+    </div>
+    <div class="col-xs-12 col-sm-3 mt20">
+            <a href="#groups/<%=id%>/homeworks" class="btn btn-block btn-success"><i class="glyphicon glyphicon-tasks"></i> Zobrazit zadané úkoly</a>
+    </div>
+</div>
     <div class="panel panel-default">
         <div class="panel-body">
             <div class="row">
@@ -120,11 +126,10 @@
                         <dd><%-created%></dd>
                     </dl>
                 </div>
-                <div class="col-xs-12 col-sm-3">
-                    <label for="addStudentsToGroupBtn">
-                        &nbsp;
-                    </label>
-                    <div class="btn btn-block btn-default" id="addStudentsToGroupBtn">Přidat studenty</div>
+            </div>
+            <div class="row mt10">
+                <div class="col-xs-12 col-sm-3 mt10">
+                    <button class="btn btn-block btn-default" id="addStudentsToGroupBtn">Přidat studenty</button>
                 </div>
             </div>
         </div>
@@ -244,7 +249,7 @@
                         &nbsp;
                     </label>
 
-                    <div class="btn btn-block btn-default" id="addStudentsToGroupBtn">Přidat studenty</div>
+                    <button class="btn btn-block btn-default" id="addStudentsToGroupBtn">Přidat studenty</button>
                 </div>
 
             </div>
@@ -315,9 +320,9 @@
     <td class="list-name"><%=data.name%></td>
     <td class="list-mail"><%=data.mail%></td>
     <td>
-        <span class="btn btn-xs btn-danger remove-student" data-cid="<%=data.cid%>">
+        <button class="btn btn-xs btn-danger remove-student" data-cid="<%=data.cid%>">
             <i class="glyphicon glyphicon-trash"></i> Odebrat
-        </span>
+        </button>
         <!--<a href="#teacher" class="btn btn-xs btn-success student-add-hw">-->
             <!--<i class="glyphicon glyphicon-tasks"></i> Přidat úkol-->
         <!--</a>-->
@@ -333,6 +338,7 @@
             <tr>
                 <th>Jméno</th>
                 <th>E-mail</th>
+                <th>Role</th>
                 <th>Akce</th>
             </tr>
             </thead>
@@ -345,10 +351,11 @@
 <script type="text/template" id="groupsDetailUsersItem-template">
     <td class="list-name"><%=data.name%></td>
     <td class="list-mail"><%=data.mail%></td>
+    <td class="list-role"><%=data.role%></td>
     <td>
-        <span class="btn btn-xs btn-success add-student" data-cid="<%=data.cid%>">
+        <button class="btn btn-xs btn-success add-student" data-cid="<%=data.cid%>">
             <i class="glyphicon glyphicon-plus"></i> Přidat
-        </span>
+        </button>
     </td>
 </script>
 

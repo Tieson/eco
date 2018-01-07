@@ -213,15 +213,21 @@ function groupAddStudent($id) {
 	}
 
 	$allPostVars = json_decode($app->request->getBody(), true);
-//	$values = array(
-//		"student_id" => $allPostVars['student_id'],
-//		"day" => $allPostVars['day'],
-//		"block" => $allPostVars['block'],
-//		"weeks" => $allPostVars['weeks'],
-//		"teacher" => $teacher['id'],
-//	);
 
-	//TODO: kontrola oprávnění
+
+	try {
+		$user = Users::getUserDetail($allPostVars['student_id']);
+		if ($user->type_uctu == 'guest') {
+			$values = array(
+				'id' => $allPostVars['student_id'],
+				'type_uctu' => 'student'
+			);
+			$db = Database::getDB();
+			$sth = $db->prepare("UPDATE user SET type_uctu=:type_uctu WHERE id=:id");
+			$sth->execute($values);
+		}
+	} catch (Exception $ex) {
+	}
 
 	try
 	{

@@ -171,6 +171,7 @@ eco.Views.GroupDetail = Backbone.View.extend({
             searchNames: [
                 'list-name',
                 'list-mail',
+                'list-role',
             ],
             uniqueId: 'groupUsersList',
         });

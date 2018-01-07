@@ -126,6 +126,18 @@ eco.Formaters.GroupDetailFormater = function (model) {
 eco.Formaters.StudentFormater = function (model) {
     var result = _.extend({},model.toJSON(),{
         cid: model.cid,
+        role: eco.Utils.getRole(model.get('type_uctu')),
+    });
+    return result;
+};
+
+eco.Formaters.UserFormater = function (model) {
+    var result = _.extend({},model.toJSON(),{
+        cid: model.cid,
+        created: moment(model.get('created')).format('LLL'),
+        role: model.get('type_uctu'),
+        role_text: eco.Utils.getRole(model.get('type_uctu')),
+        activated_text: model.get('activated')?'Ano':'Ne',
     });
     return result;
 };

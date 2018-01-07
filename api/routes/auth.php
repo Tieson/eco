@@ -1,28 +1,9 @@
 <?php
 
-//$app->map('/login', function () use ($app) {
-//
-//// Test for Post & make a cheap security check, to get avoid from bots
-//	if ($app->request()->isPost() && sizeof($app->request()->post()) > 2) {
-//// Don't forget to set the correct attributes in your form (name="user" + name="password")
-//		$post = (object)$app->request()->post();
-//
-//		if (isset($post->user) && isset($post->passwort)) {
-//			$app->setEncryptedCookie('my_cookie', $post->password);
-//			$app->redirect('admin');
-//		} else {
-//			$app->redirect('login');
-//		}
-//	}
-//// render login
-//	$app->render('default.tpl');
-//
-//})->via('GET', 'POST')->name('login');
-
 
 class AuthRoute extends \Slim\Route
 {
-	public static function formatPayload($userId, $username, $user_id, $email, $role = 'guest')
+	public static function formatPayload($userId)
 	{
 		$user = Users::getUserDetail($userId);
 		return array(
@@ -131,6 +112,72 @@ class AuthRoute extends \Slim\Route
 			throw new AuthorizationException('Nemáte potřebné oprávnění!');
 		}
 		return $teacher;
+	}
+
+	public static function loginAdmin(){
+			$user = array(
+				'name'=> Config::getKey('admin/name'),
+				'id'=> 0,
+				'type_uctu'=> 'admin',
+				'activated'=> 1,
+			);
+			return json_decode(json_encode($user), FALSE);
+	}
+
+	public static function login($email, $password)
+	{
+		if ($email === Config::getKey('admin/login') && $password === Config::getKey('admin/password')) {
+			return self::loginAdmin();
+		} else {
+			$db = Database::getDB();
+			$password_hash = Util::hashPassword($password);
+			$user_prepare = $db->prepare("SELECT * FROM user WHERE mail = :mail AND (password = :password OR password IS NULL) LIMIT 1");
+			$user_prepare->bindParam(':mail', $email, PDO::PARAM_STR);
+			$user_prepare->bindParam(':password', $password_hash, PDO::PARAM_STR);
+
+			$user_prepare->execute();
+			$user = $user_prepare->fetchObject();
+
+			if ($user) {
+				try {
+					if (!$user->activated) {
+						$token = Util::getJwtData($user->token);
+						$curTime = time();
+						$created = $token['payload']->created;
+						if (($curTime - $created) < Config::getKey('token/secondsLifetime')) {
+							throw new AccountActivationException('E-mail nebyl ověřen. Oveřte prosím svůj e-mail pomocí odkazu zaslaného do vašeho e-mailu.');
+						} else {
+							throw new AccountActivationException('Vypršel limit pro ověření e-mailu, prosím znovu se registrujte.');
+						}
+					}
+				} catch (AuthorizationException $ex) {
+				}
+				return $user;
+			}
+		}
+		throw new AuthorizationException('Přihlašovací jméno nebo heslo není správné.');
+	}
+
+	const DEFINED_SESSIONS = array(
+		'name' => 'user_name',
+		'id' => 'user_id',
+		'role' => 'user_role',
+		'activated' => 'user_activated',
+		'logged' => 'user_logged',
+	);
+
+	public static function setUserLogged($user){
+		$_SESSION[self::DEFINED_SESSIONS['name']] = $user->name;
+		$_SESSION[self::DEFINED_SESSIONS['id']] = $user->id;
+		$_SESSION[self::DEFINED_SESSIONS['role']] = $user->type_uctu;
+		$_SESSION[self::DEFINED_SESSIONS['activated']] = $user->activated;
+		$_SESSION[self::DEFINED_SESSIONS['logged']] = TRUE;
+	}
+
+	public static function setUserUnlogged(){
+		foreach (self::DEFINED_SESSIONS as $key => $name){
+			unset($_SESSION[$name]);
+		}
 	}
 
 }
