@@ -188,7 +188,7 @@ class Users{
 				$token = Util::getJwtData($user->token);
 				$curTime = time();
 				$created = $token['payload']->created;
-				if (!$user->activated && $curTime - $created > Config::getKey('token/secondsLifetime')) {
+				if (!$user->activated /*&& $curTime - $created > Config::getKey('token/secondsLifetime') */) {
 					self::removeUser($user->id);
 					return TRUE;
 				}else{
@@ -213,6 +213,7 @@ class Users{
 		if ($sth->execute()) {
 			return TRUE;
 		}
+		return FALSE;
 	}
 
 	public static function activateAccount($passed_token)
@@ -230,14 +231,14 @@ class Users{
 
 			if ($user->token == $passed_token) {
 				if ($curTime - $created < Config::getKey('token/secondsLifetime')){
-					self::activateAccountById($user->id);
-					$db = Database::getDB();
-					$sth = $db->prepare("UPDATE user SET activated=1 WHERE id = :id");
-					$sth->bindParam(':id', $user->id, PDO::PARAM_INT);
-					$result = $sth->execute();
-					if ($sth->execute()) {
-						return TRUE;
-					}
+					return self::activateAccountById($user->id);
+//					$db = Database::getDB();
+//					$sth = $db->prepare("UPDATE user SET activated=1 WHERE id = :id");
+//					$sth->bindParam(':id', $user->id, PDO::PARAM_INT);
+//					$result = $sth->execute();
+//					if ($sth->execute()) {
+//						return TRUE;
+//					}
 				}
 			}
 		} catch (Exception $ex) {

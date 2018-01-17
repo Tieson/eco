@@ -63,7 +63,7 @@ function formatMailMessage($subject, $url, $page)
 <div class="container">
 	<h1>'.$subject.'</h1>
 	<p>
-		Pro aktivaci účtu a ověření e-mailu pokračujte na následující odkaz: <a href="'.$url.'">$url</a>
+		Pro aktivaci účtu a ověření e-mailu pokračujte na následující odkaz: <a href="'.$url.'">'.$url.'</a>
 		<br>
 		Odesláno ze stránky: '.$page.'
 	</p>

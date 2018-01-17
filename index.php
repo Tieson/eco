@@ -298,6 +298,8 @@ $app->post("/register", function () use ($app) {
 	}
 
 	if ($ok){
+//        $app->flash('success_message', 'Zkontrolujte svou e-mailovou schránku a ověřte zadaný e-mail prosím, jinak nemůžete být přihlášeni.');
+        $app->flash('errors', array('email' => 'Zkontrolujte svou e-mailovou schránku a ověřte svůj e-mail, jinak nemůžete být přihlášeni.'));
 		$app->redirect($basedir.'/login');
 	}
 

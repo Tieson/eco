@@ -130,7 +130,7 @@ class Util
 		$mailSender->addTo($mail, $name)
 			->setFrom(Config::getKey('activationMail/from'),Config::getKey('activationMail/fromName'))
 			->setSubject($subject)
-			->setText(formatMailMessage($subject, self::getValidationTokenUrl($url,'activateAccount',$token), $url))
+			->setText(formatMailMessage($subject, self::getValidationTokenUrl($url,$token, 'activateAccount'), $url))
 			->sendMail();
 	}
 
